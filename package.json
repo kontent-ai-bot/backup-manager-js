@@ -1,0 +1,52 @@
+{
+  "name": "wip-backup-manager",
+  "version": "0.0.1",
+  "description": "This utility enables backup & restore of Kentico Kontent projects",
+  "bin": {
+    "kbm": "./_commonjs/src/cli/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Enngage/kontent-backup-manager"
+  },
+  "author": "richard sustek",
+  "main": "./_commonjs/src/app.js",
+  "directories": {},
+  "scripts": {
+    "release": "standard-version",
+    "standard-version": "7.0.0",
+    "tsc-local": "./node_modules/.bin/tsc",
+    "ts-node-local": "./node_modules/.bin/ts-node",
+    "prepublishOnly": "npm run ts-lint:check && npm run build:all",
+    "publish:beta": "npm publish --tag=next",
+    "build:commonjs": "npm run tsc-local -- -m commonjs --outDir _commonjs",
+    "build:all": "npm run build:commonjs",
+    "test:all": "npm run build:all",
+    "test:sample-backup": "npm run build:commonjs && cd test && node ../_commonjs/src/app --projectId=da5abe9f-fdad-4168-97cd-b3464be2ccb9",
+    "ts-lint-local": "./node_modules/.bin/tslint",
+    "ts-lint:fix": "npm run ts-lint:check -- --fix",
+    "ts-lint:check": "npm run ts-lint-local -- --project ./tsconfig.json"
+  },
+  "keywords": [
+    "Kentico",
+    "Kontent",
+    "Kentico Kontent",
+    "Kentico utility",
+    "Kentico generator",
+    "Kentico models",
+    "Kontent model"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@kentico/kontent-management": "0.3.2",
+    "rxjs": "6.5.4",
+    "yargs": "15.1.0"
+  },
+  "devDependencies": {
+    "standard-version": "7.0.1",
+    "typescript": "3.7.4",
+    "@types/node": "13.1.4",
+    "tslint": "5.20.1",
+    "ts-node": "8.5.4"
+  }
+}

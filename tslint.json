@@ -1,5 +1,15 @@
 {
-    "rulesDirectory": ["node_modules/tslint-microsoft-contrib"],
-    "extends": ["tslint-microsoft-contrib/recommended"],
-    "rules": {}
+    "extends": "tslint:recommended",
+    "rules": {
+        "trailing-comma": false,
+        "no-empty": false,
+        "arrow-parens": false,
+        "ordered-imports": false,
+        "no-console": false,
+        "object-literal-sort-keys": false,
+        "quotemark": [
+            true,
+            "single"
+          ]
+    }
 }

@@ -14,7 +14,6 @@
   "directories": {},
   "scripts": {
     "release": "standard-version",
-    "standard-version": "7.0.0",
     "tsc-local": "./node_modules/.bin/tsc",
     "ts-node-local": "./node_modules/.bin/ts-node",
     "prepublishOnly": "npm run ts-lint:check && npm run build:all",
@@ -22,7 +21,9 @@
     "build:commonjs": "npm run tsc-local -- -m commonjs --outDir _commonjs",
     "build:all": "npm run build:commonjs",
     "test:all": "npm run build:all",
-    "test:sample-backup": "npm run build:commonjs && cd test && node ../_commonjs/src/app --projectId=da5abe9f-fdad-4168-97cd-b3464be2ccb9",
+    "test:backup": "npm run build:commonjs && cd output && node ../_commonjs/cli/app --projectId=da5abe9f-fdad-4168-97cd-b3464be2ccb9 --action=backup",
+    "test:clean": "npm run build:commonjs && cd output && node ../_commonjs/cli/app --projectId=da5abe9f-fdad-4168-97cd-b3464be2ccb9 --action=clean",
+    "test:restore": "npm run build:commonjs && cd output && node ../_commonjs/cli/app --projectId=da5abe9f-fdad-4168-97cd-b3464be2ccb9 --action=restore",
     "ts-lint-local": "./node_modules/.bin/tslint",
     "ts-lint:fix": "npm run ts-lint:check -- --fix",
     "ts-lint:check": "npm run ts-lint-local -- --project ./tsconfig.json"
@@ -31,22 +32,25 @@
     "Kentico",
     "Kontent",
     "Kentico Kontent",
-    "Kentico utility",
-    "Kentico generator",
-    "Kentico models",
-    "Kontent model"
+    "Kontent backup manager",
+    "Kontent restore project",
+    "Kontent backup project"
   ],
   "license": "MIT",
   "dependencies": {
-    "@kentico/kontent-management": "0.3.2",
+    "@kentico/kontent-management": "0.3.6",
+    "jszip": "3.2.2",
     "rxjs": "6.5.4",
-    "yargs": "15.1.0"
+    "yargs": "15.1.0",
+    "flatted": "2.0.1"
   },
   "devDependencies": {
-    "standard-version": "7.0.1",
-    "typescript": "3.7.4",
+    "@types/jszip": "3.1.6",
     "@types/node": "13.1.4",
+    "@types/yargs": "13.0.4",
+    "standard-version": "7.0.1",
+    "ts-node": "8.5.4",
     "tslint": "5.20.1",
-    "ts-node": "8.5.4"
+    "typescript": "3.7.4"
   }
 }

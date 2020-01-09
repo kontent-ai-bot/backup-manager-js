@@ -1,7 +1,7 @@
 import { IManagementClient, ManagementClient } from '@kentico/kontent-management';
 
 import { ICleanConfig, ICleanResult } from './clean.models';
-import { ItemType } from '../models';
+import { ItemType } from '../core';
 
 export class CleanService {
     private readonly client: IManagementClient;

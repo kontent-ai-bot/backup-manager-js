@@ -6,7 +6,7 @@ import {
     TaxonomyContracts,
 } from '@kentico/kontent-management';
 
-import { IExportAllResult, IExportConfig } from './export.models';
+import { IExportAllResult, IExportConfig, IExportData } from './export.models';
 
 export class ExportService {
     private readonly client: IManagementClient;
@@ -19,16 +19,18 @@ export class ExportService {
     }
 
     public async exportAllAsync(): Promise<IExportAllResult> {
+        const data: IExportData = {
+            contentTypes: await this.exportContentTypesAsync(),
+            contentTypeSnippets: await this.exportContentTypeSnippetsAsync(),
+            taxonomies: await this.exportTaxonomiesAsync()
+        };
+
         return {
             metadata: {
                 timestamp: new Date(),
                 projectId: this.config.projectId
             },
-            data: {
-                contentTypes: await this.exportContentTypesAsync(),
-                contentTypeSnippets: await this.exportContentTypeSnippetsAsync(),
-                taxonomies: await this.exportTaxonomiesAsync()
-            }
+            data
         };
     }
 

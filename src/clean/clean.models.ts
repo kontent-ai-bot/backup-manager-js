@@ -1,4 +1,4 @@
-import { IProcessedItem } from '../models';
+import { IProcessedItem } from '../core';
 
 export interface ICleanConfig {
     projectId: string;

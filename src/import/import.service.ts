@@ -9,9 +9,10 @@ import {
     TaxonomyModels,
 } from '@kentico/kontent-management';
 
+import { ItemType, ValidImportType } from '../core';
 import { IExportData } from '../export';
-import { IImportAllResult, IImportConfig } from './import.models';
-import { ItemType } from 'src/models';
+import { importHelper } from './import.helper';
+import { IImportConfig, IImportData, IPreparedImportItem } from './import.models';
 
 export class ImportService {
     private readonly client: IManagementClient;
@@ -23,17 +24,33 @@ export class ImportService {
         });
     }
 
-    public async importFromExportDataAsync(exportData: IExportData): Promise<IImportAllResult> {
-        await this.importTaxonomiesAsync(exportData.taxonomies);
-        await this.importContentTypeSnippetsAsync(exportData.contentTypeSnippets);
-        await this.importContentTypesAsync(exportData.contentTypes);
+    public async importFromExportDataAsync(exportData: IExportData): Promise<ValidImportType[]> {
+        const importData = importHelper.prepareImportData(exportData);
 
-        return {
-            metadata: {
-                projectId: this.config.projectId,
-                timestamp: new Date()
-            }
-        };
+        return await this.importAsync(importData);
+    }
+
+    public async importAsync(importData: IImportData): Promise<ValidImportType[]> {
+        const importedItems: ValidImportType[] = [];
+
+        for (const item of importData.orderedImportItems) {
+            const importedItem = await this.importItemAsync(item);
+            importedItems.push(...importedItem);
+        }
+
+        return importedItems;
+    }
+
+    public async importItemAsync(item: IPreparedImportItem): Promise<ValidImportType[]> {
+        if (item.type === 'contentType') {
+            return await this.importContentTypesAsync([item.item]);
+        } else if (item.type === 'taxonomy') {
+            return await this.importTaxonomiesAsync([item.item]);
+        } else if (item.type === 'contentTypeSnippet') {
+            return await this.importContentTypeSnippetsAsync([item.item]);
+        } else {
+            throw Error(`Not supported import data type '${item.type}'`);
+        }
     }
 
     public async importContentTypesAsync(

@@ -4,7 +4,7 @@ import JSZip = require('jszip');
 import yargs = require('yargs');
 
 import { ExportService } from '../export';
-import { CliAction } from '../models';
+import { CliAction } from '../core';
 import { ImportService } from '../import';
 import { CleanService } from '../clean';
 
@@ -34,13 +34,7 @@ if (action.toLowerCase() === 'backup') {
     throw Error(`Unsupported action type '${action}'.`);
 }
 
-// tslint:disable-next-line: max-line-length
-const sourceApiKey: string = '';
-const sourceProjectId: string = 'b259760f-81c5-013a-05e7-69efb4b954e5';
 
-// tslint:disable-next-line: max-line-length
-const targetApiKey: string = '';
-const targetProjectId: string = 'c0135fb2-af2f-01be-c387-d0c762c23301';
 
 const exportService = new ExportService({
     apiKey: sourceApiKey,
@@ -52,7 +46,6 @@ const importService = new ImportService({
         console.log('imported item: ' + item.title);
     },
     projectId: targetProjectId,
-     // tslint:disable-next-line: max-line-length
     apiKey: targetApiKey
 });
 
@@ -61,7 +54,6 @@ const cleanService = new CleanService({
         console.log('deleted item: ' + item.title);
     },
     projectId: targetProjectId,
-     // tslint:disable-next-line: max-line-length
     apiKey: targetApiKey
 });
 
@@ -87,7 +79,6 @@ const backup = async () => {
         });
     });
 
-    await importService.importFromExportDataAsync(response.data);
 };
 
 const clean = async () => {
@@ -95,6 +86,8 @@ const clean = async () => {
 };
 
 const restore = async () => {
+    const response = await exportService.exportAllAsync();
+    await importService.importFromExportDataAsync(response.data);
 };
 
 if (mappedAction === 'backup') {

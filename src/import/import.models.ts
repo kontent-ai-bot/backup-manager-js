@@ -1,4 +1,4 @@
-import { IProcessedItem } from '../models';
+import { IProcessedItem, ItemType } from '../core';
 
 export interface IImportConfig {
     projectId: string;
@@ -8,7 +8,18 @@ export interface IImportConfig {
 
 export interface IImportAllResult {
     metadata: {
-        timestamp: Date,
-        projectId: string
+        timestamp: Date;
+        projectId: string;
     };
+}
+
+export interface IPreparedImportItem {
+    type: ItemType;
+    codename: string;
+    item: any;
+    deps: string[];
+}
+
+export interface IImportData {
+    orderedImportItems: IPreparedImportItem[];
 }

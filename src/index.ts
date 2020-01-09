@@ -1,5 +1,5 @@
 // Public API
-export * from './models';
+export * from './core';
 export * from './export';
 export * from './import';
 export * from './clean';

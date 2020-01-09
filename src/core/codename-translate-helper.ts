@@ -47,7 +47,9 @@ export class CodenameTranslateHelper {
                         const codename = (data as any).codename;
 
                         if (codename && !id) {
-                            foundCodenames.push(codename);
+                            if (!foundCodenames.includes(codename)) {
+                                foundCodenames.push(codename);
+                            }
                         }
                     }
                     if (key !== '0') {

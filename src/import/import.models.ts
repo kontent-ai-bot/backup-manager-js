@@ -4,6 +4,9 @@ export interface IImportConfig {
     projectId: string;
     apiKey: string;
     processItem?: (item: IProcessedItem) => void;
+    skip?: {
+        languages?: boolean
+    };
 }
 
 export interface IImportAllResult {
@@ -22,4 +25,9 @@ export interface IPreparedImportItem {
 
 export interface IImportData {
     orderedImportItems: IPreparedImportItem[];
+}
+
+export interface IImportItemResult<TRaw, TModel> {
+    original: TRaw;
+    imported: TModel;
 }

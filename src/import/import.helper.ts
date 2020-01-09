@@ -10,9 +10,6 @@ export class ImportHelper {
         // flatten data
         const items = this.flattenExportData(exportData);
 
-        // order items so that they can be imported (e.g. first import item and then item that depends on it)
-        this.orderItemsByDeps(items);
-
         return {
             orderedImportItems: items
         };
@@ -65,20 +62,52 @@ export class ImportHelper {
                     type: 'taxonomy'
                 };
             }),
-            ...exportData.contentTypeSnippets.map(m => {
+            ...this.orderItemsByDeps(exportData.contentTypeSnippets.map(m => {
                 return <IPreparedImportItem> {
                     codename: m.codename,
                     deps: [],
                     item: m,
                     type: 'contentTypeSnippet'
                 };
-            }),
-            ...exportData.contentTypes.map(m => {
+            })),
+            ...this.orderItemsByDeps(exportData.contentTypes.map(m => {
                 return <IPreparedImportItem> {
                     codename: m.codename,
                     deps: [],
                     item: m,
                     type: 'contentType'
+                };
+            })),
+            ...exportData.languages.map(m => {
+                return <IPreparedImportItem> {
+                    codename: m.id,
+                    deps: [],
+                    item: m,
+                    type: 'language'
+                };
+            }),
+            ...exportData.assets.map(m => {
+                return <IPreparedImportItem> {
+                    codename: m.id,
+                    deps: [],
+                    item: m,
+                    type: 'asset'
+                };
+            }),
+            ...exportData.contentItems.map(m => {
+                return <IPreparedImportItem> {
+                    codename: m.codename,
+                    deps: [],
+                    item: m,
+                    type: 'contentItem'
+                };
+            }),
+            ...exportData.languageVariants.map(m => {
+                return <IPreparedImportItem> {
+                    codename: m.item.codename,
+                    deps: [m.item.codename],
+                    item: m,
+                    type: 'languageVariant'
                 };
             })
         ];

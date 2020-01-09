@@ -4,7 +4,7 @@ import JSZip = require('jszip');
 import yargs = require('yargs');
 
 import { ExportService } from '../export';
-import { CliAction } from '../core';
+import { CliAction, codenameTranslateHelper } from '../core';
 import { ImportService } from '../import';
 import { CleanService } from '../clean';
 
@@ -46,7 +46,10 @@ const importService = new ImportService({
         console.log('imported item: ' + item.title);
     },
     projectId: targetProjectId,
-    apiKey: targetApiKey
+    apiKey: targetApiKey,
+    skip: {
+        languages: true
+    }
 });
 
 const cleanService = new CleanService({
@@ -63,12 +66,15 @@ const backup = async () => {
     const response = await exportService.exportAllAsync();
     const data = JSON.stringify(response);
 
+    codenameTranslateHelper.replaceIdReferencesWithCodenames(response, response);
+    const data2 = JSON.stringify(response);
+
     const zip = new JSZip();
 
     const dataFolder = zip.folder('data');
 
     dataFolder.file('test1.json', data);
-    dataFolder.file('test2.json', data);
+    dataFolder.file('test2.json', data2);
 
     zip.generateAsync({ type: 'nodebuffer' }).then(content => {
         fs.writeFile('./' + filename, content, wError => {

@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-import * as fs from 'fs';
-import JSZip = require('jszip');
 import yargs = require('yargs');
 
-import { ExportService } from '../export';
-import { CliAction, codenameTranslateHelper } from '../core';
-import { ImportService } from '../import';
 import { CleanService } from '../clean';
+import { CliAction } from '../core';
+import { ExportService } from '../export';
+import { ImportService } from '../import';
+import { ZipService } from '../zip';
 
 const argv = yargs.argv;
 
@@ -42,49 +41,45 @@ const exportService = new ExportService({
 });
 
 const importService = new ImportService({
-    processItem: (item) => {
+    processItem: item => {
         console.log('imported item: ' + item.title);
     },
     projectId: targetProjectId,
     apiKey: targetApiKey,
+    workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000',
     skip: {
         languages: true
     }
 });
 
 const cleanService = new CleanService({
-    processItem: (item) => {
+    processItem: item => {
         console.log('deleted item: ' + item.title);
     },
     projectId: targetProjectId,
     apiKey: targetApiKey
 });
 
+const zipService = new ZipService({
+    filename: 'test'
+});
+
 const backup = async () => {
-    const filename = 'test.zip';
-
     const response = await exportService.exportAllAsync();
-    const data = JSON.stringify(response);
 
-    codenameTranslateHelper.replaceIdReferencesWithCodenames(response, response);
-    const data2 = JSON.stringify(response);
+    await zipService.createZipAsync(response.data, response.metadata);
 
+    /*
+    codenameTranslateHelper.replaceIdReferencesWithCodenames(response.data, response.data);
     const zip = new JSZip();
 
-    const dataFolder = zip.folder('data');
-
-    dataFolder.file('test1.json', data);
-    dataFolder.file('test2.json', data2);
-
-    zip.generateAsync({ type: 'nodebuffer' }).then(content => {
-        fs.writeFile('./' + filename, content, wError => {
-            if (wError) {
-                throw Error(`Could not create zip file`);
-            }
-            console.log(`Zip file generated`, mappedAction);
-        });
-    });
-
+    zip.file('test.json', JSON.stringify(response.data));
+    const content = await zip.generateAsync({ type: 'nodebuffer' });
+    await fs.promises.writeFile(
+        './processed.zip',
+        content
+    );
+    */
 };
 
 const clean = async () => {
@@ -92,8 +87,11 @@ const clean = async () => {
 };
 
 const restore = async () => {
-    const response = await exportService.exportAllAsync();
-    await importService.importFromExportDataAsync(response.data);
+    // const response = await exportService.exportAllAsync();
+
+    const data = await zipService.extractZipAsync();
+
+    await importService.importFromSourceAsync(data);
 };
 
 if (mappedAction === 'backup') {

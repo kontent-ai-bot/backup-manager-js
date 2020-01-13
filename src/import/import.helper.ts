@@ -1,17 +1,18 @@
 import { codenameTranslateHelper } from '../core';
 import { IExportData } from '../export';
-import { IImportData, IPreparedImportItem } from './import.models';
+import { IImportData, IPreparedImportItem, IImportSource } from './import.models';
 
 export class ImportHelper {
-    public prepareImportData(exportData: IExportData): IImportData {
+    public prepareImportData(sourceData: IImportSource): IImportData {
         // translate internal ids to codenames
-        codenameTranslateHelper.replaceIdReferencesWithCodenames(exportData, exportData);
+        codenameTranslateHelper.replaceIdReferencesWithCodenames(sourceData.importData, sourceData.importData);
 
         // flatten data
-        const items = this.flattenExportData(exportData);
+        const items = this.flattenExportData(sourceData.importData);
 
         return {
-            orderedImportItems: items
+            orderedImportItems: items,
+            binaryFiles: sourceData.binaryFiles
         };
     }
 

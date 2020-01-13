@@ -49,3 +49,11 @@ export interface IProcessedItem {
     type: ItemType;
     data: any;
 }
+
+export interface IImportItemResult<TRaw, TModel> {
+    original: TRaw;
+    imported: TModel;
+
+    originalId?: string;
+    importId?: string;
+}

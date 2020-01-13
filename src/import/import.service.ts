@@ -17,10 +17,9 @@ import {
     TaxonomyModels,
 } from '@kentico/kontent-management';
 
-import { ItemType, ValidImportContract, ValidImportModel } from '../core';
-import { IExportData } from '../export';
+import { idTranslateHelper, IImportItemResult, ItemType, ValidImportContract, ValidImportModel } from '../core';
 import { importHelper } from './import.helper';
-import { IImportConfig, IImportData, IImportItemResult, IPreparedImportItem } from './import.models';
+import { IBinaryFile, IImportConfig, IImportData, IImportSource, IPreparedImportItem } from './import.models';
 
 export class ImportService {
     private readonly client: IManagementClient;
@@ -32,11 +31,10 @@ export class ImportService {
         });
     }
 
-    public async importFromExportDataAsync(
-        exportData: IExportData
+    public async importFromSourceAsync(
+        sourceData: IImportSource
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
-        const importData = importHelper.prepareImportData(exportData);
-
+        const importData = importHelper.prepareImportData(sourceData);
         return await this.importAsync(importData);
     }
 
@@ -46,7 +44,7 @@ export class ImportService {
         const importedItems: IImportItemResult<ValidImportContract, ValidImportModel>[] = [];
 
         for (const item of importData.orderedImportItems) {
-            const importedItem = await this.importItemAsync(item, importedItems);
+            const importedItem = await this.importItemAsync(item, importData.binaryFiles, importedItems);
             importedItems.push(...importedItem);
         }
 
@@ -55,8 +53,10 @@ export class ImportService {
 
     public async importItemAsync(
         item: IPreparedImportItem,
+        binaryFiles: IBinaryFile[],
         currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
+        console.log('importing item', item.codename);
         if (item.type === 'contentType') {
             return await this.importContentTypesAsync([item.item]);
         } else if (item.type === 'taxonomy') {
@@ -73,7 +73,7 @@ export class ImportService {
             }
             return await this.importLanguagesAsync([item.item]);
         } else if (item.type === 'asset') {
-            return await this.importAssetsAsync([item.item]);
+            return await this.importAssetsAsync([item.item], binaryFiles);
         } else {
             throw Error(`Not supported import data type '${item.type}'`);
         }
@@ -111,7 +111,9 @@ export class ImportService {
                 .then(response => {
                     importedItems.push({
                         imported: response.data,
-                        original: language
+                        original: language,
+                        importId: response.data.id,
+                        originalId: language.id
                     });
                     this.processItem(response.data.name, 'language', response.data);
                 })
@@ -122,18 +124,24 @@ export class ImportService {
     }
 
     public async importAssetsAsync(
-        assets: AssetContracts.IAssetModelContract[]
+        assets: AssetContracts.IAssetModelContract[],
+        binaryFiles: IBinaryFile[]
     ): Promise<IImportItemResult<AssetContracts.IAssetModelContract, AssetModels.Asset>[]> {
         const importedItems: IImportItemResult<AssetContracts.IAssetModelContract, AssetModels.Asset>[] = [];
 
         for (const asset of assets) {
-            const binaryFile = await this.client
+            const binaryFile = binaryFiles.find(m => m.asset.id === asset.id);
+
+            if (!binaryFile) {
+                throw Error(`Could not find binary file for asset with id '${asset.id}'`);
+            }
+
+            const uploadedBinaryFile = await this.client
                 .uploadBinaryFile()
                 .withData({
-                    binaryData: [],
+                    binaryData: binaryFile.binaryData,
                     contentType: asset.type,
-                    filename: asset.file_name,
-                    contentLength: 0
+                    filename: asset.file_name
                 })
                 .toPromise();
 
@@ -141,7 +149,7 @@ export class ImportService {
                 .addAsset()
                 .withData({
                     descriptions: asset.descriptions,
-                    file_reference: binaryFile.data,
+                    file_reference: uploadedBinaryFile.data,
                     title: asset.title,
                     external_id: asset.external_id
                 })
@@ -149,7 +157,9 @@ export class ImportService {
                 .then(response => {
                     importedItems.push({
                         imported: response.data,
-                        original: asset
+                        original: asset,
+                        importId: response.data.id,
+                        originalId: asset.id
                     });
                     this.processItem(response.data.fileName, 'asset', response.data);
                 })
@@ -177,7 +187,9 @@ export class ImportService {
                 .then(response => {
                     importedItems.push({
                         imported: response.data,
-                        original: contentType
+                        original: contentType,
+                        importId: response.data.id,
+                        originalId: contentType.id
                     });
                     this.processItem(response.data.name, 'contentType', response.data);
                 })
@@ -216,7 +228,9 @@ export class ImportService {
                 .then(response => {
                     importedItems.push({
                         imported: response.data,
-                        original: contentItem
+                        original: contentItem,
+                        importId: response.data.id,
+                        originalId: contentItem.id
                     });
                     this.processItem(response.data.name, 'contentItem', response.data);
                 })
@@ -250,6 +264,13 @@ export class ImportService {
             if (!languageCodename) {
                 throw Error(`Missing language codename for item`);
             }
+
+            // replace ids in assets with new ones
+            idTranslateHelper.replaceIdReferencesWithNewId(languageVariant, currentItems);
+
+            // set workflow id (there is no API to create workflows programatically)
+            languageVariant.workflow_step.id = this.config.workflowIdForImportedItems;
+
             await this.client
                 .upsertLanguageVariant()
                 .byItemCodename(itemCodename)
@@ -259,7 +280,9 @@ export class ImportService {
                 .then(response => {
                     importedItems.push({
                         imported: response.data,
-                        original: languageVariant
+                        original: languageVariant,
+                        importId: response.data.item.id,
+                        originalId: languageVariant.item.id
                     });
                     this.processItem(`${itemCodename} (${languageCodename})`, 'languageVariant', response.data);
                 })
@@ -287,7 +310,9 @@ export class ImportService {
                 .then(response => {
                     importedContentTypeSnippets.push({
                         imported: response.data,
-                        original: contentTypeSnippet
+                        original: contentTypeSnippet,
+                        importId: response.data.id,
+                        originalId: contentTypeSnippet.id
                     });
                     this.processItem(response.data.name, 'contentTypeSnippet', response.data);
                 })
@@ -310,7 +335,9 @@ export class ImportService {
                 .then(response => {
                     importedItems.push({
                         imported: response.data,
-                        original: taxonomy
+                        original: taxonomy,
+                        importId: response.data.id,
+                        originalId: taxonomy.id
                     });
                     this.processItem(response.data.name, 'taxonomy', response.data);
                 })

@@ -1,11 +1,22 @@
+import {
+    AssetContracts,
+    ContentItemContracts,
+    ContentTypeContracts,
+    ContentTypeSnippetContracts,
+    LanguageContracts,
+    LanguageVariantContracts,
+    TaxonomyContracts,
+} from '@kentico/kontent-management';
+
 import { IProcessedItem, ItemType } from '../core';
 
 export interface IImportConfig {
+    workflowIdForImportedItems: string;
     projectId: string;
     apiKey: string;
     processItem?: (item: IProcessedItem) => void;
     skip?: {
-        languages?: boolean
+        languages?: boolean;
     };
 }
 
@@ -23,11 +34,25 @@ export interface IPreparedImportItem {
     deps: string[];
 }
 
-export interface IImportData {
-    orderedImportItems: IPreparedImportItem[];
+export interface IBinaryFile {
+    binaryData: any;
+    asset: AssetContracts.IAssetModelContract;
 }
 
-export interface IImportItemResult<TRaw, TModel> {
-    original: TRaw;
-    imported: TModel;
+export interface IImportSource {
+    importData: {
+        taxonomies: TaxonomyContracts.ITaxonomyContract[];
+        contentTypeSnippets: ContentTypeSnippetContracts.IContentTypeSnippetContract[];
+        contentTypes: ContentTypeContracts.IContentTypeContract[];
+        contentItems: ContentItemContracts.IContentItemModelContract[];
+        languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[];
+        languages: LanguageContracts.ILanguageModelContract[];
+        assets: AssetContracts.IAssetModelContract[];
+    };
+    binaryFiles: IBinaryFile[];
+}
+
+export interface IImportData {
+    orderedImportItems: IPreparedImportItem[];
+    binaryFiles: IBinaryFile[];
 }

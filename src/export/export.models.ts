@@ -23,10 +23,12 @@ export interface IExportData {
     assets: AssetContracts.IAssetModelContract[];
 }
 
+export interface IExportMetadata {
+    projectId: string;
+    timestamp: Date;
+}
+
 export interface IExportAllResult {
-    metadata: {
-        timestamp: Date;
-        projectId: string;
-    };
+    metadata: IExportMetadata;
     data: IExportData;
 }

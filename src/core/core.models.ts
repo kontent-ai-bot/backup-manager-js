@@ -13,6 +13,8 @@ import {
     TaxonomyModels,
     LanguageVariantContracts,
     ContentItemContracts,
+    AssetFolderModels,
+    AssetFolderContracts,
 } from '@kentico/kontent-management';
 
 export type CliAction = 'backup' | 'restore' | 'clean';
@@ -24,7 +26,8 @@ export type ItemType =
     | 'languageVariant'
     | 'language'
     | 'asset'
-    | 'assetFolder';
+    | 'assetFolder'
+    | 'binaryFile';
 
 export type ValidImportModel =
     | ContentTypeModels.ContentType
@@ -33,7 +36,8 @@ export type ValidImportModel =
     | LanguageVariantModels.ContentItemLanguageVariant
     | ContentItemModels.ContentItem
     | LanguageModels.LanguageModel
-    | AssetModels.Asset;
+    | AssetModels.Asset
+    | AssetFolderModels.AssetFolder;
 
 export type ValidImportContract =
     | ContentTypeContracts.IContentTypeContract
@@ -43,7 +47,8 @@ export type ValidImportContract =
     | TaxonomyContracts.ITaxonomyContract
     | AssetContracts.IAssetModelContract
     | LanguageVariantContracts.ILanguageVariantModelContract
-    | LanguageContracts.ILanguageModelContract;
+    | LanguageContracts.ILanguageModelContract
+    | AssetFolderContracts.IAssetFolderContract;
 
 export interface IProcessedItem {
     title: string;

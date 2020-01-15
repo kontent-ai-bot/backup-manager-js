@@ -1,5 +1,7 @@
 import {
     AssetContracts,
+    AssetFolderContracts,
+    AssetFolderModels,
     AssetModels,
     ContentItemContracts,
     ContentItemModels,
@@ -43,6 +45,10 @@ export class ImportService {
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
         const importedItems: IImportItemResult<ValidImportContract, ValidImportModel>[] = [];
 
+        // import folders in a single query
+        const importedAssetFolders = await this.importAssetFoldersAsync(importData.assetFolders, importedItems);
+        importedItems.push(...importedAssetFolders);
+
         for (const item of importData.orderedImportItems) {
             const importedItem = await this.importItemAsync(item, importData.binaryFiles, importedItems);
             importedItems.push(...importedItem);
@@ -72,7 +78,9 @@ export class ImportService {
             }
             return await this.importLanguagesAsync([item.item]);
         } else if (item.type === 'asset') {
-            return await this.importAssetsAsync([item.item], binaryFiles);
+            return await this.importAssetsAsync([item.item], binaryFiles, currentItems);
+        } else if (item.type === 'assetFolder') {
+            return await this.importAssetFoldersAsync([item.item], currentItems);
         } else {
             throw Error(`Not supported import data type '${item.type}'`);
         }
@@ -124,7 +132,8 @@ export class ImportService {
 
     public async importAssetsAsync(
         assets: AssetContracts.IAssetModelContract[],
-        binaryFiles: IBinaryFile[]
+        binaryFiles: IBinaryFile[],
+        currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
     ): Promise<IImportItemResult<AssetContracts.IAssetModelContract, AssetModels.Asset>[]> {
         const importedItems: IImportItemResult<AssetContracts.IAssetModelContract, AssetModels.Asset>[] = [];
 
@@ -142,16 +151,19 @@ export class ImportService {
                     contentType: asset.type,
                     filename: asset.file_name
                 })
-                .toPromise();
+                .toPromise()
+                .then(m => m)
+                .catch(error => this.handleImportError(error));
+
+            if (!uploadedBinaryFile) {
+                throw Error(`File not uploaded`);
+            }
+
+            const assetData = this.getAddAssetModel(asset, uploadedBinaryFile.data.id, currentItems);
 
             await this.client
                 .addAsset()
-                .withData({
-                    descriptions: asset.descriptions,
-                    file_reference: uploadedBinaryFile.data,
-                    title: asset.title,
-                    external_id: asset.external_id
-                })
+                .withData(assetData)
                 .toPromise()
                 .then(response => {
                     importedItems.push({
@@ -164,6 +176,46 @@ export class ImportService {
                 })
                 .catch(error => this.handleImportError(error));
         }
+
+        return importedItems;
+    }
+
+    public async importAssetFoldersAsync(
+        assetFolders: AssetFolderContracts.IAssetFolderContract[],
+        currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+    ): Promise<IImportItemResult<AssetFolderContracts.IAssetFolderContract, AssetFolderModels.AssetFolder>[]> {
+        const importedItems: IImportItemResult<
+            AssetFolderContracts.IAssetFolderContract,
+            AssetFolderModels.AssetFolder
+        >[] = [];
+        // set external id for all folders to equal old id (needed to match referenced folders)
+        this.setExternalIdForFolders(assetFolders);
+
+        const assetFoldersToAdd = assetFolders.map(m => this.mapAssetFolder(m));
+
+        await this.client
+            .addAssetFolders()
+            .withData({
+                folders: assetFoldersToAdd
+            })
+            .toPromise()
+            .then(response => {
+                const importedFlattenedFolders: IImportItemResult<
+                    AssetFolderContracts.IAssetFolderContract,
+                    AssetFolderModels.AssetFolder
+                >[] = [];
+
+                const flattenedAssetFolderContracts: AssetFolderContracts.IAssetFolderContract[] = [];
+
+                this.flattenAssetFolderContracts(assetFolders, flattenedAssetFolderContracts);
+                this.flattenAssetFolders(response.data.items, flattenedAssetFolderContracts, importedFlattenedFolders);
+
+                for (const flattenedFolder of importedFlattenedFolders) {
+                    importedItems.push(flattenedFolder);
+                    this.processItem(flattenedFolder.imported.name, 'assetFolder', flattenedFolder.imported);
+                }
+            })
+            .catch(error => this.handleImportError(error));
 
         return importedItems;
     }
@@ -361,5 +413,87 @@ export class ImportService {
             title,
             type
         });
+    }
+
+    private getAddAssetModel(
+        assetContract: AssetContracts.IAssetModelContract,
+        binaryFileId: string,
+        currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+    ): AssetModels.IAddAssetRequestData {
+        const model: AssetModels.IAddAssetRequestData = {
+            descriptions: assetContract.descriptions,
+            file_reference: {
+                id: binaryFileId,
+                type: assetContract.file_reference.type
+            },
+            external_id: assetContract.external_id,
+            folder: assetContract.folder,
+            title: assetContract.title
+        };
+
+        // replace ids
+        idTranslateHelper.replaceIdReferencesWithNewId(model, currentItems);
+
+        return model;
+    }
+
+    private setExternalIdForFolders(folders: AssetFolderContracts.IAssetFolderContract[]): void {
+        for (const folder of folders) {
+            folder.external_id = folder.id;
+
+            if (folder.folders.length) {
+                this.setExternalIdForFolders(folder.folders);
+            }
+        }
+    }
+
+    private flattenAssetFolders(
+        importedAssetFolders: AssetFolderModels.AssetFolder[],
+        originalItems: AssetFolderContracts.IAssetFolderContract[],
+        items: IImportItemResult<AssetFolderContracts.IAssetFolderContract, AssetFolderModels.AssetFolder>[]
+    ): void {
+        for (const assetFolder of importedAssetFolders) {
+            const originalFolder = originalItems.find(m => m.external_id === assetFolder.externalId);
+
+            if (!originalFolder) {
+                throw Error(
+                    `Could not find original folder with id '${assetFolder.externalId}' with name '${assetFolder.name}'`
+                );
+            }
+
+            items.push({
+                imported: assetFolder,
+                original: originalFolder,
+                importId: assetFolder.id,
+                originalId: originalFolder.id
+            });
+
+            if (assetFolder.folders.length) {
+                this.flattenAssetFolders(assetFolder.folders, originalItems, items);
+            }
+        }
+    }
+
+    private flattenAssetFolderContracts(
+        assetFolders: AssetFolderContracts.IAssetFolderContract[],
+        flattened: AssetFolderContracts.IAssetFolderContract[]
+    ): void {
+        for (const assetFolder of assetFolders) {
+            flattened.push(assetFolder);
+
+            if (assetFolder.folders.length) {
+                this.flattenAssetFolderContracts(assetFolder.folders, flattened);
+            }
+        }
+    }
+
+    private mapAssetFolder(
+        folder: AssetFolderContracts.IAssetFolderContract
+    ): AssetFolderModels.IAddOrModifyAssetFolderData {
+        return {
+            name: folder.name,
+            external_id: folder.external_id,
+            folders: folder.folders?.map(m => this.mapAssetFolder(m)) ?? []
+        };
     }
 }

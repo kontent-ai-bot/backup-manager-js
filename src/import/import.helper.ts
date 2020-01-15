@@ -8,11 +8,12 @@ export class ImportHelper {
         codenameTranslateHelper.replaceIdReferencesWithCodenames(sourceData.importData, sourceData.importData);
 
         // flatten data
-        const items = this.flattenExportData(sourceData.importData);
+        const items = this.flattenExportData(sourceData);
 
         return {
             orderedImportItems: items,
-            binaryFiles: sourceData.binaryFiles
+            binaryFiles: sourceData.binaryFiles,
+            assetFolders: sourceData.assetFolders
         };
     }
 
@@ -53,9 +54,9 @@ export class ImportHelper {
         return filteredDeps;
     }
 
-    private flattenExportData(exportData: IExportData): IPreparedImportItem[] {
+    private flattenExportData(sourceData: IImportSource): IPreparedImportItem[] {
         return [
-            ...exportData.taxonomies.map(m => {
+            ...sourceData.importData.taxonomies.map(m => {
                 return <IPreparedImportItem> {
                     codename: m.codename,
                     deps: [],
@@ -63,7 +64,7 @@ export class ImportHelper {
                     type: 'taxonomy'
                 };
             }),
-            ...this.orderItemsByDeps(exportData.contentTypeSnippets.map(m => {
+            ...this.orderItemsByDeps(sourceData.importData.contentTypeSnippets.map(m => {
                 return <IPreparedImportItem> {
                     codename: m.codename,
                     deps: [],
@@ -71,7 +72,7 @@ export class ImportHelper {
                     type: 'contentTypeSnippet'
                 };
             })),
-            ...this.orderItemsByDeps(exportData.contentTypes.map(m => {
+            ...this.orderItemsByDeps(sourceData.importData.contentTypes.map(m => {
                 return <IPreparedImportItem> {
                     codename: m.codename,
                     deps: [],
@@ -79,7 +80,7 @@ export class ImportHelper {
                     type: 'contentType'
                 };
             })),
-            ...exportData.languages.map(m => {
+            ...sourceData.importData.languages.map(m => {
                 return <IPreparedImportItem> {
                     codename: m.id,
                     deps: [],
@@ -87,7 +88,7 @@ export class ImportHelper {
                     type: 'language'
                 };
             }),
-            ...exportData.assets.map(m => {
+            ...sourceData.importData.assets.map(m => {
                 return <IPreparedImportItem> {
                     codename: m.id,
                     deps: [],
@@ -95,7 +96,7 @@ export class ImportHelper {
                     type: 'asset'
                 };
             }),
-            ...exportData.contentItems.map(m => {
+            ...sourceData.importData.contentItems.map(m => {
                 return <IPreparedImportItem> {
                     codename: m.codename,
                     deps: [],
@@ -103,7 +104,7 @@ export class ImportHelper {
                     type: 'contentItem'
                 };
             }),
-            ...exportData.languageVariants.map(m => {
+            ...sourceData.importData.languageVariants.map(m => {
                 return <IPreparedImportItem> {
                     codename: m.item.codename,
                     deps: [m.item.codename],

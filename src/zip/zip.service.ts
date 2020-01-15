@@ -15,10 +15,11 @@ export class ZipService {
     private readonly taxonomiesName: string = 'taxonomies.json';
     private readonly assetsName: string = 'assets.json';
     private readonly languageVariantsName: string = 'languageVariants.json';
-    private readonly contentTypeSnippets: string = 'contentTypesSnippets.json';
+    private readonly contentTypeSnippetsName: string = 'contentTypesSnippets.json';
     private readonly metadataName: string = 'metadata.json';
     private readonly languages: string = 'languages.json';
-    private readonly assetsFolderName: string = 'files.json';
+    private readonly filesName: string = 'files.json';
+    private readonly assetFoldersName: string = 'assetFolders.json';
 
     private readonly filenameWithExtension: string;
 
@@ -38,9 +39,10 @@ export class ZipService {
                 languageVariants: await this.readAndParseJsonFile(unzippedFile, this.languageVariantsName),
                 languages: await this.readAndParseJsonFile(unzippedFile, this.languages),
                 contentItems: await this.readAndParseJsonFile(unzippedFile, this.contentItemsName),
-                contentTypeSnippets: await this.readAndParseJsonFile(unzippedFile, this.contentTypeSnippets),
+                contentTypeSnippets: await this.readAndParseJsonFile(unzippedFile, this.contentTypeSnippetsName),
                 taxonomies: await this.readAndParseJsonFile(unzippedFile, this.taxonomiesName),
             },
+            assetFolders: await this.readAndParseJsonFile(unzippedFile, this.assetFoldersName),
             binaryFiles: await this.extractBinaryFilesAsync(unzippedFile, assets)
         };
     }
@@ -55,9 +57,10 @@ export class ZipService {
         zip.file(this.languageVariantsName, JSON.stringify(exportData.languageVariants));
         zip.file(this.metadataName, JSON.stringify(metadata));
         zip.file(this.languages, JSON.stringify(exportData.languages));
-        zip.file(this.contentTypeSnippets, JSON.stringify(exportData.contentTypeSnippets));
+        zip.file(this.contentTypeSnippetsName, JSON.stringify(exportData.contentTypeSnippets));
+        zip.file(this.assetFoldersName, JSON.stringify(exportData.assetFolders));
 
-        const assetsFolder = zip.folder(this.assetsFolderName);
+        const assetsFolder = zip.folder(this.filesName);
 
         for (const asset of exportData.assets) {
             const assetIdShortFolder = assetsFolder.folder(asset.id.substr(0, 3));
@@ -95,7 +98,7 @@ export class ZipService {
     }
 
     private getFullAssetPath(assetId: string, filename: string): string {
-        return `${this.assetsFolderName}/${assetId.substr(0, 3)}/${assetId}/${filename}`;
+        return `${this.filesName}/${assetId.substr(0, 3)}/${assetId}/${filename}`;
     }
 
     private async readAndParseJsonFile(fileContents: any, filename: string): Promise<any> {

@@ -8,6 +8,7 @@ import {
     TaxonomyContracts,
     AssetContracts,
     LanguageContracts,
+    AssetFolderContracts,
 } from '@kentico/kontent-management';
 
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
@@ -32,7 +33,8 @@ export class ExportService {
             contentItems: await this.exportContentItemsAsync(),
             languageVariants: await this.exportLanguageVariantsAsync(contentTypes.map(m => m.id)),
             assets: await this.exportAssetsAsync(),
-            languages: await this.exportLanguagesAsync()
+            languages: await this.exportLanguagesAsync(),
+            assetFolders: await this.exportAssetFoldersAsync()
         };
 
         return {
@@ -46,6 +48,11 @@ export class ExportService {
 
     public async exportAssetsAsync(): Promise<AssetContracts.IAssetModelContract[]> {
         const response = await this.client.listAssets().toPromise();
+        return response.data.items.map(m => m._raw);
+    }
+
+    public async exportAssetFoldersAsync(): Promise<AssetFolderContracts.IAssetFolderContract[]> {
+        const response = await this.client.listAssetFolders().toPromise();
         return response.data.items.map(m => m._raw);
     }
 

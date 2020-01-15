@@ -6,6 +6,7 @@ import {
     LanguageContracts,
     LanguageVariantContracts,
     TaxonomyContracts,
+    AssetFolderContracts,
 } from '@kentico/kontent-management';
 
 import { IProcessedItem, ItemType } from '../core';
@@ -49,10 +50,18 @@ export interface IImportSource {
         languages: LanguageContracts.ILanguageModelContract[];
         assets: AssetContracts.IAssetModelContract[];
     };
+    assetFolders: AssetFolderContracts.IAssetFolderContract[];
     binaryFiles: IBinaryFile[];
 }
 
 export interface IImportData {
     orderedImportItems: IPreparedImportItem[];
+    assetFolders: AssetFolderContracts.IAssetFolderContract[];
     binaryFiles: IBinaryFile[];
+}
+
+export interface IFlattenedFolder {
+    name: string;
+    externalId?: string;
+    id: string;
 }

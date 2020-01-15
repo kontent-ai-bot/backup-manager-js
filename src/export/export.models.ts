@@ -6,6 +6,7 @@ import {
     LanguageVariantContracts,
     LanguageContracts,
     AssetContracts,
+    AssetFolderContracts,
 } from '@kentico/kontent-management';
 
 export interface IExportConfig {
@@ -21,6 +22,7 @@ export interface IExportData {
     languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[];
     languages: LanguageContracts.ILanguageModelContract[];
     assets: AssetContracts.IAssetModelContract[];
+    assetFolders: AssetFolderContracts.IAssetFolderContract[];
 }
 
 export interface IExportMetadata {

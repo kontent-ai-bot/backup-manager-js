@@ -102,7 +102,7 @@ export class CleanService {
                 .modifyAssetFolders()
                 .withData(
                     assetFolders.map(m => {
-                        return <AssetFolderModels.IModifyAssetFoldersData>{
+                        return <AssetFolderModels.IModifyAssetFoldersData> {
                             op: 'remove',
                             reference: {
                                 id: m.id

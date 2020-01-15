@@ -1,4 +1,4 @@
-import { IManagementClient, ManagementClient } from '@kentico/kontent-management';
+import { AssetFolderModels, IManagementClient, ManagementClient } from '@kentico/kontent-management';
 
 import { ItemType } from '../core';
 import { ICleanConfig, ICleanResult } from './clean.models';
@@ -14,18 +14,24 @@ export class CleanService {
     }
 
     public async cleanAllAsync(): Promise<ICleanResult> {
-        await this.cleanContentItemsAsync();
-        await this.cleanContentTypesAsync();
-        await this.cleanContentTypeSnippetsAsync();
-        await this.cleanTaxonomiesAsync();
-        await this.cleanAssetsAsync();
+        try {
+            await this.cleanContentItemsAsync();
+            await this.cleanContentTypesAsync();
+            await this.cleanContentTypeSnippetsAsync();
+            await this.cleanTaxonomiesAsync();
+            await this.cleanAssetsAsync();
+            await this.cleanAssetFoldersAsync();
 
-        return {
-            metadata: {
-                projectId: this.config.projectId,
-                timestamp: new Date()
-            }
-        };
+            return {
+                metadata: {
+                    projectId: this.config.projectId,
+                    timestamp: new Date()
+                }
+            };
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
     }
 
     public async cleanTaxonomiesAsync(): Promise<void> {
@@ -88,12 +94,36 @@ export class CleanService {
         }
     }
 
+    public async cleanAssetFoldersAsync(): Promise<void> {
+        const assetFolders = (await this.client.listAssetFolders().toPromise()).data.items;
+
+        if (assetFolders.length) {
+            await this.client
+                .modifyAssetFolders()
+                .withData(
+                    assetFolders.map(m => {
+                        return <AssetFolderModels.IModifyAssetFoldersData>{
+                            op: 'remove',
+                            reference: {
+                                id: m.id
+                            }
+                        };
+                    })
+                )
+                .toPromise()
+                .then(response => {
+                    for (const folder of assetFolders) {
+                        this.processItem(folder.name, 'assetFolder', folder);
+                    }
+                })
+                .catch(error => this.handleCleanError(error));
+        }
+    }
+
     public async cleanContentItemsAsync(): Promise<void> {
         const contentItems = (await this.client.listContentItems().toAllPromise()).data.items;
 
         for (const contentItem of contentItems) {
-            await this.cleanLanguageVariantsAsync(contentItem.id);
-
             await this.client
                 .deleteContentItem()
                 .byItemId(contentItem.id)
@@ -106,31 +136,31 @@ export class CleanService {
     }
 
     public async cleanLanguageVariantsAsync(contentItemId: string): Promise<void> {
-            const languageVariants = (
-                await this.client
-                    .listLanguageVariantsOfItem()
-                    .byItemId(contentItemId)
-                    .toPromise()
-            ).data.items;
+        const languageVariants = (
+            await this.client
+                .listLanguageVariantsOfItem()
+                .byItemId(contentItemId)
+                .toPromise()
+        ).data.items;
 
-            for (const languageVariant of languageVariants) {
-                const languageId = languageVariant.language.id;
-                const itemId = contentItemId;
+        for (const languageVariant of languageVariants) {
+            const languageId = languageVariant.language.id;
+            const itemId = contentItemId;
 
-                if (!languageId) {
-                    throw Error(`Missing language id for item '${contentItemId}'`);
-                }
-
-                await this.client
-                    .deleteLanguageVariant()
-                    .byItemId(itemId)
-                    .byLanguageId(languageId)
-                    .toPromise()
-                    .then(m => {
-                        this.processItem(itemId, 'languageVariant', languageVariant);
-                    })
-                    .catch(error => this.handleCleanError(error));
+            if (!languageId) {
+                throw Error(`Missing language id for item '${contentItemId}'`);
             }
+
+            await this.client
+                .deleteLanguageVariant()
+                .byItemId(itemId)
+                .byLanguageId(languageId)
+                .toPromise()
+                .then(m => {
+                    this.processItem(itemId, 'languageVariant', languageVariant);
+                })
+                .catch(error => this.handleCleanError(error));
+        }
     }
 
     private handleCleanError(error: any): void {

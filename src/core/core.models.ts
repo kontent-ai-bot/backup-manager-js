@@ -23,7 +23,8 @@ export type ItemType =
     | 'contentItem'
     | 'languageVariant'
     | 'language'
-    | 'asset';
+    | 'asset'
+    | 'assetFolder';
 
 export type ValidImportModel =
     | ContentTypeModels.ContentType

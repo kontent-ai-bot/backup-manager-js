@@ -56,7 +56,6 @@ export class ImportService {
         binaryFiles: IBinaryFile[],
         currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
-        console.log('importing item', item.codename);
         if (item.type === 'contentType') {
             return await this.importContentTypesAsync([item.item]);
         } else if (item.type === 'taxonomy') {

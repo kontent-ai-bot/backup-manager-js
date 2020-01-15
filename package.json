@@ -38,7 +38,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@kentico/kontent-management": "0.3.10",
+    "@kentico/kontent-management": "0.3.11",
     "jszip": "3.2.2",
     "rxjs": "6.5.4",
     "yargs": "15.1.0",

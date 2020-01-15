@@ -23,14 +23,14 @@ export class ExportService {
     }
 
     public async exportAllAsync(): Promise<IExportAllResult> {
-        const contentItems = await this.exportContentItemsAsync();
+        const contentTypes = await this.exportContentTypesAsync();
 
         const data: IExportData = {
-            contentTypes: await this.exportContentTypesAsync(),
+            contentTypes,
             contentTypeSnippets: await this.exportContentTypeSnippetsAsync(),
             taxonomies: await this.exportTaxonomiesAsync(),
-            contentItems,
-            languageVariants: await this.exportLanguageVariantsAsync(contentItems.map(m => m.id)),
+            contentItems: await this.exportContentItemsAsync(),
+            languageVariants: await this.exportLanguageVariantsAsync(contentTypes.map(m => m.id)),
             assets: await this.exportAssetsAsync(),
             languages: await this.exportLanguagesAsync()
         };
@@ -75,16 +75,25 @@ export class ExportService {
     }
 
     public async exportLanguageVariantsAsync(
-        contentItemIds: string[]
+        typeIds: string[]
     ): Promise<LanguageVariantContracts.ILanguageVariantModelContract[]> {
-        const languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[] = [];
+        const languageVariants: LanguageVariantContracts.ILanguageVariantModelWithComponentsContract[] = [];
 
-        for (const itemId of contentItemIds) {
+        for (const typeId of typeIds) {
             languageVariants.push(
                 ...(
                     await this.client
-                        .listLanguageVariantsOfItem()
-                        .byItemId(itemId)
+                        .listLanguageVariantsOfContentTypeWithComponents()
+                        .byTypeId(typeId)
+                        .toPromise()
+                ).data.items.map(m => m._raw)
+            );
+
+            languageVariants.push(
+                ...(
+                    await this.client
+                        .listLanguageVariantsOfContentType()
+                        .byTypeId(typeId)
                         .toPromise()
                 ).data.items.map(m => m._raw)
             );

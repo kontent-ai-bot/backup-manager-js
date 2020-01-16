@@ -68,6 +68,7 @@ const restore = async (config: ICliFileConfig) => {
         },
         projectId: config.projectId,
         apiKey: config.apiKey,
+        enableLog: config.enableLog,
         workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000',
         process: {
             language: item => config.importLanguages,

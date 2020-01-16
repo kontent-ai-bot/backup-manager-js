@@ -38,7 +38,16 @@ export class ImportService {
     public async importFromSourceAsync(
         sourceData: IImportSource
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
+
+        if (this.config.enableLog) {
+            console.log(`Preparing data for import`);
+        }
         const importData = importHelper.prepareImportData(sourceData);
+
+        if (this.config.enableLog) {
+            console.log(`Importing data`);
+        }
+
         return await this.importAsync(importData);
     }
 

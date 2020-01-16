@@ -44,7 +44,7 @@ export class ZipService {
         }
         const assets = await this.readAndParseJsonFile(unzippedFile, this.assetsName);
 
-        return {
+        const result = {
             importData: {
                 assets,
                 contentTypes: await this.readAndParseJsonFile(unzippedFile, this.contentTypesName),
@@ -57,6 +57,12 @@ export class ZipService {
             assetFolders: await this.readAndParseJsonFile(unzippedFile, this.assetFoldersName),
             binaryFiles: await this.extractBinaryFilesAsync(unzippedFile, assets)
         };
+
+        if (this.config.enableLog) {
+            console.log(`Pasing zip completed`);
+        }
+
+        return result;
     }
 
     public async createZipAsync(exportData: IExportData, metadata: IExportMetadata): Promise<void> {

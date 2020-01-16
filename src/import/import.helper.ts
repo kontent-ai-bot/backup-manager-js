@@ -1,11 +1,17 @@
 import { codenameTranslateHelper } from '../core';
-import { IExportData } from '../export';
-import { IImportData, IPreparedImportItem, IImportSource } from './import.models';
+import { IImportData, IImportSource, IPreparedImportItem } from './import.models';
 
 export class ImportHelper {
     public prepareImportData(sourceData: IImportSource): IImportData {
         // translate internal ids to codenames
-        codenameTranslateHelper.replaceIdReferencesWithCodenames(sourceData.importData, sourceData.importData);
+        codenameTranslateHelper.replaceIdReferencesWithCodenames(
+            sourceData.importData.contentTypes,
+            sourceData.importData
+        );
+        codenameTranslateHelper.replaceIdReferencesWithCodenames(
+            sourceData.importData.contentTypeSnippets,
+            sourceData.importData
+        );
 
         // flatten data
         const items = this.flattenSourceData(sourceData);
@@ -39,10 +45,7 @@ export class ImportHelper {
         return sortedItems;
     }
 
-    private getDependenciesOfItem(
-        item: IPreparedImportItem,
-        allItems: IPreparedImportItem[]
-    ): string[] {
+    private getDependenciesOfItem(item: IPreparedImportItem, allItems: IPreparedImportItem[]): string[] {
         const deps: string[] = [];
 
         // get referenced codenames in item
@@ -57,31 +60,35 @@ export class ImportHelper {
     private flattenSourceData(sourceData: IImportSource): IPreparedImportItem[] {
         return [
             ...sourceData.importData.taxonomies.map(m => {
-                return <IPreparedImportItem> {
+                return <IPreparedImportItem>{
                     codename: m.codename,
                     deps: [],
                     item: m,
                     type: 'taxonomy'
                 };
             }),
-            ...this.orderItemsByDeps(sourceData.importData.contentTypeSnippets.map(m => {
-                return <IPreparedImportItem> {
-                    codename: m.codename,
-                    deps: [],
-                    item: m,
-                    type: 'contentTypeSnippet'
-                };
-            })),
-            ...this.orderItemsByDeps(sourceData.importData.contentTypes.map(m => {
-                return <IPreparedImportItem> {
-                    codename: m.codename,
-                    deps: [],
-                    item: m,
-                    type: 'contentType'
-                };
-            })),
+            ...this.orderItemsByDeps(
+                sourceData.importData.contentTypeSnippets.map(m => {
+                    return <IPreparedImportItem>{
+                        codename: m.codename,
+                        deps: [],
+                        item: m,
+                        type: 'contentTypeSnippet'
+                    };
+                })
+            ),
+            ...this.orderItemsByDeps(
+                sourceData.importData.contentTypes.map(m => {
+                    return <IPreparedImportItem>{
+                        codename: m.codename,
+                        deps: [],
+                        item: m,
+                        type: 'contentType'
+                    };
+                })
+            ),
             ...sourceData.importData.languages.map(m => {
-                return <IPreparedImportItem> {
+                return <IPreparedImportItem>{
                     codename: m.id,
                     deps: [],
                     item: m,
@@ -89,7 +96,7 @@ export class ImportHelper {
                 };
             }),
             ...sourceData.importData.assets.map(m => {
-                return <IPreparedImportItem> {
+                return <IPreparedImportItem>{
                     codename: m.id,
                     deps: [],
                     item: m,
@@ -97,7 +104,7 @@ export class ImportHelper {
                 };
             }),
             ...sourceData.importData.contentItems.map(m => {
-                return <IPreparedImportItem> {
+                return <IPreparedImportItem>{
                     codename: m.codename,
                     deps: [],
                     item: m,
@@ -105,7 +112,7 @@ export class ImportHelper {
                 };
             }),
             ...sourceData.importData.languageVariants.map(m => {
-                return <IPreparedImportItem> {
+                return <IPreparedImportItem>{
                     codename: m.item.codename,
                     deps: [m.item.codename],
                     item: m,

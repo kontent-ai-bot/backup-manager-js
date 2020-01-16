@@ -15,6 +15,7 @@ export interface IImportConfig {
     workflowIdForImportedItems: string;
     projectId: string;
     apiKey: string;
+    enableLog: boolean;
     onImport?: (item: IProcessedItem) => void;
     process?: {
         taxonomy?: (

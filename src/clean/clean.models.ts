@@ -3,7 +3,7 @@ import { IProcessedItem } from '../core';
 export interface ICleanConfig {
     projectId: string;
     apiKey: string;
-    processItem?: (item: IProcessedItem) => void;
+    onDelete?: (item: IProcessedItem) => void;
 }
 
 export interface ICleanResult {

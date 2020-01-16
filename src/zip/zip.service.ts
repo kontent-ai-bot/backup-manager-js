@@ -23,13 +23,25 @@ export class ZipService {
 
     private readonly filenameWithExtension: string;
 
-    constructor(config: IZipServiceConfig) {
+    constructor(private config: IZipServiceConfig) {
         this.filenameWithExtension = config.filename + this.zipExtension;
     }
 
     public async extractZipAsync(): Promise<IImportSource> {
-        const file = await fs.promises.readFile(`./${this.filenameWithExtension}`);
+        const filePath = `./${this.filenameWithExtension}`;
+        if (this.config.enableLog) {
+            console.log(`Reading file '${filePath}'`);
+        }
+        const file = await fs.promises.readFile(filePath);
+
+        if (this.config.enableLog) {
+            console.log(`Unzipping file`);
+        }
         const unzippedFile = await JSZip.loadAsync(file);
+
+        if (this.config.enableLog) {
+            console.log(`Parsing zip contents`);
+        }
         const assets = await this.readAndParseJsonFile(unzippedFile, this.assetsName);
 
         return {
@@ -50,6 +62,10 @@ export class ZipService {
     public async createZipAsync(exportData: IExportData, metadata: IExportMetadata): Promise<void> {
         const zip = new JSZip();
 
+        if (this.config.enableLog) {
+            console.log(`Parsing json`);
+        }
+
         zip.file(this.contentTypesName, JSON.stringify(exportData.contentTypes));
         zip.file(this.contentItemsName, JSON.stringify(exportData.contentItems));
         zip.file(this.taxonomiesName, JSON.stringify(exportData.taxonomies));
@@ -62,18 +78,28 @@ export class ZipService {
 
         const assetsFolder = zip.folder(this.filesName);
 
+        if (this.config.enableLog) {
+            console.log(`Adding assets to zip`);
+        }
+
         for (const asset of exportData.assets) {
             const assetIdShortFolder = assetsFolder.folder(asset.id.substr(0, 3));
             const assetIdFolder = assetIdShortFolder.folder(asset.id);
             const assetFilename = asset.file_name;
-            assetIdFolder.file(assetFilename, this.getBinaryDataFromUrl(asset.url), {
+            assetIdFolder.file(assetFilename, this.getBinaryDataFromUrl(asset.url, this.config.enableLog), {
                 binary: true
             });
         }
 
+        const filePath = './' + this.filenameWithExtension;
+
+        if (this.config.enableLog) {
+            console.log(`Generating zip file '${filePath}'`);
+        }
         const content = await zip.generateAsync({ type: 'nodebuffer' });
 
-        await fs.promises.writeFile('./' + this.filenameWithExtension, content);
+        console.log(`Writing file '${filePath}'`);
+        await fs.promises.writeFile(filePath, content);
     }
 
     private async extractBinaryFilesAsync(
@@ -114,9 +140,12 @@ export class ZipService {
         return JSON.parse(text);
     }
 
-    private getBinaryDataFromUrl(url: string): Promise<any> {
+    private getBinaryDataFromUrl(url: string, enableLog: boolean): Promise<any> {
         return new Promise((resolve, reject) => {
             get(url, res => {
+                if (enableLog) {
+                    console.log(`Downloading asset: ${url}`);
+                }
                 const data: any[] = [];
 
                 res.on('data', chunk => {

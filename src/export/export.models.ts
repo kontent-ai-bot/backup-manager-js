@@ -1,17 +1,20 @@
 import {
+    AssetContracts,
+    AssetFolderContracts,
     ContentItemContracts,
     ContentTypeContracts,
     ContentTypeSnippetContracts,
-    TaxonomyContracts,
-    LanguageVariantContracts,
     LanguageContracts,
-    AssetContracts,
-    AssetFolderContracts,
+    LanguageVariantContracts,
+    TaxonomyContracts,
 } from '@kentico/kontent-management';
+
+import { IProcessedItem } from '../core';
 
 export interface IExportConfig {
     projectId: string;
     apiKey: string;
+    onExport?: (item: IProcessedItem) => void;
 }
 
 export interface IExportData {

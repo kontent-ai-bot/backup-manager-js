@@ -1,0 +1,8 @@
+{
+    "projectId": "x",
+    "apiKey": "y",
+    "zipFilename": "backup",
+    "action": "backup",
+    "enableLog": true,
+    "importLanguages": false
+}

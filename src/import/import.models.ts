@@ -1,23 +1,54 @@
 import {
     AssetContracts,
+    AssetFolderContracts,
     ContentItemContracts,
     ContentTypeContracts,
     ContentTypeSnippetContracts,
     LanguageContracts,
     LanguageVariantContracts,
     TaxonomyContracts,
-    AssetFolderContracts,
 } from '@kentico/kontent-management';
 
-import { IProcessedItem, ItemType } from '../core';
+import { IImportItemResult, IProcessedItem, ItemType, ValidImportContract, ValidImportModel } from '../core';
 
 export interface IImportConfig {
     workflowIdForImportedItems: string;
     projectId: string;
     apiKey: string;
-    processItem?: (item: IProcessedItem) => void;
-    skip?: {
-        languages?: boolean;
+    onImport?: (item: IProcessedItem) => void;
+    process?: {
+        taxonomy?: (
+            item: TaxonomyContracts.ITaxonomyContract,
+            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        ) => boolean | Promise<boolean>;
+        contentTypeSnippet?: (
+            item: ContentTypeSnippetContracts.IContentTypeSnippetContract,
+            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        ) => boolean | Promise<boolean>;
+        contentType?: (
+            item: ContentTypeContracts.IContentTypeContract,
+            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        ) => boolean | Promise<boolean>;
+        contentItem?: (
+            item: ContentItemContracts.IContentItemModelContract,
+            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        ) => boolean | Promise<boolean>;
+        languageVariant?: (
+            item: LanguageVariantContracts.ILanguageVariantModelContract,
+            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        ) => boolean | Promise<boolean>;
+        language?: (
+            item: LanguageContracts.ILanguageModelContract,
+            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        ) => boolean | Promise<boolean>;
+        asset?: (
+            item: AssetContracts.IAssetModelContract,
+            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        ) => boolean | Promise<boolean>;
+        assetFolder?: (
+            item: AssetFolderContracts.IAssetFolderContract,
+            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        ) => boolean | Promise<boolean>;
     };
 }
 
@@ -28,10 +59,10 @@ export interface IImportAllResult {
     };
 }
 
-export interface IPreparedImportItem {
+export interface IPreparedImportItem<TItem = any> {
     type: ItemType;
     codename: string;
-    item: any;
+    item: TItem;
     deps: string[];
 }
 
@@ -55,7 +86,7 @@ export interface IImportSource {
 }
 
 export interface IImportData {
-    orderedImportItems: IPreparedImportItem[];
+    orderedImportItems: IPreparedImportItem<any>[];
     assetFolders: AssetFolderContracts.IAssetFolderContract[];
     binaryFiles: IBinaryFile[];
 }

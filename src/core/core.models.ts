@@ -17,6 +17,15 @@ import {
     AssetFolderContracts,
 } from '@kentico/kontent-management';
 
+export interface ICliFileConfig {
+    projectId: string;
+    apiKey: string;
+    action: CliAction;
+    zipFilename: string;
+    enableLog: boolean;
+    importLanguages: boolean;
+}
+
 export type CliAction = 'backup' | 'restore' | 'clean';
 export type ItemType =
     | 'taxonomy'

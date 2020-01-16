@@ -24,6 +24,8 @@ import { importHelper } from './import.helper';
 import { IBinaryFile, IImportConfig, IImportData, IImportSource, IPreparedImportItem } from './import.models';
 
 export class ImportService {
+
+    private readonly defaultLanguageId: string = '00000000-0000-0000-0000-000000000000';
     private readonly client: IManagementClient;
 
     constructor(private config: IImportConfig) {
@@ -57,36 +59,81 @@ export class ImportService {
         return importedItems;
     }
 
-    public async importItemAsync(
+    private async importItemAsync(
         item: IPreparedImportItem,
         binaryFiles: IBinaryFile[],
         currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
         if (item.type === 'contentType') {
+            if (this.config.process && this.config.process.contentType) {
+                const shouldImport = this.config.process.contentType(item.item, currentItems);
+                if (!shouldImport) {
+                    return [];
+                }
+            }
             return await this.importContentTypesAsync([item.item]);
         } else if (item.type === 'taxonomy') {
+            if (this.config.process && this.config.process.taxonomy) {
+                const shouldImport = this.config.process.taxonomy(item.item, currentItems);
+                if (!shouldImport) {
+                    return [];
+                }
+            }
             return await this.importTaxonomiesAsync([item.item]);
         } else if (item.type === 'contentTypeSnippet') {
+            if (this.config.process && this.config.process.contentTypeSnippet) {
+                const shouldImport = this.config.process.contentTypeSnippet(item.item, currentItems);
+                if (!shouldImport) {
+                    return [];
+                }
+            }
             return await this.importContentTypeSnippetsAsync([item.item]);
         } else if (item.type === 'contentItem') {
+            if (this.config.process && this.config.process.contentItem) {
+                const shouldImport = this.config.process.contentItem(item.item, currentItems);
+                if (!shouldImport) {
+                    return [];
+                }
+            }
             return await this.importContentItemAsync([item.item]);
         } else if (item.type === 'languageVariant') {
+            if (this.config.process && this.config.process.languageVariant) {
+                const shouldImport = this.config.process.languageVariant(item.item, currentItems);
+                if (!shouldImport) {
+                    return [];
+                }
+            }
             return await this.importLanguageVariantsAsync([item.item], currentItems);
         } else if (item.type === 'language') {
-            if (this.config.skip?.languages === true) {
-                return [];
+            if (this.config.process && this.config.process.language) {
+                const shouldImport = this.config.process.language(item.item, currentItems);
+                if (!shouldImport) {
+                    return [];
+                }
             }
             return await this.importLanguagesAsync([item.item]);
         } else if (item.type === 'asset') {
+            if (this.config.process && this.config.process.asset) {
+                const shouldImport = this.config.process.asset(item.item, currentItems);
+                if (!shouldImport) {
+                    return [];
+                }
+            }
             return await this.importAssetsAsync([item.item], binaryFiles, currentItems);
         } else if (item.type === 'assetFolder') {
+            if (this.config.process && this.config.process.assetFolder) {
+                const shouldImport = this.config.process.assetFolder(item.item, currentItems);
+                if (!shouldImport) {
+                    return [];
+                }
+            }
             return await this.importAssetFoldersAsync([item.item], currentItems);
         } else {
             throw Error(`Not supported import data type '${item.type}'`);
         }
     }
 
-    public async importLanguagesAsync(
+    private async importLanguagesAsync(
         languages: LanguageContracts.ILanguageModelContract[]
     ): Promise<IImportItemResult<LanguageContracts.ILanguageModelContract, LanguageModels.LanguageModel>[]> {
         const importedItems: IImportItemResult<
@@ -110,7 +157,7 @@ export class ImportService {
                     external_id: language.external_id,
                     fallback_language:
                         language.codename === fallbackLanguageCodename
-                            ? { id: '00000000-0000-0000-0000-000000000000' }
+                            ? { id: this.defaultLanguageId }
                             : { codename: fallbackLanguageCodename },
                     is_active: language.is_active
                 })
@@ -130,7 +177,7 @@ export class ImportService {
         return importedItems;
     }
 
-    public async importAssetsAsync(
+    private async importAssetsAsync(
         assets: AssetContracts.IAssetModelContract[],
         binaryFiles: IBinaryFile[],
         currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
@@ -180,7 +227,7 @@ export class ImportService {
         return importedItems;
     }
 
-    public async importAssetFoldersAsync(
+    private async importAssetFoldersAsync(
         assetFolders: AssetFolderContracts.IAssetFolderContract[],
         currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
     ): Promise<IImportItemResult<AssetFolderContracts.IAssetFolderContract, AssetFolderModels.AssetFolder>[]> {
@@ -220,7 +267,7 @@ export class ImportService {
         return importedItems;
     }
 
-    public async importContentTypesAsync(
+    private async importContentTypesAsync(
         contentTypes: ContentTypeContracts.IContentTypeContract[]
     ): Promise<IImportItemResult<ContentTypeContracts.IContentTypeContract, ContentTypeModels.ContentType>[]> {
         const importedItems: IImportItemResult<
@@ -250,7 +297,7 @@ export class ImportService {
         return importedItems;
     }
 
-    public async importContentItemAsync(
+    private async importContentItemAsync(
         contentItems: ContentItemContracts.IContentItemModelContract[]
     ): Promise<IImportItemResult<ContentItemContracts.IContentItemModelContract, ContentItemModels.ContentItem>[]> {
         const importedItems: IImportItemResult<
@@ -291,7 +338,7 @@ export class ImportService {
         return importedItems;
     }
 
-    public async importLanguageVariantsAsync(
+    private async importLanguageVariantsAsync(
         languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[],
         currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
     ): Promise<
@@ -343,7 +390,7 @@ export class ImportService {
         return importedItems;
     }
 
-    public async importContentTypeSnippetsAsync(
+    private async importContentTypeSnippetsAsync(
         contentTypeSnippets: ContentTypeSnippetContracts.IContentTypeSnippetContract[]
     ): Promise<IImportItemResult<ContentTypeContracts.IContentTypeContract, ContentTypeModels.ContentType>[]> {
         const importedContentTypeSnippets: IImportItemResult<
@@ -373,7 +420,7 @@ export class ImportService {
         return importedContentTypeSnippets;
     }
 
-    public async importTaxonomiesAsync(
+    private async importTaxonomiesAsync(
         taxonomies: TaxonomyContracts.ITaxonomyContract[]
     ): Promise<IImportItemResult<TaxonomyContracts.ITaxonomyContract, TaxonomyModels.Taxonomy>[]> {
         const importedItems: IImportItemResult<TaxonomyContracts.ITaxonomyContract, TaxonomyModels.Taxonomy>[] = [];
@@ -404,11 +451,11 @@ export class ImportService {
     }
 
     private processItem(title: string, type: ItemType, data: any): void {
-        if (!this.config.processItem) {
+        if (!this.config.onImport) {
             return;
         }
 
-        this.config.processItem({
+        this.config.onImport({
             data,
             title,
             type

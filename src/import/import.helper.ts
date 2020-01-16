@@ -8,7 +8,7 @@ export class ImportHelper {
         codenameTranslateHelper.replaceIdReferencesWithCodenames(sourceData.importData, sourceData.importData);
 
         // flatten data
-        const items = this.flattenExportData(sourceData);
+        const items = this.flattenSourceData(sourceData);
 
         return {
             orderedImportItems: items,
@@ -54,7 +54,7 @@ export class ImportHelper {
         return filteredDeps;
     }
 
-    private flattenExportData(sourceData: IImportSource): IPreparedImportItem[] {
+    private flattenSourceData(sourceData: IImportSource): IPreparedImportItem[] {
         return [
             ...sourceData.importData.taxonomies.map(m => {
                 return <IPreparedImportItem> {

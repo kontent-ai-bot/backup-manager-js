@@ -168,11 +168,11 @@ export class CleanService {
     }
 
     private processItem(title: string, type: ItemType, data: any): void {
-        if (!this.config.processItem) {
+        if (!this.config.onDelete) {
             return;
         }
 
-        this.config.processItem({
+        this.config.onDelete({
             data,
             title,
             type

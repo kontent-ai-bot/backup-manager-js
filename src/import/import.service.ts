@@ -19,12 +19,17 @@ import {
     TaxonomyModels,
 } from '@kentico/kontent-management';
 
-import { idTranslateHelper, IImportItemResult, ItemType, ValidImportContract, ValidImportModel } from '../core';
-import { importHelper } from './import.helper';
-import { IBinaryFile, IImportConfig, IImportData, IImportSource, IPreparedImportItem } from './import.models';
+import {
+    codenameTranslateHelper,
+    idTranslateHelper,
+    IImportItemResult,
+    ItemType,
+    ValidImportContract,
+    ValidImportModel,
+} from '../core';
+import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 
 export class ImportService {
-
     private readonly defaultLanguageId: string = '00000000-0000-0000-0000-000000000000';
     private readonly client: IManagementClient;
 
@@ -38,107 +43,179 @@ export class ImportService {
     public async importFromSourceAsync(
         sourceData: IImportSource
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
+        return await this.importAsync(sourceData);
+    }
+
+    public async importAsync(
+        sourceData: IImportSource
+    ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
+        const importedItems: IImportItemResult<ValidImportContract, ValidImportModel>[] = [];
 
         if (this.config.enableLog) {
-            console.log(`Preparing data for import`);
+            console.log(`Translating object ids to codenames`);
         }
-        const importData = importHelper.prepareImportData(sourceData);
+
+        // translate ids to codenames for certain objects types
+        this.translateIds(sourceData);
+
+        if (this.config.enableLog) {
+            console.log(`Removing skipped items`);
+        }
+        // once ids are translated, remove skipped items from import
+        this.removeSkippedItemsFromImport(sourceData);
 
         if (this.config.enableLog) {
             console.log(`Importing data`);
         }
 
-        return await this.importAsync(importData);
-    }
+        // import order matters
 
-    public async importAsync(
-        importData: IImportData
-    ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
-        const importedItems: IImportItemResult<ValidImportContract, ValidImportModel>[] = [];
-
-        // import folders in a single query
-        const importedAssetFolders = await this.importAssetFoldersAsync(importData.assetFolders, importedItems);
+        // ### Asset folders
+        const importedAssetFolders = await this.importAssetFoldersAsync(sourceData.assetFolders, importedItems);
         importedItems.push(...importedAssetFolders);
 
-        for (const item of importData.orderedImportItems) {
-            const importedItem = await this.importItemAsync(item, importData.binaryFiles, importedItems);
-            importedItems.push(...importedItem);
+        // ### Languages
+        const importedLanguages = await this.importLanguagesAsync(sourceData.importData.languages);
+        importedItems.push(...importedLanguages);
+
+        // ### Taxonomies
+        const importedTaxonomies = await this.importTaxonomiesAsync(sourceData.importData.taxonomies);
+        importedItems.push(...importedTaxonomies);
+
+        // ### Content type snippets
+        const importedContentTypeSnippets = await this.importContentTypeSnippetsAsync(
+            sourceData.importData.contentTypeSnippets
+        );
+        importedItems.push(...importedContentTypeSnippets);
+
+        // ### Content types
+        const importedContentTypes = await this.importContentTypesAsync(sourceData.importData.contentTypes);
+        importedItems.push(...importedContentTypes);
+
+        // ### Assets
+        const importedAssets = await this.importAssetsAsync(
+            sourceData.importData.assets,
+            sourceData.binaryFiles,
+            importedItems
+        );
+        importedItems.push(...importedAssets);
+
+        // ### Content items
+        const importedContentItems = await this.importContentItemAsync(sourceData.importData.contentItems);
+        importedItems.push(...importedContentItems);
+
+        // ### Language variants
+        const importedLanguageVariants = await this.importLanguageVariantsAsync(
+            sourceData.importData.languageVariants,
+            importedItems
+        );
+        importedItems.push(...importedLanguageVariants);
+
+        if (this.config.enableLog) {
+            console.log(`Finished importig data`);
         }
 
         return importedItems;
     }
 
-    private async importItemAsync(
-        item: IPreparedImportItem,
-        binaryFiles: IBinaryFile[],
-        currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
-    ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
-        if (item.type === 'contentType') {
-            if (this.config.process && this.config.process.contentType) {
-                const shouldImport = this.config.process.contentType(item.item, currentItems);
+    private translateIds(source: IImportSource): void {
+        codenameTranslateHelper.replaceIdReferencesWithCodenames(
+            source.importData.contentTypes,
+            source.importData
+        );
+        codenameTranslateHelper.replaceIdReferencesWithCodenames(
+            source.importData.contentTypeSnippets,
+            source.importData
+        );
+        codenameTranslateHelper.replaceIdReferencesWithCodenames(
+            source.importData.assets,
+            source.importData
+        );
+        codenameTranslateHelper.replaceIdReferencesWithCodenames(
+            source.importData.contentItems,
+            source.importData
+        );
+        codenameTranslateHelper.replaceIdReferencesWithCodenames(
+            source.importData.languageVariants,
+            source.importData
+        );
+    }
+
+    private removeSkippedItemsFromImport(source: IImportSource): void {
+        if (this.config.process && this.config.process.asset) {
+            for (const item of source.importData.assets) {
+                const shouldImport = this.config.process.asset(item);
                 if (!shouldImport) {
-                    return [];
+                    source.importData.assets = source.importData.assets.filter(m => m.id !== item.id);
                 }
             }
-            return await this.importContentTypesAsync([item.item]);
-        } else if (item.type === 'taxonomy') {
-            if (this.config.process && this.config.process.taxonomy) {
-                const shouldImport = this.config.process.taxonomy(item.item, currentItems);
+        }
+
+        if (this.config.process && this.config.process.language) {
+            for (const item of source.importData.languages) {
+                const shouldImport = this.config.process.language(item);
                 if (!shouldImport) {
-                    return [];
+                    source.importData.languages = source.importData.languages.filter(m => m.id !== item.id);
                 }
             }
-            return await this.importTaxonomiesAsync([item.item]);
-        } else if (item.type === 'contentTypeSnippet') {
-            if (this.config.process && this.config.process.contentTypeSnippet) {
-                const shouldImport = this.config.process.contentTypeSnippet(item.item, currentItems);
+        }
+
+        if (this.config.process && this.config.process.assetFolder) {
+            for (const item of source.assetFolders) {
+                const shouldImport = this.config.process.assetFolder(item);
                 if (!shouldImport) {
-                    return [];
+                    source.assetFolders = source.assetFolders.filter(m => m.id !== item.id);
                 }
             }
-            return await this.importContentTypeSnippetsAsync([item.item]);
-        } else if (item.type === 'contentItem') {
-            if (this.config.process && this.config.process.contentItem) {
-                const shouldImport = this.config.process.contentItem(item.item, currentItems);
+        }
+
+        if (this.config.process && this.config.process.contentType) {
+            for (const item of source.importData.contentTypes) {
+                const shouldImport = this.config.process.contentType(item);
                 if (!shouldImport) {
-                    return [];
+                    source.importData.contentTypes = source.importData.contentTypes.filter(m => m.id !== item.id);
                 }
             }
-            return await this.importContentItemAsync([item.item]);
-        } else if (item.type === 'languageVariant') {
-            if (this.config.process && this.config.process.languageVariant) {
-                const shouldImport = this.config.process.languageVariant(item.item, currentItems);
+        }
+
+        if (this.config.process && this.config.process.contentItem) {
+            for (const item of source.importData.contentItems) {
+                const shouldImport = this.config.process.contentItem(item);
                 if (!shouldImport) {
-                    return [];
+                    source.importData.contentItems = source.importData.contentItems.filter(m => m.id !== item.id);
                 }
             }
-            return await this.importLanguageVariantsAsync([item.item], currentItems);
-        } else if (item.type === 'language') {
-            if (this.config.process && this.config.process.language) {
-                const shouldImport = this.config.process.language(item.item, currentItems);
+        }
+
+        if (this.config.process && this.config.process.contentTypeSnippet) {
+            for (const item of source.importData.contentTypeSnippets) {
+                const shouldImport = this.config.process.contentTypeSnippet(item);
                 if (!shouldImport) {
-                    return [];
+                    source.importData.contentTypeSnippets = source.importData.contentTypeSnippets.filter(
+                        m => m.id !== item.id
+                    );
                 }
             }
-            return await this.importLanguagesAsync([item.item]);
-        } else if (item.type === 'asset') {
-            if (this.config.process && this.config.process.asset) {
-                const shouldImport = this.config.process.asset(item.item, currentItems);
+        }
+
+        if (this.config.process && this.config.process.languageVariant) {
+            for (const item of source.importData.languageVariants) {
+                const shouldImport = this.config.process.languageVariant(item);
                 if (!shouldImport) {
-                    return [];
+                    source.importData.languageVariants = source.importData.languageVariants.filter(
+                        m => m.item.id !== item.item.id && m.language.id !== item.language.id
+                    );
                 }
             }
-            return await this.importAssetsAsync([item.item], binaryFiles, currentItems);
-        } else if (item.type === 'assetFolder') {
-            if (this.config.process && this.config.process.assetFolder) {
-                const shouldImport = this.config.process.assetFolder(item.item, currentItems);
+        }
+
+        if (this.config.process && this.config.process.taxonomy) {
+            for (const item of source.importData.taxonomies) {
+                const shouldImport = this.config.process.taxonomy(item);
                 if (!shouldImport) {
-                    return [];
+                    source.importData.taxonomies = source.importData.taxonomies.filter(m => m.id !== item.id);
                 }
             }
-            return await this.importAssetFoldersAsync([item.item], currentItems);
-        } else {
-            throw Error(`Not supported import data type '${item.type}'`);
         }
     }
 
@@ -155,7 +232,7 @@ export class ImportService {
             const fallbackLanguageCodename = (language.fallback_language as any).codename;
 
             if (!fallbackLanguageCodename) {
-                throw Error(`Langauge '${language.name}' has unset codename`);
+                throw Error(`Language '${language.name}' has unset codename`);
             }
 
             await this.client

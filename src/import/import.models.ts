@@ -20,35 +20,27 @@ export interface IImportConfig {
     process?: {
         taxonomy?: (
             item: TaxonomyContracts.ITaxonomyContract,
-            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
         ) => boolean | Promise<boolean>;
         contentTypeSnippet?: (
             item: ContentTypeSnippetContracts.IContentTypeSnippetContract,
-            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
         ) => boolean | Promise<boolean>;
         contentType?: (
             item: ContentTypeContracts.IContentTypeContract,
-            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
         ) => boolean | Promise<boolean>;
         contentItem?: (
             item: ContentItemContracts.IContentItemModelContract,
-            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
         ) => boolean | Promise<boolean>;
         languageVariant?: (
             item: LanguageVariantContracts.ILanguageVariantModelContract,
-            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
         ) => boolean | Promise<boolean>;
         language?: (
             item: LanguageContracts.ILanguageModelContract,
-            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
         ) => boolean | Promise<boolean>;
         asset?: (
             item: AssetContracts.IAssetModelContract,
-            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
         ) => boolean | Promise<boolean>;
         assetFolder?: (
             item: AssetFolderContracts.IAssetFolderContract,
-            currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
         ) => boolean | Promise<boolean>;
     };
 }

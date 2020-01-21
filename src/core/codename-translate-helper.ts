@@ -25,7 +25,8 @@ export class CodenameTranslateHelper {
                             }
                         }
                     }
-                    if (key !== '0') {
+
+                    if (typeof val === 'object' && val !== null) {
                         this.replaceIdReferencesWithCodenames(val, allData);
                     }
                 }
@@ -52,7 +53,7 @@ export class CodenameTranslateHelper {
                             }
                         }
                     }
-                    if (key !== '0') {
+                    if (typeof val === 'object' && val !== null) {
                         this.extractReferencedCodenames(val, allData, foundCodenames);
                     }
                 }
@@ -77,7 +78,7 @@ export class CodenameTranslateHelper {
                             return codename;
                         }
                     }
-                    if (key !== '0') {
+                    if (typeof val === 'object' && val !== null) {
                         foundCodename = this.tryFindCodenameForId(findId, val, foundCodename);
                     }
                 }

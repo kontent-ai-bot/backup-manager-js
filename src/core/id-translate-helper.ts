@@ -27,7 +27,7 @@ export class IdTranslateHelper {
                         }
                     }
 
-                    if (key !== '0') {
+                    if (typeof val === 'object' && val !== null) {
                         this.replaceIdReferencesWithNewId(val, items);
                     }
                 }

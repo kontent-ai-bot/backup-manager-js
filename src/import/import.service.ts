@@ -33,6 +33,7 @@ import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 export class ImportService {
     private readonly defaultLanguageId: string = '00000000-0000-0000-0000-000000000000';
     private readonly client: IManagementClient;
+    private readonly maxAllowedAssetSizeInBytes: number = 1e+8;
 
     constructor(private config: IImportConfig) {
         this.client = new ManagementClient({
@@ -276,6 +277,11 @@ export class ImportService {
 
             if (!binaryFile) {
                 throw Error(`Could not find binary file for asset with id '${asset.id}'`);
+            }
+
+            if (binaryFile.asset.size >= this.maxAllowedAssetSizeInBytes) {
+                console.log('Skipping file due to size: ', asset.file_name);
+                continue;
             }
 
             const uploadedBinaryFile = await this.client

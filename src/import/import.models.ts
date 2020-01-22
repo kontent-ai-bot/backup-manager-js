@@ -9,39 +9,26 @@ import {
     TaxonomyContracts,
 } from '@kentico/kontent-management';
 
-import { IImportItemResult, IProcessedItem, ItemType, ValidImportContract, ValidImportModel } from '../core';
+import { IProcessedItem, ItemType } from '../core';
 
 export interface IImportConfig {
     workflowIdForImportedItems: string;
     projectId: string;
     apiKey: string;
     enableLog: boolean;
+    onUnsupportedBinaryFile?: (binaryFile: IBinaryFile) => void;
     onImport?: (item: IProcessedItem) => void;
     process?: {
-        taxonomy?: (
-            item: TaxonomyContracts.ITaxonomyContract,
-        ) => boolean | Promise<boolean>;
+        taxonomy?: (item: TaxonomyContracts.ITaxonomyContract) => boolean | Promise<boolean>;
         contentTypeSnippet?: (
-            item: ContentTypeSnippetContracts.IContentTypeSnippetContract,
+            item: ContentTypeSnippetContracts.IContentTypeSnippetContract
         ) => boolean | Promise<boolean>;
-        contentType?: (
-            item: ContentTypeContracts.IContentTypeContract,
-        ) => boolean | Promise<boolean>;
-        contentItem?: (
-            item: ContentItemContracts.IContentItemModelContract,
-        ) => boolean | Promise<boolean>;
-        languageVariant?: (
-            item: LanguageVariantContracts.ILanguageVariantModelContract,
-        ) => boolean | Promise<boolean>;
-        language?: (
-            item: LanguageContracts.ILanguageModelContract,
-        ) => boolean | Promise<boolean>;
-        asset?: (
-            item: AssetContracts.IAssetModelContract,
-        ) => boolean | Promise<boolean>;
-        assetFolder?: (
-            item: AssetFolderContracts.IAssetFolderContract,
-        ) => boolean | Promise<boolean>;
+        contentType?: (item: ContentTypeContracts.IContentTypeContract) => boolean | Promise<boolean>;
+        contentItem?: (item: ContentItemContracts.IContentItemModelContract) => boolean | Promise<boolean>;
+        languageVariant?: (item: LanguageVariantContracts.ILanguageVariantModelContract) => boolean | Promise<boolean>;
+        language?: (item: LanguageContracts.ILanguageModelContract) => boolean | Promise<boolean>;
+        asset?: (item: AssetContracts.IAssetModelContract) => boolean | Promise<boolean>;
+        assetFolder?: (item: AssetFolderContracts.IAssetFolderContract) => boolean | Promise<boolean>;
     };
 }
 

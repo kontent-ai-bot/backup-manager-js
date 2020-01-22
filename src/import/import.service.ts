@@ -39,6 +39,13 @@ export class ImportService {
         this.client = new ManagementClient({
             apiKey: config.apiKey,
             projectId: config.projectId,
+            retryStrategy: {
+                addJitter: true,
+                canRetryError: (err) => true, // so that timeout errors are retried
+                maxAttempts: 3,
+                deltaBackoffMs: 1000,
+                maxCumulativeWaitTimeMs: 60000
+            },
             httpService: new HttpService({
                 axiosRequestConfig: {
                     // required for uploading large files
@@ -59,7 +66,6 @@ export class ImportService {
         sourceData: IImportSource
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
         const importedItems: IImportItemResult<ValidImportContract, ValidImportModel>[] = [];
-
         if (this.config.enableLog) {
             console.log(`Translating object ids to codenames`);
         }
@@ -271,6 +277,7 @@ export class ImportService {
         currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
     ): Promise<IImportItemResult<AssetContracts.IAssetModelContract, AssetModels.Asset>[]> {
         const importedItems: IImportItemResult<AssetContracts.IAssetModelContract, AssetModels.Asset>[] = [];
+        const unsupportedBinaryFiles: IBinaryFile[] = [];
 
         for (const asset of assets) {
             const binaryFile = binaryFiles.find(m => m.asset.id === asset.id);
@@ -279,15 +286,22 @@ export class ImportService {
                 throw Error(`Could not find binary file for asset with id '${asset.id}'`);
             }
 
+            let binaryDataToUpload: any = binaryFile.binaryData;
             if (binaryFile.asset.size >= this.maxAllowedAssetSizeInBytes) {
-                console.log('Skipping file due to size: ', asset.file_name);
-                continue;
+                if (this.config.onUnsupportedBinaryFile) {
+                    this.config.onUnsupportedBinaryFile(binaryFile);
+                }
+                console.log(`Removing binary data from file due to size. Max. file size is '${this.maxAllowedAssetSizeInBytes}'Bytes, but file has '${asset.size}' Bytes`, asset.file_name);
+                // remove binary data so that import proceeds & asset is created (so that it can be referenced by
+                // content items )
+                binaryDataToUpload = [];
+                unsupportedBinaryFiles.push(binaryFile);
             }
 
             const uploadedBinaryFile = await this.client
                 .uploadBinaryFile()
                 .withData({
-                    binaryData: binaryFile.binaryData,
+                    binaryData: binaryDataToUpload,
                     contentType: asset.type,
                     filename: asset.file_name
                 })

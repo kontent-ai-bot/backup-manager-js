@@ -29,7 +29,9 @@ export interface ICliFileConfig {
 export type CliAction = 'backup' | 'restore' | 'clean';
 export type ItemType =
     | 'taxonomy'
+    | 'dummyContentType'
     | 'contentType'
+    | 'dummyContentTypeSnippet'
     | 'contentTypeSnippet'
     | 'contentItem'
     | 'languageVariant'

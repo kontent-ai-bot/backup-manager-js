@@ -48,7 +48,7 @@ export class ExportService {
     }
 
     public async exportAssetsAsync(): Promise<AssetContracts.IAssetModelContract[]> {
-        const response = await this.client.listAssets().toPromise();
+        const response = await this.client.listAssets().toAllPromise();
         response.data.items.forEach(m => this.processItem(m.fileName, 'asset', m));
         return response.data.items.map(m => m._raw);
     }

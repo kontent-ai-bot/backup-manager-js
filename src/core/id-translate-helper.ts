@@ -13,7 +13,7 @@ export class IdTranslateHelper {
             } else {
                 for (const key of Object.keys(data)) {
                     const val = (data as any)[key];
-                    if (typeof val === 'string' && val.startsWith('<p>')) {
+                    if (typeof val === 'string' && val.startsWith('<') && val.endsWith('>')) {
                         // replace string with updated one
                         const newData = this.replaceIdsInRichText(val, items);
                         data[key] = newData;

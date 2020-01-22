@@ -72,3 +72,7 @@ export interface IImportItemResult<TRaw, TModel> {
     originalId?: string;
     importId?: string;
 }
+
+export interface IIdCodenameTranslationResult {
+    [key: string]: string;
+}

@@ -1,9 +1,15 @@
+import { IIdCodenameTranslationResult } from './core.models';
+
 export class CodenameTranslateHelper {
-    public replaceIdReferencesWithCodenames(data: any, allData: any): void {
+    public replaceIdReferencesWithCodenames(
+        data: any,
+        allData: any,
+        storedCodenames: IIdCodenameTranslationResult
+    ): void {
         if (data) {
             if (Array.isArray(data)) {
                 for (const arrayItem of data) {
-                    this.replaceIdReferencesWithCodenames(arrayItem, allData);
+                    this.replaceIdReferencesWithCodenames(arrayItem, allData, storedCodenames);
                 }
             } else {
                 for (const key of Object.keys(data)) {
@@ -14,7 +20,7 @@ export class CodenameTranslateHelper {
 
                         if (!codename) {
                             // replace id with codename
-                            const foundCodename = this.tryFindCodenameForId(id, allData);
+                            const foundCodename = this.tryFindCodenameForId(id, allData, storedCodenames);
 
                             if (foundCodename) {
                                 // remove id prop
@@ -27,7 +33,7 @@ export class CodenameTranslateHelper {
                     }
 
                     if (typeof val === 'object' && val !== null) {
-                        this.replaceIdReferencesWithCodenames(val, allData);
+                        this.replaceIdReferencesWithCodenames(val, allData, storedCodenames);
                     }
                 }
             }
@@ -61,11 +67,24 @@ export class CodenameTranslateHelper {
         }
     }
 
-    public tryFindCodenameForId(findId: string, data: any, foundCodename?: string): string | undefined {
+    public tryFindCodenameForId(
+        findId: string,
+        data: any,
+        storedCodenames: IIdCodenameTranslationResult,
+        foundCodename?: string
+    ): string | undefined {
+
+        // try looking up codename in stored references
+        const storedCodename = storedCodenames[findId];
+
+        if (storedCodename) {
+            return storedCodename;
+        }
+
         if (data) {
             if (Array.isArray(data)) {
                 for (const arrayItem of data) {
-                    foundCodename = this.tryFindCodenameForId(findId, arrayItem, foundCodename);
+                    foundCodename = this.tryFindCodenameForId(findId, arrayItem, storedCodenames, foundCodename);
                 }
             } else {
                 for (const key of Object.keys(data)) {
@@ -74,12 +93,18 @@ export class CodenameTranslateHelper {
                         const id = (data as any).id;
                         const codename = (data as any).codename;
 
+                        if (id && codename) {
+                            // store id -> codename mapping so that we don't have to always
+                            // search for it as its expensive operation
+                            storedCodenames[id] = codename;
+                        }
+
                         if (codename && id === findId) {
                             return codename;
                         }
                     }
                     if (typeof val === 'object' && val !== null) {
-                        foundCodename = this.tryFindCodenameForId(findId, val, foundCodename);
+                        foundCodename = this.tryFindCodenameForId(findId, val, storedCodenames, foundCodename);
                     }
                 }
             }

@@ -112,7 +112,7 @@ export class ImportService {
         importedItems.push(...importedLanguageVariants);
 
         if (this.config.enableLog) {
-            console.log(`Finished importig data`);
+            console.log(`Finished importing data`);
         }
 
         return importedItems;
@@ -121,23 +121,28 @@ export class ImportService {
     private translateIds(source: IImportSource): void {
         codenameTranslateHelper.replaceIdReferencesWithCodenames(
             source.importData.contentTypes,
-            source.importData
+            source.importData,
+            {}
         );
         codenameTranslateHelper.replaceIdReferencesWithCodenames(
             source.importData.contentTypeSnippets,
-            source.importData
+            source.importData,
+            {}
         );
         codenameTranslateHelper.replaceIdReferencesWithCodenames(
             source.importData.assets,
-            source.importData
+            source.importData,
+            {}
         );
         codenameTranslateHelper.replaceIdReferencesWithCodenames(
             source.importData.contentItems,
-            source.importData
+            source.importData,
+            {}
         );
         codenameTranslateHelper.replaceIdReferencesWithCodenames(
             source.importData.languageVariants,
-            source.importData
+            source.importData,
+            {}
         );
     }
 

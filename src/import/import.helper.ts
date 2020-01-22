@@ -6,11 +6,13 @@ export class ImportHelper {
         // translate internal ids to codenames
         codenameTranslateHelper.replaceIdReferencesWithCodenames(
             sourceData.importData.contentTypes,
-            sourceData.importData
+            sourceData.importData,
+            {}
         );
         codenameTranslateHelper.replaceIdReferencesWithCodenames(
             sourceData.importData.contentTypeSnippets,
-            sourceData.importData
+            sourceData.importData,
+            {}
         );
 
         // flatten data

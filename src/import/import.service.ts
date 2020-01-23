@@ -429,11 +429,19 @@ export class ImportService {
             const createdContentType = await this.client
                 .addContentType()
                 .withData(builder => {
+                    // process content groups for content groups
+                    contentType.content_groups?.forEach(m => {
+                        m.external_id = m.id;
+                        delete m.id;
+                        delete m.codename;
+                    });
+
                     return {
                         elements: [],
                         name: contentType.name,
                         codename: contentType.codename,
-                        content_groups: []
+                        content_groups: contentType.content_groups,
+                        external_id: contentType.external_id
                     };
                 })
                 .toPromise()
@@ -600,7 +608,7 @@ export class ImportService {
                         elements: [],
                         name: contentTypeSnippet.name,
                         codename: contentTypeSnippet.codename,
-                        content_groups: []
+                        external_id: contentTypeSnippet.external_id
                     };
                 })
                 .toPromise()

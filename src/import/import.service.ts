@@ -97,6 +97,10 @@ export class ImportService {
         const importedTaxonomies = await this.importTaxonomiesAsync(sourceData.importData.taxonomies);
         importedItems.push(...importedTaxonomies);
 
+        // ### Dummy types & snippets
+        await this.importDummyContentTypeSnippetsAsync(sourceData.importData.contentTypeSnippets);
+        await this.importDummyContentTypesAsync(sourceData.importData.contentTypes);
+
         // ### Content type snippets
         const importedContentTypeSnippets = await this.importContentTypeSnippetsAsync(
             sourceData.importData.contentTypeSnippets
@@ -383,34 +387,6 @@ export class ImportService {
         >[] = [];
 
         for (const contentType of contentTypes) {
-            // first create dummy types to handle circular references between types & types that reference
-            // not yet processed ones
-            const createdContentType = await this.client
-                .addContentType()
-                .withData(builder => {
-                    return {
-                        elements: [],
-                        name: contentType.name,
-                        codename: contentType.codename,
-                        content_groups: []
-                    };
-                })
-                .toPromise()
-                .then(response => {
-                    importedItems.push({
-                        imported: response.data,
-                        original: contentType,
-                        importId: response.data.id,
-                        originalId: contentType.id
-                    });
-                    this.processItem(response.data.name, 'dummyContentType', response.data);
-                })
-                .catch(error => this.handleImportError(error));
-        }
-
-        // once dummy content types are created, add elements
-
-        for (const contentType of contentTypes) {
             await this.client
                 .modifyContentType()
                 .byTypeCodename(contentType.codename)
@@ -432,6 +408,43 @@ export class ImportService {
                         originalId: contentType.id
                     });
                     this.processItem(response.data.name, 'contentType', response.data);
+                })
+                .catch(error => this.handleImportError(error));
+        }
+
+        return importedItems;
+    }
+
+    private async importDummyContentTypesAsync(
+        contentTypes: ContentTypeContracts.IContentTypeContract[]
+    ): Promise<IImportItemResult<ContentTypeContracts.IContentTypeContract, ContentTypeModels.ContentType>[]> {
+        const importedItems: IImportItemResult<
+            ContentTypeContracts.IContentTypeContract,
+            ContentTypeModels.ContentType
+        >[] = [];
+
+        for (const contentType of contentTypes) {
+            // first create dummy types to handle circular references between types & types that reference
+            // not yet processed ones
+            const createdContentType = await this.client
+                .addContentType()
+                .withData(builder => {
+                    return {
+                        elements: [],
+                        name: contentType.name,
+                        codename: contentType.codename,
+                        content_groups: []
+                    };
+                })
+                .toPromise()
+                .then(response => {
+                    importedItems.push({
+                        imported: response.data,
+                        original: contentType,
+                        importId: response.data.id,
+                        originalId: contentType.id
+                    });
+                    this.processItem(response.data.name, 'dummyContentType', response.data);
                 })
                 .catch(error => this.handleImportError(error));
         }
@@ -541,34 +554,6 @@ export class ImportService {
         >[] = [];
 
         for (const contentTypeSnippet of contentTypeSnippets) {
-            // first create dummy types to handle circular references between types & types that reference
-            // not yet processed ones
-            const createdContentTypeSnippet = await this.client
-                .addContentTypeSnippet()
-                .withData(builder => {
-                    return {
-                        elements: [],
-                        name: contentTypeSnippet.name,
-                        codename: contentTypeSnippet.codename,
-                        content_groups: []
-                    };
-                })
-                .toPromise()
-                .then(response => {
-                    importedItems.push({
-                        imported: response.data,
-                        original: contentTypeSnippet,
-                        importId: response.data.id,
-                        originalId: contentTypeSnippet.id
-                    });
-                    this.processItem(response.data.name, 'dummyContentTypeSnippet', response.data);
-                })
-                .catch(error => this.handleImportError(error));
-        }
-
-        // once dummy content types are created, add elements
-
-        for (const contentTypeSnippet of contentTypeSnippets) {
             await this.client
                 .modifyContentTypeSnippet()
                 .byTypeCodename(contentTypeSnippet.codename)
@@ -590,6 +575,43 @@ export class ImportService {
                         originalId: contentTypeSnippet.id
                     });
                     this.processItem(response.data.name, 'contentTypeSnippet', response.data);
+                })
+                .catch(error => this.handleImportError(error));
+        }
+
+        return importedItems;
+    }
+
+    private async importDummyContentTypeSnippetsAsync(
+        contentTypeSnippets: ContentTypeSnippetContracts.IContentTypeSnippetContract[]
+    ): Promise<IImportItemResult<ContentTypeContracts.IContentTypeContract, ContentTypeModels.ContentType>[]> {
+        const importedItems: IImportItemResult<
+            ContentTypeContracts.IContentTypeContract,
+            ContentTypeModels.ContentType
+        >[] = [];
+
+        for (const contentTypeSnippet of contentTypeSnippets) {
+            // first create dummy types to handle circular references between types & types that reference
+            // not yet processed ones
+            const createdContentTypeSnippet = await this.client
+                .addContentTypeSnippet()
+                .withData(builder => {
+                    return {
+                        elements: [],
+                        name: contentTypeSnippet.name,
+                        codename: contentTypeSnippet.codename,
+                        content_groups: []
+                    };
+                })
+                .toPromise()
+                .then(response => {
+                    importedItems.push({
+                        imported: response.data,
+                        original: contentTypeSnippet,
+                        importId: response.data.id,
+                        originalId: contentTypeSnippet.id
+                    });
+                    this.processItem(response.data.name, 'dummyContentTypeSnippet', response.data);
                 })
                 .catch(error => this.handleImportError(error));
         }

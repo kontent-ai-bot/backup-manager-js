@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { get } from 'https';
 import JSZip = require('jszip');
 
-import { IExportData, IExportMetadata } from '../export';
+import { IExportData, IExportMetadata, IExportAllResult } from '../export';
 import { IBinaryFile, IImportSource } from '../import';
 import { IZipServiceConfig } from './zip.models';
 
@@ -20,6 +20,7 @@ export class ZipService {
     private readonly languages: string = 'languages.json';
     private readonly filesName: string = 'files.json';
     private readonly assetFoldersName: string = 'assetFolders.json';
+    private readonly validationName: string = 'validation.json';
 
     private readonly filenameWithExtension: string;
 
@@ -55,7 +56,9 @@ export class ZipService {
                 taxonomies: await this.readAndParseJsonFile(unzippedFile, this.taxonomiesName),
             },
             assetFolders: await this.readAndParseJsonFile(unzippedFile, this.assetFoldersName),
-            binaryFiles: await this.extractBinaryFilesAsync(unzippedFile, assets)
+            binaryFiles: await this.extractBinaryFilesAsync(unzippedFile, assets),
+            validation: await this.readAndParseJsonFile(unzippedFile, this.validationName),
+            metadata: await this.readAndParseJsonFile(unzippedFile, this.metadataName),
         };
 
         if (this.config.enableLog) {
@@ -65,22 +68,23 @@ export class ZipService {
         return result;
     }
 
-    public async createZipAsync(exportData: IExportData, metadata: IExportMetadata): Promise<void> {
+    public async createZipAsync(exportData: IExportAllResult): Promise<void> {
         const zip = new JSZip();
 
         if (this.config.enableLog) {
             console.log(`Parsing json`);
         }
 
-        zip.file(this.contentTypesName, JSON.stringify(exportData.contentTypes));
-        zip.file(this.contentItemsName, JSON.stringify(exportData.contentItems));
-        zip.file(this.taxonomiesName, JSON.stringify(exportData.taxonomies));
-        zip.file(this.assetsName, JSON.stringify(exportData.assets));
-        zip.file(this.languageVariantsName, JSON.stringify(exportData.languageVariants));
-        zip.file(this.metadataName, JSON.stringify(metadata));
-        zip.file(this.languages, JSON.stringify(exportData.languages));
-        zip.file(this.contentTypeSnippetsName, JSON.stringify(exportData.contentTypeSnippets));
-        zip.file(this.assetFoldersName, JSON.stringify(exportData.assetFolders));
+        zip.file(this.contentTypesName, JSON.stringify(exportData.data.contentTypes));
+        zip.file(this.validationName, JSON.stringify(exportData.validation));
+        zip.file(this.contentItemsName, JSON.stringify(exportData.data.contentItems));
+        zip.file(this.taxonomiesName, JSON.stringify(exportData.data.taxonomies));
+        zip.file(this.assetsName, JSON.stringify(exportData.data.assets));
+        zip.file(this.languageVariantsName, JSON.stringify(exportData.data.languageVariants));
+        zip.file(this.metadataName, JSON.stringify(exportData.metadata));
+        zip.file(this.languages, JSON.stringify(exportData.data.languages));
+        zip.file(this.contentTypeSnippetsName, JSON.stringify(exportData.data.contentTypeSnippets));
+        zip.file(this.assetFoldersName, JSON.stringify(exportData.data.assetFolders));
 
         const assetsFolder = zip.folder(this.filesName);
 
@@ -88,7 +92,7 @@ export class ZipService {
             console.log(`Adding assets to zip`);
         }
 
-        for (const asset of exportData.assets) {
+        for (const asset of exportData.data.assets) {
             const assetIdShortFolder = assetsFolder.folder(asset.id.substr(0, 3));
             const assetIdFolder = assetIdShortFolder.folder(asset.id);
             const assetFilename = asset.file_name;

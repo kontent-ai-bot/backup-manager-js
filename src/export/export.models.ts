@@ -7,6 +7,7 @@ import {
     LanguageContracts,
     LanguageVariantContracts,
     TaxonomyContracts,
+    ProjectContracts,
 } from '@kentico/kontent-management';
 
 import { IProcessedItem } from '../core';
@@ -31,9 +32,11 @@ export interface IExportData {
 export interface IExportMetadata {
     projectId: string;
     timestamp: Date;
+    isInconsistentExport: boolean;
 }
 
 export interface IExportAllResult {
     metadata: IExportMetadata;
     data: IExportData;
+    validation: ProjectContracts.IProjectReportResponseContract;
 }

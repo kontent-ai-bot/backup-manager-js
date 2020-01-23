@@ -4,5 +4,6 @@
     "zipFilename": "backup",
     "action": "backup",
     "enableLog": true,
-    "importLanguages": false
+    "importLanguages": false,
+    "force": false
 }

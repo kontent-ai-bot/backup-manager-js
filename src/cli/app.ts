@@ -4,9 +4,10 @@ import yargs = require('yargs');
 
 import { CleanService } from '../clean';
 import { ICliFileConfig } from '../core';
-import { ExportService } from '../export';
-import { ImportService } from '../import';
+import { ExportService, IExportAllResult } from '../export';
+import { IImportSource, ImportService } from '../import';
 import { ZipService } from '../zip';
+import { ProjectContracts } from '@kentico/kontent-management';
 
 const argv = yargs.argv;
 
@@ -33,9 +34,27 @@ const backup = async (config: ICliFileConfig) => {
         enableLog: config.enableLog
     });
 
-    const response = await exportService.exportAllAsync();
+    const report = await exportService.exportProjectValidationAsync();
 
-    await zipService.createZipAsync(response.data, response.metadata);
+    if (canExport(report, config)) {
+        const response = await exportService.exportAllAsync();
+        await zipService.createZipAsync(response);
+    } else {
+        console.log(`Project contains following inconsistencies:`);
+        for (const issue of report.type_issues) {
+            console.log(`Type ${issue.type.codename} has issues: ${issue.issues.map(m => m.messages).join(',')}`);
+        }
+        for (const issue of report.variant_issues) {
+            console.log(
+                `Variant ${issue.item.codename} (${issue.language.codename}) has issues: ${issue.issues
+                    .map(m => m.messages)
+                    .join(',')}`
+            );
+        }
+
+        console.log(`To export data regardless of issues, set 'force' config parameter to true`);
+        console.log(`Export failed. See reasons above`);
+    }
 };
 
 const clean = async (config: ICliFileConfig) => {
@@ -58,8 +77,6 @@ const restore = async (config: ICliFileConfig) => {
         enableLog: config.enableLog
     });
 
-    const data = await zipService.extractZipAsync();
-
     const importService = new ImportService({
         onImport: item => {
             if (config.enableLog) {
@@ -78,7 +95,27 @@ const restore = async (config: ICliFileConfig) => {
         }
     });
 
-    await importService.importFromSourceAsync(data);
+    const data = await zipService.extractZipAsync();
+
+    if (canImport(data, config)) {
+        await importService.importFromSourceAsync(data);
+    } else {
+        console.log(`Project contains following inconsistencies:`);
+        for (const issue of data.validation.type_issues) {
+            console.log(`Type ${issue.type.codename} has issues: ${issue.issues.map(m => m.messages).join(',')}`);
+        }
+        for (const issue of data.validation.variant_issues) {
+            console.log(
+                `Variant ${issue.item.codename} (${issue.language.codename}) has issues: ${issue.issues
+                    .map(m => m.messages)
+                    .join(',')}`
+            );
+        }
+
+        console.log(`To import data regardless of issues, set 'force' config parameter to true, however keep in mind that without
+        fixing the issues, the import will likely fail.`);
+        console.log(`Import failed. See reasons above`);
+    }
 };
 
 const validateConfig = (config: any) => {
@@ -119,6 +156,31 @@ const process = async () => {
     } else {
         throw Error(`Invalid action`);
     }
+};
+
+const canExport = (projectReport: ProjectContracts.IProjectReportResponseContract, config: ICliFileConfig) => {
+    const projectHasIssues = projectReport.variant_issues.length > 0 || projectReport.type_issues.length > 0;
+    if (!projectHasIssues) {
+        return true;
+    }
+
+    if (config.force === true) {
+        return true;
+    }
+
+    return false;
+};
+
+const canImport = (importData: IImportSource, config: ICliFileConfig) => {
+    if (!importData.metadata.isInconsistentExport) {
+        return true;
+    }
+
+    if (config.force === true) {
+        return true;
+    }
+
+    return false;
 };
 
 process();

@@ -9,6 +9,7 @@ import {
     AssetContracts,
     LanguageContracts,
     AssetFolderContracts,
+    ProjectContracts,
 } from '@kentico/kontent-management';
 
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
@@ -26,6 +27,7 @@ export class ExportService {
 
     public async exportAllAsync(): Promise<IExportAllResult> {
         const contentTypes = await this.exportContentTypesAsync();
+        const projectValidation = await this.exportProjectValidationAsync();
 
         const data: IExportData = {
             contentTypes,
@@ -41,10 +43,20 @@ export class ExportService {
         return {
             metadata: {
                 timestamp: new Date(),
-                projectId: this.config.projectId
+                projectId: this.config.projectId,
+                isInconsistentExport: projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0
             },
+            validation: projectValidation,
             data
         };
+    }
+
+    public async exportProjectValidationAsync(): Promise<ProjectContracts.IProjectReportResponseContract> {
+        const response = await this.client.validateProjectContent()
+            .forProjectId(this.config.projectId)
+            .toPromise();
+
+        return response.rawData;
     }
 
     public async exportAssetsAsync(): Promise<AssetContracts.IAssetModelContract[]> {

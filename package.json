@@ -2,6 +2,7 @@
   "name": "wip-backup-manager",
   "version": "0.0.1",
   "description": "This utility enables backup & restore of Kentico Kontent projects",
+  "preferGlobal": true,
   "bin": {
     "kbm": "./_commonjs/src/cli/app.js"
   },
@@ -34,7 +35,8 @@
     "Kentico Kontent",
     "Kontent backup manager",
     "Kontent restore project",
-    "Kontent backup project"
+    "Kontent backup project",
+    "Kontent import"
   ],
   "license": "MIT",
   "dependencies": {

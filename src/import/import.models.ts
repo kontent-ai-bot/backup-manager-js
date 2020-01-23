@@ -7,6 +7,7 @@ import {
     LanguageContracts,
     LanguageVariantContracts,
     TaxonomyContracts,
+    ProjectContracts,
 } from '@kentico/kontent-management';
 
 import { IProcessedItem, ItemType } from '../core';
@@ -61,6 +62,8 @@ export interface IImportSource {
         languages: LanguageContracts.ILanguageModelContract[];
         assets: AssetContracts.IAssetModelContract[];
     };
+    metadata: IImportMetadata;
+    validation: ProjectContracts.IProjectReportResponseContract;
     assetFolders: AssetFolderContracts.IAssetFolderContract[];
     binaryFiles: IBinaryFile[];
 }
@@ -75,4 +78,10 @@ export interface IFlattenedFolder {
     name: string;
     externalId?: string;
     id: string;
+}
+
+export interface IImportMetadata {
+    projectId: string;
+    timestamp: Date;
+    isInconsistentExport: boolean;
 }

@@ -39,7 +39,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Test resotre",
+            "name": "Test restore",
             "program": "${workspaceFolder}\\src\\cli\\app.ts",
             "preLaunchTask": "npm: build:all",
             "sourceMaps": true,

@@ -144,6 +144,7 @@ export class ImportService {
             source.importData,
             {}
         );
+        codenameTranslateHelper.replaceIdReferencesWithCodenames(source.importData.languages, source.importData, {});
         codenameTranslateHelper.replaceIdReferencesWithCodenames(source.importData.assets, source.importData, {});
         codenameTranslateHelper.replaceIdReferencesWithCodenames(source.importData.contentItems, source.importData, {});
         codenameTranslateHelper.replaceIdReferencesWithCodenames(

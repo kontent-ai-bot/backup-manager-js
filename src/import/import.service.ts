@@ -33,7 +33,7 @@ import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 export class ImportService {
     private readonly defaultLanguageId: string = '00000000-0000-0000-0000-000000000000';
     private readonly client: IManagementClient;
-    private readonly maxAllowedAssetSizeInBytes: number = 1e+8;
+    private readonly maxAllowedAssetSizeInBytes: number = 1e8;
 
     constructor(private config: IImportConfig) {
         this.client = new ManagementClient({
@@ -41,7 +41,7 @@ export class ImportService {
             projectId: config.projectId,
             retryStrategy: {
                 addJitter: true,
-                canRetryError: (err) => true, // so that timeout errors are retried
+                canRetryError: err => true, // so that timeout errors are retried
                 maxAttempts: 3,
                 deltaBackoffMs: 1000,
                 maxCumulativeWaitTimeMs: 60000
@@ -232,6 +232,50 @@ export class ImportService {
         }
     }
 
+    private tryGetLanguage(
+        currentLanguages: LanguageModels.LanguageModel[],
+        importLanguage: LanguageContracts.ILanguageModelContract
+    ): LanguageModels.IAddLanguageData | 'noImport' {
+        // check if language with given codename already exists
+        const existingLanguage = currentLanguages.find(m => m.codename === importLanguage.codename);
+
+        if (existingLanguage) {
+            // no need to import it
+            console.log(`Skipping language '${existingLanguage.name}' with codename '${existingLanguage.codename}'`)
+            return 'noImport';
+        }
+
+        // check if language codename of default language matches
+        if (importLanguage.id === this.defaultLanguageId) {
+            const defaultCurrentLanguage = currentLanguages.find(m => m.id === this.defaultLanguageId);
+
+            // verify that codenames matches, otherwise end program
+            if (defaultCurrentLanguage && defaultCurrentLanguage.codename !== importLanguage.codename) {
+                throw Error(
+                    `Codename of default language from imported data does not match target project. The source language codename is '${importLanguage.codename}' while target is '${defaultCurrentLanguage.codename}'. Please update codename of default language in target project to be '${importLanguage.codename}`
+                );
+            }
+        }
+
+        // 'codename' property is set in codename translator
+        const fallbackLanguageCodename = (importLanguage.fallback_language as any).codename;
+
+        if (!fallbackLanguageCodename) {
+            throw Error(`Language '${importLanguage.name}' has unset codename`);
+        }
+
+        return {
+            codename: importLanguage.codename,
+            name: importLanguage.name,
+            external_id: importLanguage.external_id,
+            fallback_language:
+                importLanguage.codename === fallbackLanguageCodename
+                    ? { id: this.defaultLanguageId }
+                    : { codename: fallbackLanguageCodename },
+            is_active: importLanguage.is_active
+        };
+    }
+
     private async importLanguagesAsync(
         languages: LanguageContracts.ILanguageModelContract[]
     ): Promise<IImportItemResult<LanguageContracts.ILanguageModelContract, LanguageModels.LanguageModel>[]> {
@@ -240,26 +284,19 @@ export class ImportService {
             LanguageModels.LanguageModel
         >[] = [];
 
-        for (const language of languages) {
-            // 'codename' property is set in codename translator
-            const fallbackLanguageCodename = (language.fallback_language as any).codename;
+        // get current languages in project
+        const currentLanguagesResponse = await this.client.listLanguages().toAllPromise();
 
-            if (!fallbackLanguageCodename) {
-                throw Error(`Language '${language.name}' has unset codename`);
+        for (const language of languages) {
+            const processedLanguageData = this.tryGetLanguage(currentLanguagesResponse.data.items, language);
+
+            if (processedLanguageData === 'noImport') {
+                continue;
             }
 
             await this.client
                 .addLanguage()
-                .withData({
-                    codename: language.codename,
-                    name: language.name,
-                    external_id: language.external_id,
-                    fallback_language:
-                        language.codename === fallbackLanguageCodename
-                            ? { id: this.defaultLanguageId }
-                            : { codename: fallbackLanguageCodename },
-                    is_active: language.is_active
-                })
+                .withData(processedLanguageData)
                 .toPromise()
                 .then(response => {
                     importedItems.push({
@@ -296,7 +333,10 @@ export class ImportService {
                 if (this.config.onUnsupportedBinaryFile) {
                     this.config.onUnsupportedBinaryFile(binaryFile);
                 }
-                console.log(`Removing binary data from file due to size. Max. file size is '${this.maxAllowedAssetSizeInBytes}'Bytes, but file has '${asset.size}' Bytes`, asset.file_name);
+                console.log(
+                    `Removing binary data from file due to size. Max. file size is '${this.maxAllowedAssetSizeInBytes}'Bytes, but file has '${asset.size}' Bytes`,
+                    asset.file_name
+                );
                 // remove binary data so that import proceeds & asset is created (so that it can be referenced by
                 // content items )
                 binaryDataToUpload = [];

@@ -1,0 +1,56 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test backup",
+            "program": "${workspaceFolder}\\src\\cli\\app.ts",
+            "preLaunchTask": "npm: build:all",
+            "sourceMaps": true,
+            "smartStep": true,
+            "args": [
+                "--config", "./output/backup-config.json",
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "outFiles": [
+                "${workspaceFolder}/_commonjs/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test clean",
+            "program": "${workspaceFolder}\\src\\cli\\app.ts",
+            "preLaunchTask": "npm: build:all",
+            "sourceMaps": true,
+            "smartStep": true,
+            "args": [
+                "--config", "./output/clean-config.json",
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "outFiles": [
+                "${workspaceFolder}/_commonjs/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test resotre",
+            "program": "${workspaceFolder}\\src\\cli\\app.ts",
+            "preLaunchTask": "npm: build:all",
+            "sourceMaps": true,
+            "smartStep": true,
+            "args": [
+                "--config", "./output/restore-config.json",
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "outFiles": [
+                "${workspaceFolder}/_commonjs/**/*.js"
+            ]
+        }
+    ]
+}

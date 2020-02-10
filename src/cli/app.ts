@@ -39,6 +39,8 @@ const backup = async (config: ICliFileConfig) => {
     if (canExport(report, config)) {
         const response = await exportService.exportAllAsync();
         await zipService.createZipAsync(response);
+
+        console.log('Completed');
     } else {
         console.log(`Project contains following inconsistencies:`);
         for (const issue of report.type_issues) {
@@ -69,6 +71,8 @@ const clean = async (config: ICliFileConfig) => {
     });
 
     await cleanService.cleanAllAsync();
+
+    console.log('Completed');
 };
 
 const restore = async (config: ICliFileConfig) => {
@@ -99,6 +103,8 @@ const restore = async (config: ICliFileConfig) => {
 
     if (canImport(data, config)) {
         await importService.importFromSourceAsync(data);
+
+        console.log('Completed');
     } else {
         console.log(`Project contains following inconsistencies:`);
         for (const issue of data.validation.type_issues) {

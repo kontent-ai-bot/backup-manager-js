@@ -110,6 +110,7 @@ export class ZipService {
 
         console.log(`Writing file '${filePath}'`);
         await fs.promises.writeFile(filePath, content);
+        console.log(`File saved`);
     }
 
     private async extractBinaryFilesAsync(

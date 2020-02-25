@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import yargs = require('yargs');
 
 import { CleanService } from '../clean';
-import { ICliFileConfig } from '../core';
+import { ICliFileConfig, fileHelper } from '../core';
 import { ExportService, IExportAllResult } from '../export';
 import { IImportSource, ImportService } from '../import';
 import { ZipService } from '../zip';
@@ -42,20 +42,13 @@ const backup = async (config: ICliFileConfig) => {
 
         console.log('Completed');
     } else {
-        console.log(`Project contains following inconsistencies:`);
-        for (const issue of report.type_issues) {
-            console.log(`Type ${issue.type.codename} has issues: ${issue.issues.map(m => m.messages).join(',')}`);
-        }
-        for (const issue of report.variant_issues) {
-            console.log(
-                `Variant ${issue.item.codename} (${issue.language.codename}) has issues: ${issue.issues
-                    .map(m => m.messages)
-                    .join(',')}`
-            );
-        }
+        const logFilename: string = 'backup_data_inconsistencies_log.json';
 
+        await fileHelper.createFileInCurrentFolderAsync(logFilename, JSON.stringify(report));
+
+        console.log(`Project could not be exported due to data inconsistencies.`);
+        console.log(`A log file '${logFilename}' with issues was created in current folder.`);
         console.log(`To export data regardless of issues, set 'force' config parameter to true`);
-        console.log(`Export failed. See reasons above`);
     }
 };
 
@@ -106,21 +99,13 @@ const restore = async (config: ICliFileConfig) => {
 
         console.log('Completed');
     } else {
-        console.log(`Project contains following inconsistencies:`);
-        for (const issue of data.validation.type_issues) {
-            console.log(`Type ${issue.type.codename} has issues: ${issue.issues.map(m => m.messages).join(',')}`);
-        }
-        for (const issue of data.validation.variant_issues) {
-            console.log(
-                `Variant ${issue.item.codename} (${issue.language.codename}) has issues: ${issue.issues
-                    .map(m => m.messages)
-                    .join(',')}`
-            );
-        }
+        const logFilename: string = 'import_data_inconsistencies_log.json';
 
-        console.log(`To import data regardless of issues, set 'force' config parameter to true, however keep in mind that without
-        fixing the issues, the import will likely fail.`);
-        console.log(`Import failed. See reasons above`);
+        await fileHelper.createFileInCurrentFolderAsync(logFilename, JSON.stringify(data.validation));
+
+        console.log(`Project could not be imported due to data inconsistencies.`);
+        console.log(`A log file '${logFilename}' with issues was created in current folder.`);
+        console.log(`To import data regardless of issues, set 'force' config parameter to true`);
     }
 };
 

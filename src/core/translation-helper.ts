@@ -1,6 +1,34 @@
 import { IIdCodenameTranslationResult } from './core.models';
 
-export class CodenameTranslateHelper {
+export class TranslationHelper {
+    public replaceIdReferencesWithExternalId(data: any): void {
+        if (data) {
+            if (Array.isArray(data)) {
+                for (const arrayItem of data) {
+                    this.replaceIdReferencesWithExternalId(arrayItem);
+                }
+            } else {
+                for (const key of Object.keys(data)) {
+                    const val = (data as any)[key];
+                    if (key.toLowerCase() === 'id') {
+                        const id = (data as any).id;
+                        const codename = (data as any).codename;
+                        const externalId = (data as any).external_id;
+
+                        if (!externalId && id) {
+                            data.external_id = id;
+                            delete data.id;
+                        }
+                    }
+
+                    if (typeof val === 'object' && val !== null) {
+                        this.replaceIdReferencesWithExternalId(val);
+                    }
+                }
+            }
+        }
+    }
+
     public replaceIdReferencesWithCodenames(
         data: any,
         allData: any,
@@ -40,40 +68,12 @@ export class CodenameTranslateHelper {
         }
     }
 
-    public extractReferencedCodenames(data: any, allData: any, foundCodenames: string[]): void {
-        if (data) {
-            if (Array.isArray(data)) {
-                for (const arrayItem of data) {
-                    this.extractReferencedCodenames(arrayItem, allData, foundCodenames);
-                }
-            } else {
-                for (const key of Object.keys(data)) {
-                    const val = (data as any)[key];
-                    if (key.toLowerCase() === 'codename') {
-                        const id = (data as any).id;
-                        const codename = (data as any).codename;
-
-                        if (codename && !id) {
-                            if (!foundCodenames.includes(codename)) {
-                                foundCodenames.push(codename);
-                            }
-                        }
-                    }
-                    if (typeof val === 'object' && val !== null) {
-                        this.extractReferencedCodenames(val, allData, foundCodenames);
-                    }
-                }
-            }
-        }
-    }
-
     public tryFindCodenameForId(
         findId: string,
         data: any,
         storedCodenames: IIdCodenameTranslationResult,
         foundCodename?: string
     ): string | undefined {
-
         // try looking up codename in stored references
         const storedCodename = storedCodenames[findId];
 
@@ -89,17 +89,26 @@ export class CodenameTranslateHelper {
             } else {
                 for (const key of Object.keys(data)) {
                     const val = (data as any)[key];
+                    let candidateId: string | undefined;
+
                     if (key.toLowerCase() === 'id') {
-                        const id = (data as any).id;
+                        candidateId = (data as any).id;
+                    }
+
+                    if (key.toLocaleLowerCase() === 'external_id') {
+                        candidateId = (data as any).external_id;
+                    }
+
+                    if (candidateId) {
                         const codename = (data as any).codename;
 
-                        if (id && codename) {
+                        if (codename) {
                             // store id -> codename mapping so that we don't have to always
                             // search for it as its expensive operation
-                            storedCodenames[id] = codename;
+                            storedCodenames[candidateId] = codename;
                         }
 
-                        if (codename && id === findId) {
+                        if (codename && candidateId === findId) {
                             return codename;
                         }
                     }
@@ -113,4 +122,4 @@ export class CodenameTranslateHelper {
     }
 }
 
-export const codenameTranslateHelper = new CodenameTranslateHelper();
+export const translationHelper = new TranslationHelper();

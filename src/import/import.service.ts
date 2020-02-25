@@ -1,3 +1,4 @@
+import { HttpService } from '@kentico/kontent-core';
 import {
     AssetContracts,
     AssetFolderContracts,
@@ -8,7 +9,6 @@ import {
     ContentTypeContracts,
     ContentTypeModels,
     ContentTypeSnippetContracts,
-    ContentTypeSnippetModels,
     IManagementClient,
     LanguageContracts,
     LanguageModels,
@@ -16,17 +16,16 @@ import {
     LanguageVariantModels,
     ManagementClient,
     TaxonomyContracts,
-    TaxonomyModels
+    TaxonomyModels,
 } from '@kentico/kontent-management';
-import { HttpService } from '@kentico/kontent-core';
 
 import {
-    codenameTranslateHelper,
+    translationHelper,
     idTranslateHelper,
     IImportItemResult,
     ItemType,
     ValidImportContract,
-    ValidImportModel
+    ValidImportModel,
 } from '../core';
 import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 
@@ -98,18 +97,8 @@ export class ImportService {
         importedItems.push(...importedTaxonomies);
 
         // ### Dummy types & snippets
-        await this.importDummyContentTypeSnippetsAsync(sourceData.importData.contentTypeSnippets);
-        await this.importDummyContentTypesAsync(sourceData.importData.contentTypes);
-
-        // ### Content type snippets
-        const importedContentTypeSnippets = await this.importContentTypeSnippetsAsync(
-            sourceData.importData.contentTypeSnippets
-        );
-        importedItems.push(...importedContentTypeSnippets);
-
-        // ### Content types
-        const importedContentTypes = await this.importContentTypesAsync(sourceData.importData.contentTypes);
-        importedItems.push(...importedContentTypes);
+        await this.importContentTypeSnippetsAsync(sourceData.importData.contentTypeSnippets);
+        await this.importContentTypesAsync(sourceData.importData.contentTypes);
 
         // ### Assets
         const importedAssets = await this.importAssetsAsync(
@@ -138,16 +127,16 @@ export class ImportService {
     }
 
     private translateIds(source: IImportSource): void {
-        codenameTranslateHelper.replaceIdReferencesWithCodenames(source.importData.contentTypes, source.importData, {});
-        codenameTranslateHelper.replaceIdReferencesWithCodenames(
-            source.importData.contentTypeSnippets,
-            source.importData,
-            {}
-        );
-        codenameTranslateHelper.replaceIdReferencesWithCodenames(source.importData.languages, source.importData, {});
-        codenameTranslateHelper.replaceIdReferencesWithCodenames(source.importData.assets, source.importData, {});
-        codenameTranslateHelper.replaceIdReferencesWithCodenames(source.importData.contentItems, source.importData, {});
-        codenameTranslateHelper.replaceIdReferencesWithCodenames(
+        // in following objects replace id references with external ids
+        translationHelper.replaceIdReferencesWithExternalId(source.importData.taxonomies);
+        translationHelper.replaceIdReferencesWithExternalId(source.importData.contentTypeSnippets);
+        translationHelper.replaceIdReferencesWithExternalId(source.importData.contentTypes);
+
+        // in following objects replace id references with codename
+        translationHelper.replaceIdReferencesWithCodenames(source.importData.languages, source.importData, {});
+        translationHelper.replaceIdReferencesWithCodenames(source.importData.assets, source.importData, {});
+        translationHelper.replaceIdReferencesWithCodenames(source.importData.contentItems, source.importData, {});
+        translationHelper.replaceIdReferencesWithCodenames(
             source.importData.languageVariants,
             source.importData,
             {}
@@ -241,7 +230,7 @@ export class ImportService {
 
         if (existingLanguage) {
             // no need to import it
-            console.log(`Skipping language '${existingLanguage.name}' with codename '${existingLanguage.codename}'`)
+            console.log(`Skipping language '${existingLanguage.name}' with codename '${existingLanguage.codename}'`);
             return 'noImport';
         }
 
@@ -428,18 +417,11 @@ export class ImportService {
         >[] = [];
 
         for (const contentType of contentTypes) {
-            await this.client
-                .modifyContentType()
-                .byTypeCodename(contentType.codename)
-                .withData(
-                    contentType.elements.map(element => {
-                        return <ContentTypeModels.IModifyContentTypeData>{
-                            op: 'addInto',
-                            value: element,
-                            path: '/elements'
-                        };
-                    })
-                )
+            const createdContentType = await this.client
+                .addContentType()
+                .withData(builder => {
+                    return contentType;
+                })
                 .toPromise()
                 .then(response => {
                     importedItems.push({
@@ -449,51 +431,6 @@ export class ImportService {
                         originalId: contentType.id
                     });
                     this.processItem(response.data.name, 'contentType', response.data);
-                })
-                .catch(error => this.handleImportError(error));
-        }
-
-        return importedItems;
-    }
-
-    private async importDummyContentTypesAsync(
-        contentTypes: ContentTypeContracts.IContentTypeContract[]
-    ): Promise<IImportItemResult<ContentTypeContracts.IContentTypeContract, ContentTypeModels.ContentType>[]> {
-        const importedItems: IImportItemResult<
-            ContentTypeContracts.IContentTypeContract,
-            ContentTypeModels.ContentType
-        >[] = [];
-
-        for (const contentType of contentTypes) {
-            // first create dummy types to handle circular references between types & types that reference
-            // not yet processed ones
-            const createdContentType = await this.client
-                .addContentType()
-                .withData(builder => {
-                    // process content groups for content groups
-                    contentType.content_groups?.forEach(m => {
-                        m.external_id = m.id;
-                        delete m.id;
-                        delete m.codename;
-                    });
-
-                    return {
-                        elements: [],
-                        name: contentType.name,
-                        codename: contentType.codename,
-                        content_groups: contentType.content_groups,
-                        external_id: contentType.external_id
-                    };
-                })
-                .toPromise()
-                .then(response => {
-                    importedItems.push({
-                        imported: response.data,
-                        original: contentType,
-                        importId: response.data.id,
-                        originalId: contentType.id
-                    });
-                    this.processItem(response.data.name, 'dummyContentType', response.data);
                 })
                 .catch(error => this.handleImportError(error));
         }
@@ -603,18 +540,18 @@ export class ImportService {
         >[] = [];
 
         for (const contentTypeSnippet of contentTypeSnippets) {
-            await this.client
-                .modifyContentTypeSnippet()
-                .byTypeCodename(contentTypeSnippet.codename)
-                .withData(
-                    contentTypeSnippet.elements.map(element => {
-                        return <ContentTypeSnippetModels.IModifyContentTypeSnippetData>{
-                            op: 'addInto',
-                            value: element,
-                            path: '/elements'
-                        };
-                    })
-                )
+            // first create dummy types to handle circular references between types & types that reference
+            // not yet processed ones
+            const createdContentTypeSnippet = await this.client
+                .addContentTypeSnippet()
+                .withData(builder => {
+                    return {
+                        elements: contentTypeSnippet.elements,
+                        name: contentTypeSnippet.name,
+                        codename: contentTypeSnippet.codename,
+                        external_id: contentTypeSnippet.external_id
+                    };
+                })
                 .toPromise()
                 .then(response => {
                     importedItems.push({
@@ -631,48 +568,10 @@ export class ImportService {
         return importedItems;
     }
 
-    private async importDummyContentTypeSnippetsAsync(
-        contentTypeSnippets: ContentTypeSnippetContracts.IContentTypeSnippetContract[]
-    ): Promise<IImportItemResult<ContentTypeContracts.IContentTypeContract, ContentTypeModels.ContentType>[]> {
-        const importedItems: IImportItemResult<
-            ContentTypeContracts.IContentTypeContract,
-            ContentTypeModels.ContentType
-        >[] = [];
-
-        for (const contentTypeSnippet of contentTypeSnippets) {
-            // first create dummy types to handle circular references between types & types that reference
-            // not yet processed ones
-            const createdContentTypeSnippet = await this.client
-                .addContentTypeSnippet()
-                .withData(builder => {
-                    return {
-                        elements: [],
-                        name: contentTypeSnippet.name,
-                        codename: contentTypeSnippet.codename,
-                        external_id: contentTypeSnippet.external_id
-                    };
-                })
-                .toPromise()
-                .then(response => {
-                    importedItems.push({
-                        imported: response.data,
-                        original: contentTypeSnippet,
-                        importId: response.data.id,
-                        originalId: contentTypeSnippet.id
-                    });
-                    this.processItem(response.data.name, 'dummyContentTypeSnippet', response.data);
-                })
-                .catch(error => this.handleImportError(error));
-        }
-
-        return importedItems;
-    }
-
     private async importTaxonomiesAsync(
         taxonomies: TaxonomyContracts.ITaxonomyContract[]
     ): Promise<IImportItemResult<TaxonomyContracts.ITaxonomyContract, TaxonomyModels.Taxonomy>[]> {
         const importedItems: IImportItemResult<TaxonomyContracts.ITaxonomyContract, TaxonomyModels.Taxonomy>[] = [];
-
         for (const taxonomy of taxonomies) {
             await this.client
                 .addTaxonomy()

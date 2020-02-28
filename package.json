@@ -22,7 +22,6 @@
     "build:commonjs": "npm run tsc-local -- -m commonjs --outDir _commonjs",
     "build:all": "npm run build:commonjs",
     "test:all": "npm run build:all",
-    "test:backup:cli": "npm run build:commonjs && cd output && node ../_commonjs/cli/app --action=backup --projectId=b259760f-81c5-013a-05e7-69efb4b954e5 --apiKey=ew0KICAiYWxnIjogIkhTMjU2IiwNCiAgInR5cCI6ICJKV1QiDQp9.ew0KICAianRpIjogIjE3YTkwODIyNGM3MDQyM2E4NGZhMzkzMzZiNjUyYzU0IiwNCiAgImlhdCI6ICIxNTczNDgxNjAwIiwNCiAgImV4cCI6ICIxOTE5MDgxNjAwIiwNCiAgInByb2plY3RfaWQiOiAiYjI1OTc2MGY4MWM1MDEzYTA1ZTc2OWVmYjRiOTU0ZTUiLA0KICAidmVyIjogIjIuMS4wIiwNCiAgInVpZCI6ICJ1c3JfMHZRWUJDcUF2cm5vNXJpZkhuaVlFRyIsDQogICJhdWQiOiAibWFuYWdlLmtlbnRpY29jbG91ZC5jb20iDQp9.zBj0DHYKLUGiDJQ5_f3eUx02oTEzQ47X6N413ciSQQw",
     "test:backup": "npm run build:commonjs && cd output && node ../_commonjs/cli/app --config=backup-config.json",
     "test:clean": "npm run build:commonjs && cd output && node ../_commonjs/cli/app --config=clean-config.json",
     "test:restore": "npm run build:commonjs && cd output && node ../_commonjs/cli/app --config=restore-config.json",

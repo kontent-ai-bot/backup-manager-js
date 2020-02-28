@@ -4,7 +4,7 @@ import yargs = require('yargs');
 
 import { CleanService } from '../clean';
 import { ICliFileConfig, fileHelper, CliAction } from '../core';
-import { ExportService, IExportAllResult } from '../export';
+import { ExportService } from '../export';
 import { IImportSource, ImportService } from '../import';
 import { ZipService } from '../zip';
 import { ProjectContracts } from '@kentico/kontent-management';

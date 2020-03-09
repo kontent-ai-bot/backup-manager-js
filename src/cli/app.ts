@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import yargs = require('yargs');
 
 import { CleanService } from '../clean';
-import { ICliFileConfig, fileHelper } from '../core';
+import { ICliFileConfig, fileHelper, getFilenameWithoutExtension } from '../core';
 import { ExportService, IExportAllResult } from '../export';
 import { IImportSource, ImportService } from '../import';
 import { ZipService } from '../zip';
@@ -36,21 +36,24 @@ const backup = async (config: ICliFileConfig) => {
 
     const report = await exportService.exportProjectValidationAsync();
 
-    if (canExport(report, config)) {
-        const response = await exportService.exportAllAsync();
-        await zipService.createZipAsync(response);
+    const response = await exportService.exportAllAsync();
+    await zipService.createZipAsync(response);
 
-        console.log('Completed');
-    } else {
-        const logFilename: string = 'backup_data_inconsistencies_log.json';
+    if (exportContainsInconsistencies(report, config)) {
+        const logFilename: string = getLogFilename(config.zipFilename);
 
         await fileHelper.createFileInCurrentFolderAsync(logFilename, JSON.stringify(report));
 
-        console.log(`Project could not be exported due to data inconsistencies.`);
-        console.log(`A log file '${logFilename}' with issues was created in current folder.`);
-        console.log(`To export data regardless of issues, set 'force' config parameter to true`);
+        console.log(`Project contains inconsistencies which may cause future import to not work.`);
+        console.log(`See '${logFilename}' for more details.`);
     }
+
+    console.log('Completed');
 };
+
+const getLogFilename = (filename: string) => {
+    return`${getFilenameWithoutExtension(filename)}_log.json`;
+}
 
 const clean = async (config: ICliFileConfig) => {
     const cleanService = new CleanService({
@@ -99,7 +102,7 @@ const restore = async (config: ICliFileConfig) => {
 
         console.log('Completed');
     } else {
-        const logFilename: string = 'import_data_inconsistencies_log.json';
+        const logFilename: string = getLogFilename(config.zipFilename);
 
         await fileHelper.createFileInCurrentFolderAsync(logFilename, JSON.stringify(data.validation));
 
@@ -149,7 +152,7 @@ const process = async () => {
     }
 };
 
-const canExport = (projectReport: ProjectContracts.IProjectReportResponseContract, config: ICliFileConfig) => {
+const exportContainsInconsistencies = (projectReport: ProjectContracts.IProjectReportResponseContract, config: ICliFileConfig) => {
     const projectHasIssues = projectReport.variant_issues.length > 0 || projectReport.type_issues.length > 0;
     if (!projectHasIssues) {
         return true;

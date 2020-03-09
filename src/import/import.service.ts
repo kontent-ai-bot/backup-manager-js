@@ -96,7 +96,7 @@ export class ImportService {
         const importedTaxonomies = await this.importTaxonomiesAsync(sourceData.importData.taxonomies);
         importedItems.push(...importedTaxonomies);
 
-        // ### Dummy types & snippets
+        // ### Content types & snippets
         await this.importContentTypeSnippetsAsync(sourceData.importData.contentTypeSnippets);
         await this.importContentTypesAsync(sourceData.importData.contentTypes);
 
@@ -540,7 +540,6 @@ export class ImportService {
         >[] = [];
 
         for (const contentTypeSnippet of contentTypeSnippets) {
-            // first create dummy types to handle circular references between types & types that reference
             // not yet processed ones
             const createdContentTypeSnippet = await this.client
                 .addContentTypeSnippet()

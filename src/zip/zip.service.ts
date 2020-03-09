@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { get } from 'https';
 import JSZip = require('jszip');
 
-import { IExportData, IExportMetadata, IExportAllResult } from '../export';
+import { IExportAllResult } from '../export';
 import { IBinaryFile, IImportSource } from '../import';
 import { IZipServiceConfig } from './zip.models';
 
@@ -18,7 +18,7 @@ export class ZipService {
     private readonly contentTypeSnippetsName: string = 'contentTypesSnippets.json';
     private readonly metadataName: string = 'metadata.json';
     private readonly languages: string = 'languages.json';
-    private readonly filesName: string = 'files.json';
+    private readonly filesName: string = 'files';
     private readonly assetFoldersName: string = 'assetFolders.json';
     private readonly validationName: string = 'validation.json';
 

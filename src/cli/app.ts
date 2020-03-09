@@ -3,20 +3,13 @@ import * as fs from 'fs';
 import yargs = require('yargs');
 
 import { CleanService } from '../clean';
-import { ICliFileConfig, fileHelper, getFilenameWithoutExtension } from '../core';
-import { ExportService, IExportAllResult } from '../export';
+import { ICliFileConfig, fileHelper, getFilenameWithoutExtension, CliAction } from '../core';
+import { ExportService } from '../export';
 import { IImportSource, ImportService } from '../import';
 import { ZipService } from '../zip';
 import { ProjectContracts } from '@kentico/kontent-management';
 
 const argv = yargs.argv;
-
-// config
-const configFilename: string = argv.config as string;
-
-if (!configFilename) {
-    throw Error(`Please provide filename of config file using 'config' argument.`);
-}
 
 const backup = async (config: ICliFileConfig) => {
     const exportService = new ExportService({
@@ -135,9 +128,7 @@ const validateConfig = (config: any) => {
 };
 
 const process = async () => {
-    const configFile = await fs.promises.readFile(`./${configFilename}`);
-
-    const config = JSON.parse(configFile.toString()) as ICliFileConfig;
+    const config = await getConfig();
 
     validateConfig(config);
 
@@ -176,5 +167,54 @@ const canImport = (importData: IImportSource, config: ICliFileConfig) => {
 
     return false;
 };
+
+const getConfig = async() => {
+    const configFilename: string = argv.config as string;
+
+    if (configFilename) {
+        // get config from file
+        const configFile = await fs.promises.readFile(`./${configFilename}`);
+
+        return JSON.parse(configFile.toString()) as ICliFileConfig;
+     }
+
+     const action: CliAction | undefined = argv.action as CliAction | undefined;
+     const apiKey: string | undefined = argv.apiKey as string | undefined;
+     const enableLog: boolean | undefined = (argv.enableLog as boolean | undefined) ?? true;
+     const force: boolean | undefined = (argv.force as boolean | undefined) ?? true;
+     const importLanguages: boolean | undefined = (argv.importLanguages as boolean | undefined) ?? true;
+     const projectId: string | undefined = argv.projectId as string | undefined;
+     const zipFilename: string | undefined = (argv.zipFilename as string | undefined) ?? getDefaultBackupFilename()
+
+     if (!action) {
+         throw Error(`No action was provided`);
+     }
+
+     if (!apiKey) {
+         throw Error(`Api key was not provided`);
+     }
+
+     if (!projectId) {
+        throw Error(`Project id was not provided`);
+    }
+
+    // get config from command line
+    const config: ICliFileConfig = {
+        action,
+        apiKey,
+        enableLog,
+        force,
+        importLanguages,
+        projectId,
+        zipFilename
+    };
+
+    return config;
+}
+
+const getDefaultBackupFilename = () => {
+    const date = new Date();
+    return `kontent-backup-${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}`;
+}
 
 process();

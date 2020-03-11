@@ -18,7 +18,7 @@ Install package globally:
 |-----------------|---------------------------------------------------------------------------------------------------------------------|
 | projectId       | Id of Kentico Kontent project (required)                                                                            |
 | apiKey          | Content management Api key (required)                                                                               |
-| action          | Action. Possible values are: 'restore' | 'backup' | 'clean' (required)                                              |
+| action          | Action. Possible values are: 'restore' & 'backup' & 'clean' (required)                                              |
 | zipFilename     | Name of zip used for export / restoring data. E.g. 'kontent-backup.zip'.                                            |
 | enableLog       | Indicates if default logging is enabled (useful to indicate progress)                                               |
 | importLanguages | Indicates if languages should be imported                                                                           |

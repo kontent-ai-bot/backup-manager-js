@@ -106,7 +106,7 @@ const run = async () => {
         projectId: 'targetProjectId',
         apiKey: 'targetProjectId',
         enableLog: true,
-        workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000' // id that items are assigned
+        workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000' // workflow id that items are assigned
     });
 
     // read export data from zip
@@ -135,8 +135,7 @@ const run = async () => {
         },
         projectId: 'targetProjectId',
         apiKey: 'targetProjectId',
-        enableLog: true,
-        workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000' // id that items are assigned
+        enableLog: true
     });
 
     // read export data from zip

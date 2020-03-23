@@ -7,11 +7,11 @@ import { ICliFileConfig, fileHelper, getFilenameWithoutExtension, CliAction } fr
 import { ExportService } from '../export';
 import { IImportSource, ImportService } from '../import';
 import { ZipService } from '../zip';
-import { ProjectContracts } from '@kentico/kontent-management';
+import { ProjectContracts, SharedModels } from '@kentico/kontent-management';
 
 const argv = yargs.argv;
 
-const backup = async (config: ICliFileConfig) => {
+const backupAsync = async (config: ICliFileConfig) => {
     const exportService = new ExportService({
         apiKey: config.apiKey,
         projectId: config.projectId,
@@ -48,7 +48,7 @@ const getLogFilename = (filename: string) => {
     return`${getFilenameWithoutExtension(filename)}_log.json`;
 }
 
-const clean = async (config: ICliFileConfig) => {
+const cleanAsync = async (config: ICliFileConfig) => {
     const cleanService = new CleanService({
         onDelete: item => {
             if (config.enableLog) {
@@ -64,7 +64,7 @@ const clean = async (config: ICliFileConfig) => {
     console.log('Completed');
 };
 
-const restore = async (config: ICliFileConfig) => {
+const restoreAsync = async (config: ICliFileConfig) => {
     const zipService = new ZipService({
         filename: config.zipFilename,
         enableLog: config.enableLog
@@ -133,11 +133,11 @@ const process = async () => {
     validateConfig(config);
 
     if (config.action === 'backup') {
-        backup(config);
+        await backupAsync(config);
     } else if (config.action === 'clean') {
-        clean(config);
+        await cleanAsync(config);
     } else if (config.action === 'restore') {
-        restore(config);
+        await restoreAsync(config);
     } else {
         throw Error(`Invalid action`);
     }
@@ -217,4 +217,13 @@ const getDefaultBackupFilename = () => {
     return `kontent-backup-${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}`;
 }
 
-process();
+process().then(m => {}).catch(err => {
+    if (err instanceof SharedModels.ContentManagementBaseKontentError) {
+        console.log(`Management API error occured:`, err.message);
+        for (const validationError of err.validationErrors) {
+            console.log(validationError.message);
+        }
+    } else {
+        console.log(`There was an error processing your request: `, err);
+    }
+});

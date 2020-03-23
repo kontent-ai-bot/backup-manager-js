@@ -19,7 +19,7 @@ Install package globally:
 | projectId       | Id of Kentico Kontent project (required)                                                                            |
 | apiKey          | Content management Api key (required)                                                                               |
 | action          | Action. Possible values are: 'restore' & 'backup' & 'clean' (required)                                              |
-| zipFilename     | Name of zip used for export / restoring data. E.g. 'kontent-backup.zip'.                                            |
+| zipFilename     | Name of zip used for export / restoring data. E.g. 'kontent-backup'.                                            |
 | enableLog       | Indicates if default logging is enabled (useful to indicate progress)                                               |
 | importLanguages | Indicates if languages should be imported                                                                           |
 | force           | If enabled, project will we exported / restored even if there are data inconsistencies. This is enabled by default. |
@@ -33,7 +33,7 @@ To backup a project run:
 
 To restore a project run:
 
-`kbm --action=restore --apiKey=xxx --projectId=xxx --zipFilename=backupFile.zip`
+`kbm --action=restore --apiKey=xxx --projectId=xxx --zipFilename=backupFile`
 
 To clean (delete) everything inside a project run:
 

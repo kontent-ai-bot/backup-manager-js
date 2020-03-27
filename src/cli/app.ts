@@ -81,7 +81,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
         enableLog: config.enableLog,
         workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000',
         process: {
-            language: item => config.importLanguages,
+            language: item => config.importLanguages === true,
             contentItem: item => {
                 return true;
             }

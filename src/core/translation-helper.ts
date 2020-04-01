@@ -12,10 +12,8 @@ export class TranslationHelper {
                     const val = (data as any)[key];
                     if (key.toLowerCase() === 'id') {
                         const id = (data as any).id;
-                        const codename = (data as any).codename;
-                        const externalId = (data as any).external_id;
 
-                        if (!externalId && id) {
+                        if (id) {
                             data.external_id = id;
                             delete data.id;
                         }

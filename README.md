@@ -26,6 +26,8 @@ Install package globally:
 
 ### Execution
 
+> We recommend restoring backups to clean (empty) projects. Restoration process may make changes to target project such as changing language codenames to match source project.
+
 To backup a project run:
 
 `kbm --action=backup --apiKey=xxx --projectId=xxx`
@@ -101,6 +103,7 @@ const run = async () => {
             // called when any content is imported
             console.log(`Imported: ${item.title} | ${item.type}`);
         },
+        fixLanguages: true,
         projectId: 'targetProjectId',
         apiKey: 'targetProjectId',
         enableLog: true,
@@ -131,6 +134,7 @@ const run = async () => {
             // called when any content is imported
             console.log(`Imported: ${item.title} | ${item.type}`);
         },
+        fixLanguages: true,
         projectId: 'targetProjectId',
         apiKey: 'targetProjectId',
         enableLog: true

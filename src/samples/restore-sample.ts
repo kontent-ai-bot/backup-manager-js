@@ -15,6 +15,7 @@ const run = async () => {
         projectId: 'targetProjectId',
         apiKey: 'targetProjectId',
         enableLog: true,
+        fixLanguages: true,
         workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000' // id that items are assigned
     });
 

@@ -15,16 +15,16 @@ import {
     LanguageVariantContracts,
     LanguageVariantModels,
     ManagementClient,
+    SharedModels,
     TaxonomyContracts,
     TaxonomyModels,
-    SharedModels,
 } from '@kentico/kontent-management';
 
 import {
-    translationHelper,
     idTranslateHelper,
     IImportItemResult,
     ItemType,
+    translationHelper,
     ValidImportContract,
     ValidImportModel,
 } from '../core';
@@ -144,11 +144,7 @@ export class ImportService {
         translationHelper.replaceIdReferencesWithCodenames(source.importData.languages, source.importData, {});
         translationHelper.replaceIdReferencesWithCodenames(source.importData.assets, source.importData, {});
         translationHelper.replaceIdReferencesWithCodenames(source.importData.contentItems, source.importData, {});
-        translationHelper.replaceIdReferencesWithCodenames(
-            source.importData.languageVariants,
-            source.importData,
-            {}
-        );
+        translationHelper.replaceIdReferencesWithCodenames(source.importData.languageVariants, source.importData, {});
     }
 
     private removeSkippedItemsFromImport(source: IImportSource): void {
@@ -229,6 +225,62 @@ export class ImportService {
         }
     }
 
+    private async fixLanguageAsync(
+        currentLanguages: LanguageModels.LanguageModel[],
+        importLanguage: LanguageContracts.ILanguageModelContract
+    ): Promise<void> {
+        // check if language with given codename already exists
+        const existingLanguage = currentLanguages.find(m => m.codename === importLanguage.codename);
+
+        if (existingLanguage) {
+            // activate inactive languages
+            if (!existingLanguage.isActive) {
+                console.log(
+                    `Language '${existingLanguage.name}' with codename '${existingLanguage.codename}' is not active in target project. Activating language.`
+                );
+
+                await this.client
+                    .modifyLanguage()
+                    .byLanguageCodename(existingLanguage.codename)
+                    .withData([
+                        {
+                            op: 'replace',
+                            property_name: 'is_active',
+                            value: true
+                        }
+                    ])
+                    .toPromise();
+            }
+        }
+
+        // fix codename when source & target languages do not match
+        if (importLanguage.is_default) {
+            const defaultExistingLanguage = currentLanguages.find(m => m.id === importLanguage.id);
+
+            if (!defaultExistingLanguage) {
+                throw Error(`Invalid default existing language. Language with id '${importLanguage.id}' was not found.`);
+            }
+            if (importLanguage.codename !== defaultExistingLanguage.codename) {
+                // languages do not match, change it
+                console.log(
+                    `Default language '${importLanguage.name}' with codename '${importLanguage.codename}' does not match default language in target project. Changing language codename in target project from '${defaultExistingLanguage.codename}' codename to '${importLanguage.codename}'`
+                );
+
+                await this.client
+                    .modifyLanguage()
+                    .byLanguageCodename(defaultExistingLanguage.codename)
+                    .withData([
+                        {
+                            op: 'replace',
+                            property_name: 'codename',
+                            value: importLanguage.codename
+                        }
+                    ])
+                    .toPromise();
+            }
+        }
+    }
+
     private tryGetLanguage(
         currentLanguages: LanguageModels.LanguageModel[],
         importLanguage: LanguageContracts.ILanguageModelContract
@@ -246,8 +298,8 @@ export class ImportService {
         if (importLanguage.id === this.defaultLanguageId) {
             const defaultCurrentLanguage = currentLanguages.find(m => m.id === this.defaultLanguageId);
 
-            // verify that codenames matches, otherwise end program
             if (defaultCurrentLanguage && defaultCurrentLanguage.codename !== importLanguage.codename) {
+                // default language codename is source project is different than target project
                 throw Error(
                     `Codename of default language from imported data does not match target project. The source language codename is '${importLanguage.codename}' while target is '${defaultCurrentLanguage.codename}'. Please update codename of default language in target project to be '${importLanguage.codename}`
                 );
@@ -282,9 +334,17 @@ export class ImportService {
         >[] = [];
 
         // get current languages in project
-        const currentLanguagesResponse = await this.client.listLanguages().toAllPromise();
+        let currentLanguagesResponse = await this.client.listLanguages().toAllPromise();
 
         for (const language of languages) {
+            // fix language if necessary
+            if (this.config.fixLanguages) {
+                await this.fixLanguageAsync(currentLanguagesResponse.data.items, language);
+
+                // reload existing languages = they were fixed
+                currentLanguagesResponse  = await this.client.listLanguages().toAllPromise();
+            }
+
             const processedLanguageData = this.tryGetLanguage(currentLanguagesResponse.data.items, language);
 
             if (processedLanguageData === 'noImport') {

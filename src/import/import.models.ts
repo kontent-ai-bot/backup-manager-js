@@ -19,6 +19,7 @@ export interface IImportConfig {
     enableLog: boolean;
     onUnsupportedBinaryFile?: (binaryFile: IBinaryFile) => void;
     onImport?: (item: IProcessedItem) => void;
+    fixLanguages: boolean;
     process?: {
         taxonomy?: (item: TaxonomyContracts.ITaxonomyContract) => boolean | Promise<boolean>;
         contentTypeSnippet?: (

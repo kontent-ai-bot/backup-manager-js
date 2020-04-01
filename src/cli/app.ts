@@ -76,6 +76,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
                 console.log(`Imported: ${item.title} | ${item.type}`);
             }
         },
+        fixLanguages: true,
         projectId: config.projectId,
         apiKey: config.apiKey,
         enableLog: config.enableLog,

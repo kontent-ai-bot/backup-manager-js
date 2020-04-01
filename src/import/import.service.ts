@@ -17,6 +17,7 @@ import {
     ManagementClient,
     TaxonomyContracts,
     TaxonomyModels,
+    SharedModels,
 } from '@kentico/kontent-management';
 
 import {
@@ -32,6 +33,11 @@ import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 export class ImportService {
     private readonly defaultLanguageId: string = '00000000-0000-0000-0000-000000000000';
     private readonly client: IManagementClient;
+
+    /**
+     * Maximum allowed size of asset in Bytes.
+     * Currently 1e8 = 100 MB
+     */
     private readonly maxAllowedAssetSizeInBytes: number = 1e8;
 
     constructor(private config: IImportConfig) {
@@ -75,7 +81,9 @@ export class ImportService {
         if (this.config.enableLog) {
             console.log(`Removing skipped items`);
         }
-        // once ids are translated, remove skipped items from import
+
+        // this is an optional step where users can exclude certain objects from being
+        // imported via import configuration.
         this.removeSkippedItemsFromImport(sourceData);
 
         if (this.config.enableLog) {
@@ -417,7 +425,7 @@ export class ImportService {
         >[] = [];
 
         for (const contentType of contentTypes) {
-            const createdContentType = await this.client
+            await this.client
                 .addContentType()
                 .withData(builder => {
                     return contentType;
@@ -540,8 +548,7 @@ export class ImportService {
         >[] = [];
 
         for (const contentTypeSnippet of contentTypeSnippets) {
-            // not yet processed ones
-            const createdContentTypeSnippet = await this.client
+            await this.client
                 .addContentTypeSnippet()
                 .withData(builder => {
                     return {
@@ -591,9 +598,9 @@ export class ImportService {
         return importedItems;
     }
 
-    private handleImportError(error: any): void {
+    private handleImportError(error: any | SharedModels.ContentManagementBaseKontentError): void {
         console.log(error);
-        throw Error(error);
+        throw error;
     }
 
     private processItem(title: string, type: ItemType, data: any): void {

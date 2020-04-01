@@ -16,13 +16,12 @@ Install package globally:
 
 | Config          | Value                                                                                                               |
 |-----------------|---------------------------------------------------------------------------------------------------------------------|
-| projectId       | Id of Kentico Kontent project (required)                                                                            |
-| apiKey          | Content management Api key (required)                                                                               |
-| action          | Action. Possible values are: 'restore' & 'backup' & 'clean' (required)                                              |
+| **projectId**       | Id of Kentico Kontent project **(required)**                                                                            |
+| **apiKey**           | Content management Api key **(required)**                                                                               |
+| **action**           | Action. Possible values are: 'restore' & 'backup' & 'clean' **(required)**                                              |
 | zipFilename     | Name of zip used for export / restoring data. E.g. 'kontent-backup'.                                            |
-| enableLog       | Indicates if default logging is enabled (useful to indicate progress)                                               |
-| importLanguages | Indicates if languages should be imported                                                                           |
-| force           | If enabled, project will we exported / restored even if there are data inconsistencies. This is enabled by default. |
+| enableLog       | Indicates if default logging is enabled (useful to indicate progress)       
+| force           | If enabled, project will we exported / restored even if there are data inconsistencies. Enabled by default. |
 
 
 ### Execution
@@ -50,7 +49,6 @@ Create a `json` configuration file in the folder where you are attempting to run
     "zipFilename": "backup",
     "action": "backup",
     "enableLog": true,
-    "importLanguages": false,
     "force": true
 }
 ```

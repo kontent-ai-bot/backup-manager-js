@@ -40,7 +40,7 @@ export interface IImportAllResult {
     };
 }
 
-export interface IPreparedImportItem<TItem = any> {
+export interface IPreparedImportItem<TItem> {
     type: ItemType;
     codename: string;
     item: TItem;

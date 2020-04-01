@@ -134,6 +134,10 @@ export class ZipService {
         return binaryFiles;
     }
 
+    /**
+     * Gets path to asset within zip folder. Uses tree format using asset ids such as:
+     * "files/3b4/3b42f36c-2e67-4605-a8d3-fee2498e5224/image.jpg"
+     */
     private getFullAssetPath(assetId: string, filename: string): string {
         return `${this.filesName}/${assetId.substr(0, 3)}/${assetId}/${filename}`;
     }

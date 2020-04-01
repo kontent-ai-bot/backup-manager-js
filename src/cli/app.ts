@@ -81,7 +81,6 @@ const restoreAsync = async (config: ICliFileConfig) => {
         enableLog: config.enableLog,
         workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000',
         process: {
-            language: item => config.importLanguages === true,
             contentItem: item => {
                 return true;
             }
@@ -105,7 +104,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
     }
 };
 
-const validateConfig = (config: any) => {
+const validateConfig = (config?: ICliFileConfig) => {
     if (!config) {
         throw Error(`Invalid config file`);
     }
@@ -182,7 +181,6 @@ const getConfig = async() => {
      const apiKey: string | undefined = argv.apiKey as string | undefined;
      const enableLog: boolean | undefined = (argv.enableLog as boolean | undefined) ?? true;
      const force: boolean | undefined = (argv.force as boolean | undefined) ?? true;
-     const importLanguages: boolean | undefined = (argv.importLanguages as boolean | undefined) ?? true;
      const projectId: string | undefined = argv.projectId as string | undefined;
      const zipFilename: string | undefined = (argv.zipFilename as string | undefined) ?? getDefaultBackupFilename()
 
@@ -204,7 +202,6 @@ const getConfig = async() => {
         apiKey,
         enableLog,
         force,
-        importLanguages,
         projectId,
         zipFilename
     };

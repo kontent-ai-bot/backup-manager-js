@@ -42,7 +42,7 @@ export class CleanService {
                 .deleteTaxonomy()
                 .byTaxonomyId(taxonomy.id)
                 .toPromise()
-                .then(m => {
+                .then(response => {
                     this.processItem(taxonomy.name, 'taxonomy', taxonomy);
                 })
                 .catch(error => this.handleCleanError(error));
@@ -57,7 +57,7 @@ export class CleanService {
                 .deleteContentTypeSnippet()
                 .byTypeId(contentTypeSnippet.id)
                 .toPromise()
-                .then(m => {
+                .then(response => {
                     this.processItem(contentTypeSnippet.name, 'contentTypeSnippet', contentTypeSnippet);
                 })
                 .catch(error => this.handleCleanError(error));
@@ -72,7 +72,7 @@ export class CleanService {
                 .deleteContentType()
                 .byTypeId(contentType.id)
                 .toPromise()
-                .then(m => {
+                .then(response => {
                     this.processItem(contentType.name, 'contentType', contentType);
                 })
                 .catch(error => this.handleCleanError(error));
@@ -128,7 +128,7 @@ export class CleanService {
                 .deleteContentItem()
                 .byItemId(contentItem.id)
                 .toPromise()
-                .then(m => {
+                .then(response => {
                     this.processItem(contentItem.name, 'contentItem', contentItem);
                 })
                 .catch(error => this.handleCleanError(error));
@@ -156,7 +156,7 @@ export class CleanService {
                 .byItemId(itemId)
                 .byLanguageId(languageId)
                 .toPromise()
-                .then(m => {
+                .then(response => {
                     this.processItem(itemId, 'languageVariant', languageVariant);
                 })
                 .catch(error => this.handleCleanError(error));

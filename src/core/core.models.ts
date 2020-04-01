@@ -23,7 +23,6 @@ export interface ICliFileConfig {
     action: CliAction;
     zipFilename: string;
     enableLog: boolean;
-    importLanguages: boolean;
     force: boolean;
 }
 

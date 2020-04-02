@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/Enngage/kontent-backup-manager/compare/v0.0.5...v0.0.6) (2020-04-02)
+
+
+### Features
+
+* adds support for fixing language in target project & enables it by default for CLI restoration ([0d0c911](https://github.com/Enngage/kontent-backup-manager/commit/0d0c911570a6b9fcf8a3b9a11a99fb1a954d5c5f))
+
+
+### Bug Fixes
+
+* always set external_id rather then preserving default values for consistency. ([99ac6d5](https://github.com/Enngage/kontent-backup-manager/commit/99ac6d51dd3344baf7e09b9379c8aa7fe9aad5cf))
+
 ### 0.0.5 (2020-03-23)
 
 

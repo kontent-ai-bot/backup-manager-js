@@ -1,4 +1,5 @@
-
+[![npm version](https://badge.fury.io/js/kentico/kontent-backup-manager.svg)](https://badge.fury.io/js/kentico/kontent-backup-manager)
+[![CircleCI](https://circleci.com/gh/kentico/kontent-backup-manager-js/tree/master.svg?style=svg)](https://circleci.com/gh/kentico/kontent-backup-manager-js/tree/master)
 
 # Kontent Backup Manager
 

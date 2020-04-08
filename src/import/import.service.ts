@@ -32,6 +32,7 @@ import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 
 export class ImportService {
     private readonly defaultLanguageId: string = '00000000-0000-0000-0000-000000000000';
+    private readonly defaultWorkflowId: string = '00000000-0000-0000-0000-000000000000';
     private readonly client: IManagementClient;
 
     /**
@@ -576,7 +577,8 @@ export class ImportService {
             idTranslateHelper.replaceIdReferencesWithNewId(languageVariant, currentItems);
 
             // set workflow id (there is no API to create workflows programatically)
-            languageVariant.workflow_step.id = this.config.workflowIdForImportedItems;
+            const newWorkflowId: string = this.config.workflowIdForImportedItems ?? this.defaultWorkflowId;
+            languageVariant.workflow_step.id = newWorkflowId;
 
             await this.client
                 .upsertLanguageVariant()

@@ -13,7 +13,7 @@ import {
 import { IProcessedItem, ItemType } from '../core';
 
 export interface IImportConfig {
-    workflowIdForImportedItems: string;
+    workflowIdForImportedItems?: string;
     projectId: string;
     apiKey: string;
     enableLog: boolean;

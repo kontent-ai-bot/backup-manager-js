@@ -80,7 +80,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
         projectId: config.projectId,
         apiKey: config.apiKey,
         enableLog: config.enableLog,
-        workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000',
+        workflowIdForImportedItems: undefined,
         process: {
             contentItem: item => {
                 return true;

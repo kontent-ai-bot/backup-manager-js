@@ -30,9 +30,22 @@ export interface IExportData {
 }
 
 export interface IExportMetadata {
+    version: string;
     projectId: string;
     timestamp: Date;
     isInconsistentExport: boolean;
+    dataOverview: IExportMetadataDataOverview;
+}
+
+export interface IExportMetadataDataOverview {
+    taxonomiesCount: number;
+    contentTypeSnippetsCount:  number;
+    contentTypesCount:  number;
+    contentItemsCount:  number;
+    languageVariantsCount:  number;
+    languagesCount:  number;
+    assetsCount:  number;
+    assetFoldersCount:  number;
 }
 
 export interface IExportAllResult {

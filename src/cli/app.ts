@@ -32,7 +32,7 @@ const backupAsync = async (config: ICliFileConfig) => {
     const response = await exportService.exportAllAsync();
     await zipService.createZipAsync(response);
 
-    if (exportContainsInconsistencies(report, config)) {
+    if (exportContainsInconsistencies(report)) {
         const logFilename: string = getLogFilename(config.zipFilename);
 
         await fileHelper.createFileInCurrentFolderAsync(logFilename, JSON.stringify(report));
@@ -143,13 +143,9 @@ const process = async () => {
     }
 };
 
-const exportContainsInconsistencies = (projectReport: ProjectContracts.IProjectReportResponseContract, config: ICliFileConfig) => {
+const exportContainsInconsistencies = (projectReport: ProjectContracts.IProjectReportResponseContract) => {
     const projectHasIssues = projectReport.variant_issues.length > 0 || projectReport.type_issues.length > 0;
     if (!projectHasIssues) {
-        return true;
-    }
-
-    if (config.force === true) {
         return true;
     }
 

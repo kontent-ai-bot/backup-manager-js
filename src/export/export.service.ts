@@ -14,6 +14,7 @@ import {
 
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
 import { ItemType } from '../core';
+import { version } from '../../package.json';
 
 export class ExportService {
     private readonly client: IManagementClient;
@@ -37,14 +38,25 @@ export class ExportService {
             languageVariants: await this.exportLanguageVariantsAsync(contentTypes.map(m => m.id)),
             assets: await this.exportAssetsAsync(),
             languages: await this.exportLanguagesAsync(),
-            assetFolders: await this.exportAssetFoldersAsync()
+            assetFolders: await this.exportAssetFoldersAsync(),
         };
 
         return {
             metadata: {
+                version,
                 timestamp: new Date(),
                 projectId: this.config.projectId,
-                isInconsistentExport: projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0
+                isInconsistentExport: projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0,
+                dataOverview: {
+                    assetFoldersCount: data.assetFolders.length,
+                    assetsCount: data.assets.length,
+                    contentItemsCount: data.contentItems.length,
+                    contentTypeSnippetsCount: data.contentTypeSnippets.length,
+                    contentTypesCount: data.contentTypes.length,
+                    languageVariantsCount: data.languageVariants.length,
+                    languagesCount: data.languages.length,
+                    taxonomiesCount: data.taxonomies.length,
+                },
             },
             validation: projectValidation,
             data

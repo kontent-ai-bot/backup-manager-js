@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/Enngage/kontent-backup-manager/compare/v0.0.7...v0.0.8) (2020-04-08)
+
+
+### Features
+
+* adds data overview to metadata as well as version of library used to export data ([f09a3fa](https://github.com/Enngage/kontent-backup-manager/commit/f09a3fae54c39c71d18e211c7dde0e9913981237))
+
 ### [0.0.7](https://github.com/Enngage/kontent-backup-manager/compare/v0.0.6...v0.0.7) (2020-04-08)
 
 ### [0.0.6](https://github.com/Enngage/kontent-backup-manager/compare/v0.0.5...v0.0.6) (2020-04-02)

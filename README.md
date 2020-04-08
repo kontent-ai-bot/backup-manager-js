@@ -8,7 +8,7 @@ The purpose of this project is to backup & restore [Kentico Kontent](https://kon
 
 Install package globally:
 
-`npm i wip-backup-manager -g`
+`npm i @kentico/kontent-backup-manager -g`
 
 ## Use via CLI
 

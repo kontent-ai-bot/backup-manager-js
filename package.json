@@ -1,6 +1,6 @@
 {
-  "name": "wip-backup-manager",
-  "version": "0.0.9",
+  "name": "@kentico/kontent-backup-manager",
+  "version": "1.0.0",
   "description": "This utility enables backup & restore of Kentico Kontent projects",
   "preferGlobal": true,
   "bin": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Enngage/kontent-backup-manager"
+    "url": "https://github.com/Kentico/kontent-backup-manager-js"
   },
   "author": "richard sustek",
   "main": "./_commonjs/src/app.js",

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v0.0.9...v1.1.0) (2020-04-08)
+
+
+### Features
+
+* exports ZipService ([d4d8543](https://github.com/Kentico/kontent-backup-manager-js/commit/d4d854388c24cf35eb04f81e004366932b5ef51a))
+* makes default workflow id optional ([cd6d03e](https://github.com/Kentico/kontent-backup-manager-js/commit/cd6d03e1358d49100c19762056167cf58af92801))
+
 ### [0.0.9](https://github.com/Enngage/kontent-backup-manager/compare/v0.0.8...v0.0.9) (2020-04-08)
 
 

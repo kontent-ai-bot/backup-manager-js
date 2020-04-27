@@ -29,6 +29,7 @@
     "ts-lint:fix": "npm run ts-lint:check -- --fix",
     "ts-lint:check": "npm run ts-lint-local -- --project ./tsconfig.json"
   },
+  "types": "./_commonjs/src/index.d.ts",
   "keywords": [
     "Kentico",
     "Kontent",

@@ -131,9 +131,9 @@ const run = async () => {
     });
 
     const importService = new ImportService({
-        onImport: item => {
-            // called when any content is imported
-            console.log(`Imported: ${item.title} | ${item.type}`);
+        onDelete: item => {
+            // called when any content is deleted
+            console.log(`Deleted: ${item.title} | ${item.type}`);
         },
         fixLanguages: true,
         projectId: 'targetProjectId',

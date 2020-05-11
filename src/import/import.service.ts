@@ -281,6 +281,8 @@ export class ImportService {
                             }
                         ])
                         .toPromise();
+                } else {
+                    console.log(`Language with codename '${importLanguage.codename}' already exists in target project, skipping update operation`);
                 }
             }
         }

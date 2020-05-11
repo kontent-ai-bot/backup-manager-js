@@ -267,17 +267,21 @@ export class ImportService {
                     `Default language '${importLanguage.name}' with codename '${importLanguage.codename}' does not match default language in target project. Changing language codename in target project from '${defaultExistingLanguage.codename}' codename to '${importLanguage.codename}'`
                 );
 
-                await this.client
-                    .modifyLanguage()
-                    .byLanguageCodename(defaultExistingLanguage.codename)
-                    .withData([
-                        {
-                            op: 'replace',
-                            property_name: 'codename',
-                            value: importLanguage.codename
-                        }
-                    ])
-                    .toPromise();
+                // check if language with imported codename exists
+                if (!currentLanguages.find(m => m.codename === importLanguage.codename)) {
+                    // language with required codename does not exist, update it
+                    await this.client
+                        .modifyLanguage()
+                        .byLanguageCodename(defaultExistingLanguage.codename)
+                        .withData([
+                            {
+                                op: 'replace',
+                                property_name: 'codename',
+                                value: importLanguage.codename
+                            }
+                        ])
+                        .toPromise();
+                }
             }
         }
     }

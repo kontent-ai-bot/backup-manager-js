@@ -10,7 +10,7 @@ import {
     ProjectContracts,
 } from '@kentico/kontent-management';
 
-import { IProcessedItem } from '../core';
+import { IProcessedItem, IPackageMetadata } from '../core';
 
 export interface IExportConfig {
     projectId: string;
@@ -29,27 +29,8 @@ export interface IExportData {
     assetFolders: AssetFolderContracts.IAssetFolderContract[];
 }
 
-export interface IExportMetadata {
-    version: string;
-    projectId: string;
-    timestamp: Date;
-    isInconsistentExport: boolean;
-    dataOverview: IExportMetadataDataOverview;
-}
-
-export interface IExportMetadataDataOverview {
-    taxonomiesCount: number;
-    contentTypeSnippetsCount:  number;
-    contentTypesCount:  number;
-    contentItemsCount:  number;
-    languageVariantsCount:  number;
-    languagesCount:  number;
-    assetsCount:  number;
-    assetFoldersCount:  number;
-}
-
 export interface IExportAllResult {
-    metadata: IExportMetadata;
+    metadata: IPackageMetadata;
     data: IExportData;
     validation: ProjectContracts.IProjectReportResponseContract;
 }

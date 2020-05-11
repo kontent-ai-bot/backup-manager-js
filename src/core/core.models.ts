@@ -76,3 +76,23 @@ export interface IImportItemResult<TRaw, TModel> {
 export interface IIdCodenameTranslationResult {
     [key: string]: string;
 }
+
+export interface IPackageMetadata {
+    version: string;
+    projectId: string;
+    timestamp: Date;
+    isInconsistentExport: boolean;
+    dataOverview: IPackageDataOverview;
+}
+
+export interface IPackageDataOverview {
+    taxonomiesCount: number;
+    contentTypeSnippetsCount:  number;
+    contentTypesCount:  number;
+    contentItemsCount:  number;
+    languageVariantsCount:  number;
+    languagesCount:  number;
+    assetsCount:  number;
+    assetFoldersCount:  number;
+}
+

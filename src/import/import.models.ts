@@ -10,7 +10,7 @@ import {
     ProjectContracts,
 } from '@kentico/kontent-management';
 
-import { IProcessedItem, ItemType } from '../core';
+import { IProcessedItem, ItemType, IPackageMetadata } from '../core';
 
 export interface IImportConfig {
     workflowIdForImportedItems?: string;
@@ -63,7 +63,7 @@ export interface IImportSource {
         languages: LanguageContracts.ILanguageModelContract[];
         assets: AssetContracts.IAssetModelContract[];
     };
-    metadata: IImportMetadata;
+    metadata: IPackageMetadata;
     validation: ProjectContracts.IProjectReportResponseContract;
     assetFolders: AssetFolderContracts.IAssetFolderContract[];
     binaryFiles: IBinaryFile[];
@@ -79,10 +79,4 @@ export interface IFlattenedFolder {
     name: string;
     externalId?: string;
     id: string;
-}
-
-export interface IImportMetadata {
-    projectId: string;
-    timestamp: Date;
-    isInconsistentExport: boolean;
 }

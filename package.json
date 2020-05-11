@@ -1,6 +1,6 @@
 {
   "name": "@kentico/kontent-backup-manager",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "This utility enables backup & restore of Kentico Kontent projects",
   "preferGlobal": true,
   "bin": {

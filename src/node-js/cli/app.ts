@@ -3,12 +3,13 @@ import * as fs from 'fs';
 import yargs = require('yargs');
 
 import { CleanService } from '../../clean';
-import { ICliFileConfig, fileHelper, getFilenameWithoutExtension, CliAction } from '../../core';
+import { ICliFileConfig, getFilenameWithoutExtension, CliAction } from '../../core';
 import { ExportService } from '../../export';
 import { IImportSource, ImportService } from '../../import';
 import { ZipService } from '../../zip';
 import { ProjectContracts, SharedModels } from '@kentico/kontent-management';
-import { FileService } from '..';
+import { FileService } from '../file/file.service';
+import { fileHelper } from '../file/file-helper';
 
 const argv = yargs.argv;
 
@@ -16,7 +17,7 @@ const backupAsync = async (config: ICliFileConfig) => {
     const exportService = new ExportService({
         apiKey: config.apiKey,
         projectId: config.projectId,
-        onExport: item => {
+        onExport: (item) => {
             if (config.enableLog) {
                 console.log(`Exported: ${item.title} | ${item.type}`);
             }
@@ -52,12 +53,12 @@ const backupAsync = async (config: ICliFileConfig) => {
 };
 
 const getLogFilename = (filename: string) => {
-    return`${getFilenameWithoutExtension(filename)}_log.json`;
-}
+    return `${getFilenameWithoutExtension(filename)}_log.json`;
+};
 
 const cleanAsync = async (config: ICliFileConfig) => {
     const cleanService = new CleanService({
-        onDelete: item => {
+        onDelete: (item) => {
             if (config.enableLog) {
                 console.log(`Deleted: ${item.title} | ${item.type}`);
             }
@@ -82,7 +83,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
     });
 
     const importService = new ImportService({
-        onImport: item => {
+        onImport: (item) => {
             if (config.enableLog) {
                 console.log(`Imported: ${item.title} | ${item.type}`);
             }
@@ -93,7 +94,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
         enableLog: config.enableLog,
         workflowIdForImportedItems: undefined,
         process: {
-            contentItem: item => {
+            contentItem: (item) => {
                 return true;
             }
         }
@@ -176,7 +177,7 @@ const canImport = (importData: IImportSource, config: ICliFileConfig) => {
     return false;
 };
 
-const getConfig = async() => {
+const getConfig = async () => {
     const configFilename: string = argv.config as string;
 
     if (configFilename) {
@@ -184,24 +185,24 @@ const getConfig = async() => {
         const configFile = await fs.promises.readFile(`./${configFilename}`);
 
         return JSON.parse(configFile.toString()) as ICliFileConfig;
-     }
+    }
 
-     const action: CliAction | undefined = argv.action as CliAction | undefined;
-     const apiKey: string | undefined = argv.apiKey as string | undefined;
-     const enableLog: boolean | undefined = (argv.enableLog as boolean | undefined) ?? true;
-     const force: boolean | undefined = (argv.force as boolean | undefined) ?? true;
-     const projectId: string | undefined = argv.projectId as string | undefined;
-     const zipFilename: string | undefined = (argv.zipFilename as string | undefined) ?? getDefaultBackupFilename()
+    const action: CliAction | undefined = argv.action as CliAction | undefined;
+    const apiKey: string | undefined = argv.apiKey as string | undefined;
+    const enableLog: boolean | undefined = (argv.enableLog as boolean | undefined) ?? true;
+    const force: boolean | undefined = (argv.force as boolean | undefined) ?? true;
+    const projectId: string | undefined = argv.projectId as string | undefined;
+    const zipFilename: string | undefined = (argv.zipFilename as string | undefined) ?? getDefaultBackupFilename();
 
-     if (!action) {
-         throw Error(`No action was provided`);
-     }
+    if (!action) {
+        throw Error(`No action was provided`);
+    }
 
-     if (!apiKey) {
-         throw Error(`Api key was not provided`);
-     }
+    if (!apiKey) {
+        throw Error(`Api key was not provided`);
+    }
 
-     if (!projectId) {
+    if (!projectId) {
         throw Error(`Project id was not provided`);
     }
 
@@ -216,20 +217,24 @@ const getConfig = async() => {
     };
 
     return config;
-}
+};
 
 const getDefaultBackupFilename = () => {
     const date = new Date();
-    return `kontent-backup-${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}`;
-}
+    return `kontent-backup-${date.getDate()}-${
+        date.getMonth() + 1
+    }-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}`;
+};
 
-process().then(m => {}).catch(err => {
-    if (err instanceof SharedModels.ContentManagementBaseKontentError) {
-        console.log(`Management API error occured:`, err.message);
-        for (const validationError of err.validationErrors) {
-            console.log(validationError.message);
+process()
+    .then((m) => {})
+    .catch((err) => {
+        if (err instanceof SharedModels.ContentManagementBaseKontentError) {
+            console.log(`Management API error occured:`, err.message);
+            for (const validationError of err.validationErrors) {
+                console.log(validationError.message);
+            }
+        } else {
+            console.log(`There was an error processing your request: `, err);
         }
-    } else {
-        console.log(`There was an error processing your request: `, err);
-    }
-});
+    });

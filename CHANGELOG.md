@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.4.0...v1.5.0) (2020-05-19)
+
+
+### Features
+
+* logs language information ([a64e00f](https://github.com/Kentico/kontent-backup-manager-js/commit/a64e00f931cd9d129da3256df547393fa33d1fd6))
+* separates all node.js code and makes backup manager browser friendly ([bfd046c](https://github.com/Kentico/kontent-backup-manager-js/commit/bfd046c07eeb176e5812359c89869d9e32d222a1))
+* updates deps ([2ac3669](https://github.com/Kentico/kontent-backup-manager-js/commit/2ac3669357f8be2e679f2fb416cd471b9fc2c664))
+* uses axios to download files instead of node.js 'https'. This makes it compatible with browsers as well as node.js. ([dbb9e57](https://github.com/Kentico/kontent-backup-manager-js/commit/dbb9e579ea722adf2a966b1eb6f12ba92e59747d))
+
+
+### Bug Fixes
+
+* moves file helper to proper location ([e97462a](https://github.com/Kentico/kontent-backup-manager-js/commit/e97462a61b1f06ba667ae5cdcbb4732ef8ef0e41))
+
 ## [1.4.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.3.0...v1.4.0) (2020-05-11)
 
 

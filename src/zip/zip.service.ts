@@ -1,7 +1,7 @@
 import { AssetContracts } from '@kentico/kontent-management';
 import * as fs from 'fs';
-import { get } from 'https';
 import JSZip = require('jszip');
+import axios, {} from 'axios';
 
 import { IExportAllResult } from '../export';
 import { IBinaryFile, IImportSource } from '../import';
@@ -44,7 +44,6 @@ export class ZipService {
             console.log(`Parsing zip contents`);
         }
         const assets = await this.readAndParseJsonFile(unzippedFile, this.assetsName);
-
         const result = {
             importData: {
                 assets,
@@ -156,24 +155,18 @@ export class ZipService {
     }
 
     private getBinaryDataFromUrl(url: string, enableLog: boolean): Promise<any> {
-        return new Promise((resolve, reject) => {
-            get(url, res => {
+        if (enableLog) {
+            console.log(`Downloading asset: ${url}`);
+        }
+        return axios.get(url, {
+            responseType: 'arraybuffer',
+        }).then(
+            response => {
                 if (enableLog) {
-                    console.log(`Downloading asset: ${url}`);
+                    console.log(`Downloading asset completed: ${url}`);
                 }
-                const data: any[] = [];
-
-                res.on('data', chunk => {
-                    data.push(chunk);
-                })
-                    .on('end', () => {
-                        const buffer = Buffer.concat(data);
-                        resolve(buffer);
-                    })
-                    .on('error', error => {
-                        reject(error);
-                    });
-            });
-        });
+                return response.data;
+            }
+        );
     }
 }

@@ -1,8 +1,18 @@
 import { ZipService } from 'src/zip';
 
 import { ExportService } from '../export';
+import { FileService } from '../node-js';
 
 const run = async () => {
+    const fileService = new FileService({
+        enableLog: true
+    });
+
+    const zipService = new ZipService({
+        enableLog: true,
+        context: 'node.js'
+    });
+
     const exportService = new ExportService({
         apiKey: 'sourceProjectApiKey',
         projectId: 'sourceProjectId',
@@ -15,11 +25,11 @@ const run = async () => {
     // data contains entire project content
     const data = await exportService.exportAllAsync();
 
-    // you can also save backup in file with ZipService
-    const zipService = new ZipService({
-        filename: 'file',
-        enableLog: true
-    });
+    // prepare zip file
+    const zipFile = await zipService.createZipAsync(data);
+
+    // save zip to file system (node.js only)
+    await fileService.writeFileAsync('filename', zipFile);
 
     await zipService.createZipAsync(data);
 };

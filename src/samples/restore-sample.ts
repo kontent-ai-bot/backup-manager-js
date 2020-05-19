@@ -1,9 +1,14 @@
 import { ImportService } from 'src';
-import { ZipService } from 'src/zip';
+import { ZipService } from '../zip';
+import { FileService } from '../node-js';
 
 const run = async () => {
     const zipService = new ZipService({
-        filename: 'xxx',
+        enableLog: true,
+        context: 'node.js'
+    });
+
+    const fileService = new FileService({
         enableLog: true
     });
 
@@ -19,8 +24,11 @@ const run = async () => {
         workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000' // id that items are assigned
     });
 
-    // read export data from zip
-    const data = await zipService.extractZipAsync();
+    // read file
+    const file = fileService.loadFileAsync('fileName');
+
+    // extract file
+    const data = await zipService.extractZipAsync(file);
 
     // restore into target project
     await importService.importFromSourceAsync(data);

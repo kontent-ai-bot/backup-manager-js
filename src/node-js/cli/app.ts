@@ -2,12 +2,13 @@
 import * as fs from 'fs';
 import yargs = require('yargs');
 
-import { CleanService } from '../clean';
-import { ICliFileConfig, fileHelper, getFilenameWithoutExtension, CliAction } from '../core';
-import { ExportService } from '../export';
-import { IImportSource, ImportService } from '../import';
-import { ZipService } from '../zip';
+import { CleanService } from '../../clean';
+import { ICliFileConfig, fileHelper, getFilenameWithoutExtension, CliAction } from '../../core';
+import { ExportService } from '../../export';
+import { IImportSource, ImportService } from '../../import';
+import { ZipService } from '../../zip';
 import { ProjectContracts, SharedModels } from '@kentico/kontent-management';
+import { FileService } from '..';
 
 const argv = yargs.argv;
 
@@ -22,15 +23,21 @@ const backupAsync = async (config: ICliFileConfig) => {
         }
     });
 
-    const zipService = new ZipService({
-        filename: config.zipFilename,
+    const fileService = new FileService({
         enableLog: config.enableLog
+    });
+
+    const zipService = new ZipService({
+        enableLog: config.enableLog,
+        context: 'node.js'
     });
 
     const report = await exportService.exportProjectValidationAsync();
 
     const response = await exportService.exportAllAsync();
-    await zipService.createZipAsync(response);
+    const zipFileData = await zipService.createZipAsync(response);
+
+    await fileService.writeFileAsync(config.zipFilename, zipFileData);
 
     if (exportContainsInconsistencies(report)) {
         const logFilename: string = getLogFilename(config.zipFilename);
@@ -66,7 +73,11 @@ const cleanAsync = async (config: ICliFileConfig) => {
 
 const restoreAsync = async (config: ICliFileConfig) => {
     const zipService = new ZipService({
-        filename: config.zipFilename,
+        enableLog: config.enableLog,
+        context: 'node.js'
+    });
+
+    const fileService = new FileService({
         enableLog: config.enableLog
     });
 
@@ -88,7 +99,9 @@ const restoreAsync = async (config: ICliFileConfig) => {
         }
     });
 
-    const data = await zipService.extractZipAsync();
+    const file = await fileService.loadFileAsync(config.zipFilename);
+
+    const data = await zipService.extractZipAsync(file);
 
     if (canImport(data, config)) {
         await importService.importFromSourceAsync(data);

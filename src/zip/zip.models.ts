@@ -1,4 +1,6 @@
+export type ZipContext = 'node.js' | 'browser';
+
 export interface IZipServiceConfig {
-    filename: string;
     enableLog: boolean;
+    context: ZipContext
 }

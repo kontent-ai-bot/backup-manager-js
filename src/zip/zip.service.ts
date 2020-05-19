@@ -1,5 +1,4 @@
 import { AssetContracts } from '@kentico/kontent-management';
-import * as fs from 'fs';
 import JSZip = require('jszip');
 import axios, {} from 'axios';
 
@@ -8,7 +7,6 @@ import { IBinaryFile, IImportSource } from '../import';
 import { IZipServiceConfig } from './zip.models';
 
 export class ZipService {
-    private readonly zipExtension: string = '.zip';
 
     private readonly contentTypesName: string = 'contentTypes.json';
     private readonly contentItemsName: string = 'contentItems.json';
@@ -22,23 +20,15 @@ export class ZipService {
     private readonly assetFoldersName: string = 'assetFolders.json';
     private readonly validationName: string = 'validation.json';
 
-    private readonly filenameWithExtension: string;
-
     constructor(private config: IZipServiceConfig) {
-        this.filenameWithExtension = config.filename + this.zipExtension;
     }
 
-    public async extractZipAsync(): Promise<IImportSource> {
-        const filePath = `./${this.filenameWithExtension}`;
-        if (this.config.enableLog) {
-            console.log(`Reading file '${filePath}'`);
-        }
-        const file = await fs.promises.readFile(filePath);
-
+    public async extractZipAsync(zipFile: any): Promise<IImportSource> {
         if (this.config.enableLog) {
             console.log(`Unzipping file`);
         }
-        const unzippedFile = await JSZip.loadAsync(file);
+
+        const unzippedFile = await JSZip.loadAsync(zipFile);
 
         if (this.config.enableLog) {
             console.log(`Parsing zip contents`);
@@ -67,7 +57,7 @@ export class ZipService {
         return result;
     }
 
-    public async createZipAsync(exportData: IExportAllResult): Promise<void> {
+    public async createZipAsync(exportData: IExportAllResult): Promise<any> {
         const zip = new JSZip();
 
         if (this.config.enableLog) {
@@ -100,16 +90,17 @@ export class ZipService {
             });
         }
 
-        const filePath = './' + this.filenameWithExtension;
+        if (this.config.enableLog) {
+            console.log(`Creating zip file`);
+        }
+
+        const content = await zip.generateAsync({ type: this.getZipOutputType() });
 
         if (this.config.enableLog) {
-            console.log(`Generating zip file '${filePath}'`);
+            console.log(`Zip file prepared`);
         }
-        const content = await zip.generateAsync({ type: 'nodebuffer' });
 
-        console.log(`Writing file '${filePath}'`);
-        await fs.promises.writeFile(filePath, content);
-        console.log(`File saved`);
+        return content;
     }
 
     private async extractBinaryFilesAsync(
@@ -123,7 +114,7 @@ export class ZipService {
         for (const asset of assets) {
             const assetFile = files[this.getFullAssetPath(asset.id, asset.file_name)];
 
-            const binaryData = await assetFile.async('nodebuffer');
+            const binaryData = await assetFile.async(this.getZipOutputType());
             binaryFiles.push({
                 asset,
                 binaryData
@@ -131,6 +122,18 @@ export class ZipService {
         }
 
         return binaryFiles;
+    }
+
+    private getZipOutputType(): 'nodebuffer' | 'blob' {
+        if (this.config.context === 'browser') {
+            return 'blob';
+        }
+
+        if (this.config.context === 'node.js') {
+            return 'nodebuffer';
+        }
+
+        throw Error(`Unsupported context '${this.config.context}'`);
     }
 
     /**

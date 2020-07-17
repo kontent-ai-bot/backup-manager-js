@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.5.0...v1.6.0) (2020-07-17)
+
+
+### Features
+
+* adds ability to set custom baseUrl for API calls ([6f379b4](https://github.com/Kentico/kontent-backup-manager-js/commit/6f379b41825019d6e6e5419a0d71f45b93145b9f))
+
 ## [1.5.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.4.0...v1.5.0) (2020-05-19)
 
 

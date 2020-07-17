@@ -9,7 +9,8 @@ export class CleanService {
     constructor(private config: ICleanConfig) {
         this.client = new ManagementClient({
             apiKey: config.apiKey,
-            projectId: config.projectId
+            projectId: config.projectId,
+            baseUrl: config.baseUrl
         });
     }
 

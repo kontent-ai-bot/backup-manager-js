@@ -22,7 +22,8 @@ export class ExportService {
     constructor(private config: IExportConfig) {
         this.client = new ManagementClient({
             apiKey: config.apiKey,
-            projectId: config.projectId
+            projectId: config.projectId,
+            baseUrl: config.baseUrl
         });
     }
 

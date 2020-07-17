@@ -23,7 +23,7 @@ Install package globally:
 | zipFilename     | Name of zip used for export / restoring data. E.g. 'kontent-backup'.                                            |
 | enableLog       | Indicates if default logging is enabled (useful to indicate progress)       
 | force           | If enabled, project will we exported / restored even if there are data inconsistencies. Enabled by default. |
-
+| baseUrl           | Custom base URL for Management API calls. |
 
 ### Execution
 
@@ -52,7 +52,8 @@ Create a `json` configuration file in the folder where you are attempting to run
     "zipFilename": "backup",
     "action": "backup",
     "enableLog": true,
-    "force": true
+    "force": true,
+    "baseUrl": null
 }
 ```
 

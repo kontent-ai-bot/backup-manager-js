@@ -15,6 +15,7 @@ import { IProcessedItem, IPackageMetadata } from '../core';
 export interface IExportConfig {
     projectId: string;
     apiKey: string;
+    baseUrl?: string;
     onExport?: (item: IProcessedItem) => void;
 }
 

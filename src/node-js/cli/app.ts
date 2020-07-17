@@ -17,6 +17,7 @@ const backupAsync = async (config: ICliFileConfig) => {
     const exportService = new ExportService({
         apiKey: config.apiKey,
         projectId: config.projectId,
+        baseUrl: config.baseUrl,
         onExport: (item) => {
             if (config.enableLog) {
                 console.log(`Exported: ${item.title} | ${item.type}`);
@@ -63,6 +64,7 @@ const cleanAsync = async (config: ICliFileConfig) => {
                 console.log(`Deleted: ${item.title} | ${item.type}`);
             }
         },
+        baseUrl: config.baseUrl,
         projectId: config.projectId,
         apiKey: config.apiKey
     });
@@ -88,6 +90,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
                 console.log(`Imported: ${item.title} | ${item.type}`);
             }
         },
+        baseUrl: config.baseUrl,
         fixLanguages: true,
         projectId: config.projectId,
         apiKey: config.apiKey,
@@ -192,6 +195,7 @@ const getConfig = async () => {
     const enableLog: boolean | undefined = (argv.enableLog as boolean | undefined) ?? true;
     const force: boolean | undefined = (argv.force as boolean | undefined) ?? true;
     const projectId: string | undefined = argv.projectId as string | undefined;
+    const baseUrl: string | undefined = argv.baseUrl as string | undefined;
     const zipFilename: string | undefined = (argv.zipFilename as string | undefined) ?? getDefaultBackupFilename();
 
     if (!action) {
@@ -213,7 +217,8 @@ const getConfig = async () => {
         enableLog,
         force,
         projectId,
-        zipFilename
+        zipFilename,
+        baseUrl
     };
 
     return config;

@@ -22,9 +22,9 @@
     "build:commonjs": "npm run tsc-local -- -m commonjs --outDir _commonjs",
     "build:all": "npm run build:commonjs",
     "test:all": "npm run build:all",
-    "test:backup": "npm run build:commonjs && cd output && node ../_commonjs/src/cli/app --config=backup-config.json",
-    "test:clean": "npm run build:commonjs && cd output && node ../_commonjs/src/cli/app --config=clean-config.json",
-    "test:restore": "npm run build:commonjs && cd output && node ../_commonjs/src/cli/app --config=restore-config.json",
+    "test:backup": "npm run build:commonjs && cd output && node ../_commonjs/src/node-js/cli/app --config=backup-config.json",
+    "test:clean": "npm run build:commonjs && cd output && node ../_commonjs/src/node-js/cli/app --config=clean-config.json",
+    "test:restore": "npm run build:commonjs && cd output && node ../_commonjs/src/node-js/cli/app --config=restore-config.json",
     "ts-lint-local": "./node_modules/.bin/tslint",
     "ts-lint:fix": "npm run ts-lint:check -- --fix",
     "ts-lint:check": "npm run ts-lint-local -- --project ./tsconfig.json"

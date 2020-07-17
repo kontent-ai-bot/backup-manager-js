@@ -44,6 +44,7 @@ export class ImportService {
     constructor(private config: IImportConfig) {
         this.client = new ManagementClient({
             apiKey: config.apiKey,
+            baseUrl: config.baseUrl,
             projectId: config.projectId,
             retryStrategy: {
                 addJitter: true,

@@ -24,6 +24,7 @@ export interface ICliFileConfig {
     zipFilename: string;
     enableLog: boolean;
     force: boolean;
+    baseUrl?: string;
 }
 
 export type CliAction = 'backup' | 'restore' | 'clean';

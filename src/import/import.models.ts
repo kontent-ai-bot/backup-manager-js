@@ -14,6 +14,7 @@ import { IProcessedItem, ItemType, IPackageMetadata } from '../core';
 
 export interface IImportConfig {
     workflowIdForImportedItems?: string;
+    baseUrl?: string;
     projectId: string;
     apiKey: string;
     enableLog: boolean;

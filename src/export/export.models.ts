@@ -10,13 +10,14 @@ import {
     ProjectContracts,
 } from '@kentico/kontent-management';
 
-import { IProcessedItem, IPackageMetadata } from '../core';
+import { IProcessedItem, IPackageMetadata, ItemType } from '../core';
 
 export interface IExportConfig {
     projectId: string;
     apiKey: string;
     baseUrl?: string;
     onExport?: (item: IProcessedItem) => void;
+    exportFilter?: ItemType[];
 }
 
 export interface IExportData {

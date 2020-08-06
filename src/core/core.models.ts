@@ -25,6 +25,7 @@ export interface ICliFileConfig {
     enableLog: boolean;
     force: boolean;
     baseUrl?: string;
+    exportFilter?: ItemType[]
 }
 
 export type CliAction = 'backup' | 'restore' | 'clean';

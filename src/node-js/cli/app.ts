@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import yargs = require('yargs');
 
 import { CleanService } from '../../clean';
-import { ICliFileConfig, getFilenameWithoutExtension, CliAction } from '../../core';
+import { ICliFileConfig, getFilenameWithoutExtension, CliAction, ItemType } from '../../core';
 import { ExportService } from '../../export';
 import { IImportSource, ImportService } from '../../import';
 import { ZipService } from '../../zip';
@@ -18,6 +18,7 @@ const backupAsync = async (config: ICliFileConfig) => {
         apiKey: config.apiKey,
         projectId: config.projectId,
         baseUrl: config.baseUrl,
+        exportFilter: config.exportFilter,
         onExport: (item) => {
             if (config.enableLog) {
                 console.log(`Exported: ${item.title} | ${item.type}`);
@@ -197,6 +198,11 @@ const getConfig = async () => {
     const projectId: string | undefined = argv.projectId as string | undefined;
     const baseUrl: string | undefined = argv.baseUrl as string | undefined;
     const zipFilename: string | undefined = (argv.zipFilename as string | undefined) ?? getDefaultBackupFilename();
+    const exportFilter: string | undefined = argv.exportFilter as string | undefined;
+
+    const exportFilterMapped: ItemType[] | undefined = exportFilter ? exportFilter.split(',').map(m => m.trim()).map(m => {
+        return m as ItemType;
+    }) : undefined;
 
     if (!action) {
         throw Error(`No action was provided`);
@@ -218,7 +224,8 @@ const getConfig = async () => {
         force,
         projectId,
         zipFilename,
-        baseUrl
+        baseUrl,
+        exportFilter: exportFilterMapped
     };
 
     return config;

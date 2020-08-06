@@ -31,15 +31,27 @@ export class ExportService {
         const contentTypes = await this.exportContentTypesAsync();
         const projectValidation = await this.exportProjectValidationAsync();
 
+        const exportItems = {
+            asset: this.config.exportFilter?.includes('asset') ?? true,
+            assetFolder: this.config.exportFilter?.includes('assetFolder') ?? true,
+            binaryFile: this.config.exportFilter?.includes('binaryFile') ?? true,
+            contentItem: this.config.exportFilter?.includes('contentItem') ?? true,
+            contentType: this.config.exportFilter?.includes('contentType') ?? true,
+            contentTypeSnippet: this.config.exportFilter?.includes('contentTypeSnippet') ?? true,
+            language: this.config.exportFilter?.includes('language') ?? true,
+            languageVariant: this.config.exportFilter?.includes('languageVariant') ?? true,
+            taxonomy: this.config.exportFilter?.includes('taxonomy') ?? true,
+        };
+
         const data: IExportData = {
-            contentTypes,
-            contentTypeSnippets: await this.exportContentTypeSnippetsAsync(),
-            taxonomies: await this.exportTaxonomiesAsync(),
-            contentItems: await this.exportContentItemsAsync(),
-            languageVariants: await this.exportLanguageVariantsAsync(contentTypes.map(m => m.id)),
-            assets: await this.exportAssetsAsync(),
-            languages: await this.exportLanguagesAsync(),
-            assetFolders: await this.exportAssetFoldersAsync(),
+            contentTypes: exportItems.contentType ? contentTypes : [],
+            contentTypeSnippets: exportItems.contentTypeSnippet ? await this.exportContentTypeSnippetsAsync() : [],
+            taxonomies: exportItems.taxonomy ? await this.exportTaxonomiesAsync() : [],
+            contentItems: exportItems.contentItem ? await this.exportContentItemsAsync() : [],
+            languageVariants: exportItems.languageVariant ? await this.exportLanguageVariantsAsync(contentTypes.map(m => m.id)) : [],
+            assets: exportItems.asset ? await this.exportAssetsAsync() : [],
+            languages: exportItems.language ? await this.exportLanguagesAsync() : [],
+            assetFolders: exportItems.assetFolder ? await this.exportAssetFoldersAsync() : [],
         };
 
         return {

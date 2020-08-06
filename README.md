@@ -19,11 +19,17 @@ Install package globally:
 |-----------------|---------------------------------------------------------------------------------------------------------------------|
 | **projectId**       | Id of Kentico Kontent project **(required)**                                                                            |
 | **apiKey**           | Content management Api key **(required)**                                                                               |
-| **action**           | Action. Possible values are: 'restore' & 'backup' & 'clean' **(required)**                                              |
-| zipFilename     | Name of zip used for export / restoring data. E.g. 'kontent-backup'.                                            |
+| **action**           | Action. Possible values are: `restore` & `backup` & `clean` **(required)**                                              |
+| zipFilename     | Name of zip used for export / restoring data. (e.g. 'kontent-backup').                                            |
 | enableLog       | Indicates if default logging is enabled (useful to indicate progress)       
 | force           | If enabled, project will we exported / restored even if there are data inconsistencies. Enabled by default. |
 | baseUrl           | Custom base URL for Management API calls. |
+| exportFilter           | Can be used to export only selected data types. Expects CSV of types. For example `contentType,language` will cause backup manager to export only content types & language data. List of data types can be found below. |
+
+### Data types
+
+* Start a line with a star
+* Profit!
 
 ### Execution
 

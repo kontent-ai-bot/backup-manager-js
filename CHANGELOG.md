@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.6.0...v1.7.0) (2020-08-06)
+
+
+### Features
+
+* adds ability to export only selected data types (https://github.com/Kentico/kontent-backup-manager-js/issues/3) ([fd38c54](https://github.com/Kentico/kontent-backup-manager-js/commit/fd38c54021fea44a40d06ebc945e688281f976db))
+
+
+### Bug Fixes
+
+* uses pager to export all items for certain object types (fixes https://github.com/Kentico/kontent-backup-manager-js/issues/4) ([5d81e13](https://github.com/Kentico/kontent-backup-manager-js/commit/5d81e1312070217e63e5aa0884a2105ed200470d))
+
 ## [1.6.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.5.0...v1.6.0) (2020-07-17)
 
 

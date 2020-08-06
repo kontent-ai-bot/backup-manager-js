@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.1](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.7.0...v1.7.1) (2020-08-06)
+
+
+### Bug Fixes
+
+* updates readme ([b5a93bd](https://github.com/Kentico/kontent-backup-manager-js/commit/b5a93bd0bd039fcacce9e29e33208c1e231a48e6))
+
 ## [1.7.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.6.0...v1.7.0) (2020-08-06)
 
 

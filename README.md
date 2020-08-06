@@ -28,8 +28,14 @@ Install package globally:
 
 ### Data types
 
-* Start a line with a star
-* Profit!
+* taxonomy
+* contentType
+* contentTypeSnippet
+* contentItem
+* languageVariant
+* language
+* assetFolder
+* binaryFile
 
 ### Execution
 
@@ -59,7 +65,8 @@ Create a `json` configuration file in the folder where you are attempting to run
     "action": "backup",
     "enableLog": true,
     "force": true,
-    "baseUrl": null
+    "baseUrl": null,
+    "exportFilter: null
 }
 ```
 
@@ -76,6 +83,7 @@ const run = async () => {
     const exportService = new ExportService({
         apiKey: 'sourceProjectApiKey',
         projectId: 'sourceProjectId',
+        exportFilter: undefined,
         onExport: item => {
             // called when any content is exported
             console.log(`Exported: ${item.title} | ${item.type}`);

@@ -97,7 +97,7 @@ export class ExportService {
     }
 
     public async exportLanguagesAsync(): Promise<LanguageContracts.ILanguageModelContract[]> {
-        const response = await this.client.listLanguages().toPromise();
+        const response = await this.client.listLanguages().toAllPromise();
         response.data.items.forEach(m => this.processItem(m.name, 'language', m));
         return response.data.items.map(m => m._raw);
     }
@@ -137,7 +137,7 @@ export class ExportService {
                     await this.client
                         .listLanguageVariantsOfContentTypeWithComponents()
                         .byTypeId(typeId)
-                        .toPromise()
+                        .toAllPromise()
                 ).data.items.map(m => m._raw)
             );
 
@@ -146,7 +146,7 @@ export class ExportService {
                     await this.client
                         .listLanguageVariantsOfContentType()
                         .byTypeId(typeId)
-                        .toPromise()
+                        .toAllPromise()
                 ).data.items.map(m => m._raw)
             );
         }

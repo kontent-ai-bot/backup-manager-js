@@ -28,9 +28,6 @@ export class ExportService {
     }
 
     public async exportAllAsync(): Promise<IExportAllResult> {
-        const contentTypes = await this.exportContentTypesAsync();
-        const projectValidation = await this.exportProjectValidationAsync();
-
         const exportItems = {
             asset: this.config.exportFilter?.includes('asset') ?? true,
             assetFolder: this.config.exportFilter?.includes('assetFolder') ?? true,
@@ -42,6 +39,9 @@ export class ExportService {
             languageVariant: this.config.exportFilter?.includes('languageVariant') ?? true,
             taxonomy: this.config.exportFilter?.includes('taxonomy') ?? true,
         };
+
+        const contentTypes = await this.exportContentTypesAsync({processItem: exportItems.contentType});
+        const projectValidation = await this.exportProjectValidationAsync();
 
         const data: IExportData = {
             contentTypes: exportItems.contentType ? contentTypes : [],
@@ -114,9 +114,11 @@ export class ExportService {
         return response.data.items.map(m => m._raw);
     }
 
-    public async exportContentTypesAsync(): Promise<ContentTypeContracts.IContentTypeContract[]> {
+    public async exportContentTypesAsync(data: {processItem: boolean}): Promise<ContentTypeContracts.IContentTypeContract[]> {
         const response = await this.client.listContentTypes().toAllPromise();
-        response.data.items.forEach(m => this.processItem(m.name, 'contentType', m));
+        if (data.processItem) {
+            response.data.items.forEach(m => this.processItem(m.name, 'contentType', m));
+        }
         return response.data.items.map(m => m._raw);
     }
 

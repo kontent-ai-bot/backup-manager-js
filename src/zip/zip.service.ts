@@ -158,6 +158,9 @@ export class ZipService {
     }
 
     private getBinaryDataFromUrl(url: string, enableLog: boolean): Promise<any> {
+        // temp fix for Kontent Repository not validating url
+        url = url.replace('#', '%23');
+
         if (enableLog) {
             console.log(`Downloading asset: ${url}`);
         }

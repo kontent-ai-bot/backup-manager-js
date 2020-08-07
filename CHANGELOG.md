@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.7.1...v1.8.0) (2020-08-07)
+
+
+### Features
+
+* do not process content type if content type is not supposed to be exported ([a463b6a](https://github.com/Kentico/kontent-backup-manager-js/commit/a463b6a5236ea09273990b7a1e953d6037bb59e3))
+
+
+### Bug Fixes
+
+* fixes kontent not encoding # in url ([9707990](https://github.com/Kentico/kontent-backup-manager-js/commit/970799096142f09dcc1cf12b18e158d3ec347f6c))
+
 ### [1.7.1](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.7.0...v1.7.1) (2020-08-06)
 
 

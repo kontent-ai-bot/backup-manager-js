@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.9.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.8.0...v1.9.0) (2020-09-22)
+
+
+### Features
+
+* skips import if import items.count = 0, logs information about skipped types ([ca4dee2](https://github.com/Kentico/kontent-backup-manager-js/commit/ca4dee2fea5ef2f1ea82a68dc7c3d1bfc147e32e))
+
 ## [1.8.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.7.1...v1.8.0) (2020-08-07)
 
 

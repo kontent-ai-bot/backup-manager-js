@@ -17,7 +17,7 @@ import {
     ManagementClient,
     SharedModels,
     TaxonomyContracts,
-    TaxonomyModels,
+    TaxonomyModels
 } from '@kentico/kontent-management';
 
 import {
@@ -26,7 +26,7 @@ import {
     ItemType,
     translationHelper,
     ValidImportContract,
-    ValidImportModel,
+    ValidImportModel
 } from '../core';
 import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 
@@ -48,7 +48,7 @@ export class ImportService {
             projectId: config.projectId,
             retryStrategy: {
                 addJitter: true,
-                canRetryError: err => true, // so that timeout errors are retried
+                canRetryError: (err) => true, // so that timeout errors are retried
                 maxAttempts: 3,
                 deltaBackoffMs: 1000,
                 maxCumulativeWaitTimeMs: 60000
@@ -95,39 +95,88 @@ export class ImportService {
         // import order matters
 
         // ### Asset folders
-        const importedAssetFolders = await this.importAssetFoldersAsync(sourceData.assetFolders, importedItems);
-        importedItems.push(...importedAssetFolders);
+        if (sourceData.assetFolders.length) {
+            const importedAssetFolders = await this.importAssetFoldersAsync(sourceData.assetFolders);
+            importedItems.push(...importedAssetFolders);
+        } else {
+            if (this.config.enableLog) {
+                console.log(`Skipping asset folders`);
+            }
+        }
 
         // ### Languages
-        const importedLanguages = await this.importLanguagesAsync(sourceData.importData.languages);
-        importedItems.push(...importedLanguages);
+        if (sourceData.importData.languages.length) {
+            const importedLanguages = await this.importLanguagesAsync(sourceData.importData.languages);
+            importedItems.push(...importedLanguages);
+        } else {
+            if (this.config.enableLog) {
+                console.log(`Skipping languages`);
+            }
+        }
 
         // ### Taxonomies
-        const importedTaxonomies = await this.importTaxonomiesAsync(sourceData.importData.taxonomies);
-        importedItems.push(...importedTaxonomies);
+        if (sourceData.importData.taxonomies.length) {
+            const importedTaxonomies = await this.importTaxonomiesAsync(sourceData.importData.taxonomies);
+            importedItems.push(...importedTaxonomies);
+        } else {
+            if (this.config.enableLog) {
+                console.log(`Skipping taxonomies`);
+            }
+        }
 
         // ### Content types & snippets
-        await this.importContentTypeSnippetsAsync(sourceData.importData.contentTypeSnippets);
-        await this.importContentTypesAsync(sourceData.importData.contentTypes);
+        if (sourceData.importData.contentTypeSnippets.length) {
+            await this.importContentTypeSnippetsAsync(sourceData.importData.contentTypeSnippets);
+        } else {
+            if (this.config.enableLog) {
+                console.log(`Skipping content type snippets`);
+            }
+        }
+
+        if (sourceData.importData.contentTypes.length) {
+            await this.importContentTypesAsync(sourceData.importData.contentTypes);
+        } else {
+            if (this.config.enableLog) {
+                console.log(`Skipping content types`);
+            }
+        }
 
         // ### Assets
-        const importedAssets = await this.importAssetsAsync(
-            sourceData.importData.assets,
-            sourceData.binaryFiles,
-            importedItems
-        );
-        importedItems.push(...importedAssets);
+        if (sourceData.importData.assets.length) {
+            const importedAssets = await this.importAssetsAsync(
+                sourceData.importData.assets,
+                sourceData.binaryFiles,
+                importedItems
+            );
+            importedItems.push(...importedAssets);
+        } else {
+            if (this.config.enableLog) {
+                console.log(`Skipping assets`);
+            }
+        }
 
         // ### Content items
-        const importedContentItems = await this.importContentItemAsync(sourceData.importData.contentItems);
-        importedItems.push(...importedContentItems);
+        if (sourceData.importData.contentItems.length) {
+            const importedContentItems = await this.importContentItemAsync(sourceData.importData.contentItems);
+            importedItems.push(...importedContentItems);
+        } else {
+            if (this.config.enableLog) {
+                console.log(`Skipping content items`);
+            }
+        }
 
         // ### Language variants
-        const importedLanguageVariants = await this.importLanguageVariantsAsync(
-            sourceData.importData.languageVariants,
-            importedItems
-        );
-        importedItems.push(...importedLanguageVariants);
+        if (sourceData.importData.languageVariants) {
+            const importedLanguageVariants = await this.importLanguageVariantsAsync(
+                sourceData.importData.languageVariants,
+                importedItems
+            );
+            importedItems.push(...importedLanguageVariants);
+        } else {
+            if (this.config.enableLog) {
+                console.log(`Skipping language variants`);
+            }
+        }
 
         if (this.config.enableLog) {
             console.log(`Finished importing data`);
@@ -154,7 +203,7 @@ export class ImportService {
             for (const item of source.importData.assets) {
                 const shouldImport = this.config.process.asset(item);
                 if (!shouldImport) {
-                    source.importData.assets = source.importData.assets.filter(m => m.id !== item.id);
+                    source.importData.assets = source.importData.assets.filter((m) => m.id !== item.id);
                 }
             }
         }
@@ -163,7 +212,7 @@ export class ImportService {
             for (const item of source.importData.languages) {
                 const shouldImport = this.config.process.language(item);
                 if (!shouldImport) {
-                    source.importData.languages = source.importData.languages.filter(m => m.id !== item.id);
+                    source.importData.languages = source.importData.languages.filter((m) => m.id !== item.id);
                 }
             }
         }
@@ -172,7 +221,7 @@ export class ImportService {
             for (const item of source.assetFolders) {
                 const shouldImport = this.config.process.assetFolder(item);
                 if (!shouldImport) {
-                    source.assetFolders = source.assetFolders.filter(m => m.id !== item.id);
+                    source.assetFolders = source.assetFolders.filter((m) => m.id !== item.id);
                 }
             }
         }
@@ -181,7 +230,7 @@ export class ImportService {
             for (const item of source.importData.contentTypes) {
                 const shouldImport = this.config.process.contentType(item);
                 if (!shouldImport) {
-                    source.importData.contentTypes = source.importData.contentTypes.filter(m => m.id !== item.id);
+                    source.importData.contentTypes = source.importData.contentTypes.filter((m) => m.id !== item.id);
                 }
             }
         }
@@ -190,7 +239,7 @@ export class ImportService {
             for (const item of source.importData.contentItems) {
                 const shouldImport = this.config.process.contentItem(item);
                 if (!shouldImport) {
-                    source.importData.contentItems = source.importData.contentItems.filter(m => m.id !== item.id);
+                    source.importData.contentItems = source.importData.contentItems.filter((m) => m.id !== item.id);
                 }
             }
         }
@@ -200,7 +249,7 @@ export class ImportService {
                 const shouldImport = this.config.process.contentTypeSnippet(item);
                 if (!shouldImport) {
                     source.importData.contentTypeSnippets = source.importData.contentTypeSnippets.filter(
-                        m => m.id !== item.id
+                        (m) => m.id !== item.id
                     );
                 }
             }
@@ -211,7 +260,7 @@ export class ImportService {
                 const shouldImport = this.config.process.languageVariant(item);
                 if (!shouldImport) {
                     source.importData.languageVariants = source.importData.languageVariants.filter(
-                        m => m.item.id !== item.item.id && m.language.id !== item.language.id
+                        (m) => m.item.id !== item.item.id && m.language.id !== item.language.id
                     );
                 }
             }
@@ -221,7 +270,7 @@ export class ImportService {
             for (const item of source.importData.taxonomies) {
                 const shouldImport = this.config.process.taxonomy(item);
                 if (!shouldImport) {
-                    source.importData.taxonomies = source.importData.taxonomies.filter(m => m.id !== item.id);
+                    source.importData.taxonomies = source.importData.taxonomies.filter((m) => m.id !== item.id);
                 }
             }
         }
@@ -232,7 +281,7 @@ export class ImportService {
         importLanguage: LanguageContracts.ILanguageModelContract
     ): Promise<void> {
         // check if language with given codename already exists
-        const existingLanguage = currentLanguages.find(m => m.codename === importLanguage.codename);
+        const existingLanguage = currentLanguages.find((m) => m.codename === importLanguage.codename);
 
         if (existingLanguage) {
             // activate inactive languages
@@ -257,10 +306,12 @@ export class ImportService {
 
         // fix codename when source & target languages do not match
         if (importLanguage.is_default) {
-            const defaultExistingLanguage = currentLanguages.find(m => m.id === importLanguage.id);
+            const defaultExistingLanguage = currentLanguages.find((m) => m.id === importLanguage.id);
 
             if (!defaultExistingLanguage) {
-                throw Error(`Invalid default existing language. Language with id '${importLanguage.id}' was not found.`);
+                throw Error(
+                    `Invalid default existing language. Language with id '${importLanguage.id}' was not found.`
+                );
             }
             if (importLanguage.codename !== defaultExistingLanguage.codename) {
                 // languages do not match, change it
@@ -269,7 +320,7 @@ export class ImportService {
                 );
 
                 // check if language with imported codename exists
-                if (!currentLanguages.find(m => m.codename === importLanguage.codename)) {
+                if (!currentLanguages.find((m) => m.codename === importLanguage.codename)) {
                     // language with required codename does not exist, update it
                     await this.client
                         .modifyLanguage()
@@ -283,7 +334,9 @@ export class ImportService {
                         ])
                         .toPromise();
                 } else {
-                    console.log(`Language with codename '${importLanguage.codename}' already exists in target project, skipping update operation`);
+                    console.log(
+                        `Language with codename '${importLanguage.codename}' already exists in target project, skipping update operation`
+                    );
                 }
             }
         }
@@ -294,7 +347,7 @@ export class ImportService {
         importLanguage: LanguageContracts.ILanguageModelContract
     ): LanguageModels.IAddLanguageData | 'noImport' {
         // check if language with given codename already exists
-        const existingLanguage = currentLanguages.find(m => m.codename === importLanguage.codename);
+        const existingLanguage = currentLanguages.find((m) => m.codename === importLanguage.codename);
 
         if (existingLanguage) {
             // no need to import it
@@ -304,7 +357,7 @@ export class ImportService {
 
         // check if language codename of default language matches
         if (importLanguage.id === this.defaultLanguageId) {
-            const defaultCurrentLanguage = currentLanguages.find(m => m.id === this.defaultLanguageId);
+            const defaultCurrentLanguage = currentLanguages.find((m) => m.id === this.defaultLanguageId);
 
             if (defaultCurrentLanguage && defaultCurrentLanguage.codename !== importLanguage.codename) {
                 // default language codename is source project is different than target project
@@ -350,7 +403,7 @@ export class ImportService {
                 await this.fixLanguageAsync(currentLanguagesResponse.data.items, language);
 
                 // reload existing languages = they were fixed
-                currentLanguagesResponse  = await this.client.listLanguages().toAllPromise();
+                currentLanguagesResponse = await this.client.listLanguages().toAllPromise();
             }
 
             const processedLanguageData = this.tryGetLanguage(currentLanguagesResponse.data.items, language);
@@ -363,7 +416,7 @@ export class ImportService {
                 .addLanguage()
                 .withData(processedLanguageData)
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     importedItems.push({
                         imported: response.data,
                         original: language,
@@ -372,7 +425,7 @@ export class ImportService {
                     });
                     this.processItem(response.data.name, 'language', response.data);
                 })
-                .catch(error => this.handleImportError(error));
+                .catch((error) => this.handleImportError(error));
         }
 
         return importedItems;
@@ -387,7 +440,7 @@ export class ImportService {
         const unsupportedBinaryFiles: IBinaryFile[] = [];
 
         for (const asset of assets) {
-            const binaryFile = binaryFiles.find(m => m.asset.id === asset.id);
+            const binaryFile = binaryFiles.find((m) => m.asset.id === asset.id);
 
             if (!binaryFile) {
                 throw Error(`Could not find binary file for asset with id '${asset.id}'`);
@@ -416,8 +469,8 @@ export class ImportService {
                     filename: asset.file_name
                 })
                 .toPromise()
-                .then(m => m)
-                .catch(error => this.handleImportError(error));
+                .then((m) => m)
+                .catch((error) => this.handleImportError(error));
 
             if (!uploadedBinaryFile) {
                 throw Error(`File not uploaded`);
@@ -429,7 +482,7 @@ export class ImportService {
                 .addAsset()
                 .withData(assetData)
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     importedItems.push({
                         imported: response.data,
                         original: asset,
@@ -438,15 +491,14 @@ export class ImportService {
                     });
                     this.processItem(response.data.fileName, 'asset', response.data);
                 })
-                .catch(error => this.handleImportError(error));
+                .catch((error) => this.handleImportError(error));
         }
 
         return importedItems;
     }
 
     private async importAssetFoldersAsync(
-        assetFolders: AssetFolderContracts.IAssetFolderContract[],
-        currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        assetFolders: AssetFolderContracts.IAssetFolderContract[]
     ): Promise<IImportItemResult<AssetFolderContracts.IAssetFolderContract, AssetFolderModels.AssetFolder>[]> {
         const importedItems: IImportItemResult<
             AssetFolderContracts.IAssetFolderContract,
@@ -455,7 +507,7 @@ export class ImportService {
         // set external id for all folders to equal old id (needed to match referenced folders)
         this.setExternalIdForFolders(assetFolders);
 
-        const assetFoldersToAdd = assetFolders.map(m => this.mapAssetFolder(m));
+        const assetFoldersToAdd = assetFolders.map((m) => this.mapAssetFolder(m));
 
         await this.client
             .addAssetFolders()
@@ -463,7 +515,7 @@ export class ImportService {
                 folders: assetFoldersToAdd
             })
             .toPromise()
-            .then(response => {
+            .then((response) => {
                 const importedFlattenedFolders: IImportItemResult<
                     AssetFolderContracts.IAssetFolderContract,
                     AssetFolderModels.AssetFolder
@@ -479,7 +531,7 @@ export class ImportService {
                     this.processItem(flattenedFolder.imported.name, 'assetFolder', flattenedFolder.imported);
                 }
             })
-            .catch(error => this.handleImportError(error));
+            .catch((error) => this.handleImportError(error));
 
         return importedItems;
     }
@@ -495,11 +547,11 @@ export class ImportService {
         for (const contentType of contentTypes) {
             await this.client
                 .addContentType()
-                .withData(builder => {
+                .withData((builder) => {
                     return contentType;
                 })
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     importedItems.push({
                         imported: response.data,
                         original: contentType,
@@ -508,7 +560,7 @@ export class ImportService {
                     });
                     this.processItem(response.data.name, 'contentType', response.data);
                 })
-                .catch(error => this.handleImportError(error));
+                .catch((error) => this.handleImportError(error));
         }
 
         return importedItems;
@@ -540,7 +592,7 @@ export class ImportService {
                     external_id: contentItem.external_id
                 })
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     importedItems.push({
                         imported: response.data,
                         original: contentItem,
@@ -549,7 +601,7 @@ export class ImportService {
                     });
                     this.processItem(response.data.name, 'contentItem', response.data);
                 })
-                .catch(error => this.handleImportError(error));
+                .catch((error) => this.handleImportError(error));
         }
 
         return importedItems;
@@ -593,7 +645,7 @@ export class ImportService {
                 .byLanguageCodename(languageCodename)
                 .withElements(languageVariant.elements)
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     importedItems.push({
                         imported: response.data,
                         original: languageVariant,
@@ -602,7 +654,7 @@ export class ImportService {
                     });
                     this.processItem(`${itemCodename} (${languageCodename})`, 'languageVariant', response.data);
                 })
-                .catch(error => this.handleImportError(error));
+                .catch((error) => this.handleImportError(error));
         }
 
         return importedItems;
@@ -619,7 +671,7 @@ export class ImportService {
         for (const contentTypeSnippet of contentTypeSnippets) {
             await this.client
                 .addContentTypeSnippet()
-                .withData(builder => {
+                .withData((builder) => {
                     return {
                         elements: contentTypeSnippet.elements,
                         name: contentTypeSnippet.name,
@@ -628,7 +680,7 @@ export class ImportService {
                     };
                 })
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     importedItems.push({
                         imported: response.data,
                         original: contentTypeSnippet,
@@ -637,7 +689,7 @@ export class ImportService {
                     });
                     this.processItem(response.data.name, 'contentTypeSnippet', response.data);
                 })
-                .catch(error => this.handleImportError(error));
+                .catch((error) => this.handleImportError(error));
         }
 
         return importedItems;
@@ -652,7 +704,7 @@ export class ImportService {
                 .addTaxonomy()
                 .withData(taxonomy)
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     importedItems.push({
                         imported: response.data,
                         original: taxonomy,
@@ -661,7 +713,7 @@ export class ImportService {
                     });
                     this.processItem(response.data.name, 'taxonomy', response.data);
                 })
-                .catch(error => this.handleImportError(error));
+                .catch((error) => this.handleImportError(error));
         }
 
         return importedItems;
@@ -722,7 +774,7 @@ export class ImportService {
         items: IImportItemResult<AssetFolderContracts.IAssetFolderContract, AssetFolderModels.AssetFolder>[]
     ): void {
         for (const assetFolder of importedAssetFolders) {
-            const originalFolder = originalItems.find(m => m.external_id === assetFolder.externalId);
+            const originalFolder = originalItems.find((m) => m.external_id === assetFolder.externalId);
 
             if (!originalFolder) {
                 throw Error(
@@ -762,7 +814,7 @@ export class ImportService {
         return {
             name: folder.name,
             external_id: folder.external_id,
-            folders: folder.folders?.map(m => this.mapAssetFolder(m)) ?? []
+            folders: folder.folders?.map((m) => this.mapAssetFolder(m)) ?? []
         };
     }
 }

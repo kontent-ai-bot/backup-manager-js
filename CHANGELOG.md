@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.10.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.9.0...v1.10.0) (2020-10-07)
+
+
+### Features
+
+* processes items per page instead of waiting until all items are fetched from API + updates all dependencies ([f4a5b50](https://github.com/Kentico/kontent-backup-manager-js/commit/f4a5b50575a9f1505893f148a60cd2cb0f19d1a4))
+
 ## [1.9.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.8.0...v1.9.0) (2020-09-22)
 
 

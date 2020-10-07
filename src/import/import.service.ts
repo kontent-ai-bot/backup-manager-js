@@ -643,7 +643,7 @@ export class ImportService {
                 .upsertLanguageVariant()
                 .byItemCodename(itemCodename)
                 .byLanguageCodename(languageCodename)
-                .withElements(languageVariant.elements)
+                .withData(builder => languageVariant.elements)
                 .toPromise()
                 .then((response) => {
                     importedItems.push({

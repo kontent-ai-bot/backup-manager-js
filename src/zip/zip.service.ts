@@ -77,13 +77,29 @@ export class ZipService {
 
         const assetsFolder = zip.folder(this.filesName);
 
+        if (!assetsFolder) {
+            throw Error(`Could not create folder '${this.filesName}'`);
+        }
+
         if (this.config.enableLog) {
             console.log(`Adding assets to zip`);
         }
 
         for (const asset of exportData.data.assets) {
-            const assetIdShortFolder = assetsFolder.folder(asset.id.substr(0, 3));
-            const assetIdFolder = assetIdShortFolder.folder(asset.id);
+            const assetIdShortFolderName = asset.id.substr(0, 3);
+            const assetIdShortFolder = assetsFolder.folder(assetIdShortFolderName);
+
+            if (!assetIdShortFolder) {
+                throw Error(`Could not create folder '${this.filesName}'`);
+            }
+
+            const assetIdFolderName = asset.id;
+            const assetIdFolder = assetIdShortFolder.folder(assetIdFolderName);
+
+            if (!assetIdFolder) {
+                throw Error(`Could not create folder '${this.filesName}'`);
+            }
+
             const assetFilename = asset.file_name;
             assetIdFolder.file(assetFilename, this.getBinaryDataFromUrl(asset.url, this.config.enableLog), {
                 binary: true

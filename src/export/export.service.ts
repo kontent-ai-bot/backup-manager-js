@@ -9,7 +9,7 @@ import {
     AssetContracts,
     LanguageContracts,
     AssetFolderContracts,
-    ProjectContracts,
+    ProjectContracts
 } from '@kentico/kontent-management';
 
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
@@ -37,10 +37,10 @@ export class ExportService {
             contentTypeSnippet: this.config.exportFilter?.includes('contentTypeSnippet') ?? true,
             language: this.config.exportFilter?.includes('language') ?? true,
             languageVariant: this.config.exportFilter?.includes('languageVariant') ?? true,
-            taxonomy: this.config.exportFilter?.includes('taxonomy') ?? true,
+            taxonomy: this.config.exportFilter?.includes('taxonomy') ?? true
         };
 
-        const contentTypes = await this.exportContentTypesAsync({processItem: exportItems.contentType});
+        const contentTypes = await this.exportContentTypesAsync({ processItem: exportItems.contentType });
         const projectValidation = await this.exportProjectValidationAsync();
 
         const data: IExportData = {
@@ -48,10 +48,12 @@ export class ExportService {
             contentTypeSnippets: exportItems.contentTypeSnippet ? await this.exportContentTypeSnippetsAsync() : [],
             taxonomies: exportItems.taxonomy ? await this.exportTaxonomiesAsync() : [],
             contentItems: exportItems.contentItem ? await this.exportContentItemsAsync() : [],
-            languageVariants: exportItems.languageVariant ? await this.exportLanguageVariantsAsync(contentTypes.map(m => m.id)) : [],
+            languageVariants: exportItems.languageVariant
+                ? await this.exportLanguageVariantsAsync(contentTypes.map((m) => m.id))
+                : [],
             assets: exportItems.asset ? await this.exportAssetsAsync() : [],
             languages: exportItems.language ? await this.exportLanguagesAsync() : [],
-            assetFolders: exportItems.assetFolder ? await this.exportAssetFoldersAsync() : [],
+            assetFolders: exportItems.assetFolder ? await this.exportAssetFoldersAsync() : []
         };
 
         return {
@@ -59,7 +61,8 @@ export class ExportService {
                 version,
                 timestamp: new Date(),
                 projectId: this.config.projectId,
-                isInconsistentExport: projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0,
+                isInconsistentExport:
+                    projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0,
                 dataOverview: {
                     assetFoldersCount: data.assetFolders.length,
                     assetsCount: data.assets.length,
@@ -68,8 +71,8 @@ export class ExportService {
                     contentTypesCount: data.contentTypes.length,
                     languageVariantsCount: data.languageVariants.length,
                     languagesCount: data.languages.length,
-                    taxonomiesCount: data.taxonomies.length,
-                },
+                    taxonomiesCount: data.taxonomies.length
+                }
             },
             validation: projectValidation,
             data
@@ -77,55 +80,82 @@ export class ExportService {
     }
 
     public async exportProjectValidationAsync(): Promise<ProjectContracts.IProjectReportResponseContract> {
-        const response = await this.client.validateProjectContent()
-            .forProjectId(this.config.projectId)
-            .toPromise();
-
+        const response = await this.client.validateProjectContent().forProjectId(this.config.projectId).toPromise();
         return response.rawData;
     }
 
     public async exportAssetsAsync(): Promise<AssetContracts.IAssetModelContract[]> {
-        const response = await this.client.listAssets().toAllPromise();
-        response.data.items.forEach(m => this.processItem(m.fileName, 'asset', m));
-        return response.data.items.map(m => m._raw);
+        const response = await this.client
+            .listAssets()
+            .withListQueryConfig({
+                responseFetched: (listResponse, token) => {
+                    listResponse.data.items.forEach((m) => this.processItem(m.fileName, 'asset', m));
+                }
+            })
+            .toAllPromise();
+        return response.data.items.map((m) => m._raw);
     }
 
     public async exportAssetFoldersAsync(): Promise<AssetFolderContracts.IAssetFolderContract[]> {
         const response = await this.client.listAssetFolders().toPromise();
-        response.data.items.forEach(m => this.processItem(m.name, 'assetFolder', m));
-        return response.data.items.map(m => m._raw);
+        response.data.items.forEach((m) => this.processItem(m.name, 'assetFolder', m));
+        return response.data.items.map((m) => m._raw);
     }
 
     public async exportLanguagesAsync(): Promise<LanguageContracts.ILanguageModelContract[]> {
-        const response = await this.client.listLanguages().toAllPromise();
-        response.data.items.forEach(m => this.processItem(m.name, 'language', m));
-        return response.data.items.map(m => m._raw);
+        const response = await this.client
+            .listLanguages()
+            .withListQueryConfig({
+                responseFetched: (listResponse, token) => {
+                    listResponse.data.items.forEach((m) => this.processItem(m.name, 'language', m));
+                }
+            })
+            .toAllPromise();
+        return response.data.items.map((m) => m._raw);
     }
 
     public async exportTaxonomiesAsync(): Promise<TaxonomyContracts.ITaxonomyContract[]> {
         const response = await this.client.listTaxonomies().toPromise();
-        response.data.taxonomies.forEach(m => this.processItem(m.name, 'taxonomy', m));
-        return response.data.taxonomies.map(m => m._raw);
+        response.data.taxonomies.forEach((m) => this.processItem(m.name, 'taxonomy', m));
+        return response.data.taxonomies.map((m) => m._raw);
     }
 
     public async exportContentTypeSnippetsAsync(): Promise<ContentTypeSnippetContracts.IContentTypeSnippetContract[]> {
-        const response = await this.client.listContentTypeSnippets().toAllPromise();
-        response.data.items.forEach(m => this.processItem(m.name, 'contentTypeSnippet', m));
-        return response.data.items.map(m => m._raw);
+        const response = await this.client
+            .listContentTypeSnippets()
+            .withListQueryConfig({
+                responseFetched: (listResponse, token) => {
+                    listResponse.data.items.forEach((m) => this.processItem(m.name, 'contentTypeSnippet', m));
+                }
+            })
+            .toAllPromise();
+        return response.data.items.map((m) => m._raw);
     }
 
-    public async exportContentTypesAsync(data: {processItem: boolean}): Promise<ContentTypeContracts.IContentTypeContract[]> {
-        const response = await this.client.listContentTypes().toAllPromise();
-        if (data.processItem) {
-            response.data.items.forEach(m => this.processItem(m.name, 'contentType', m));
-        }
-        return response.data.items.map(m => m._raw);
+    public async exportContentTypesAsync(data: {
+        processItem: boolean;
+    }): Promise<ContentTypeContracts.IContentTypeContract[]> {
+        const response = await this.client
+            .listContentTypes()
+            .withListQueryConfig({
+                responseFetched: (listResponse, token) => {
+                    listResponse.data.items.forEach((m) => this.processItem(m.name, 'contentType', m));
+                }
+            })
+            .toAllPromise();
+        return response.data.items.map((m) => m._raw);
     }
 
     public async exportContentItemsAsync(): Promise<ContentItemContracts.IContentItemModelContract[]> {
-        const response = await this.client.listContentItems().toAllPromise();
-        response.data.items.forEach(m => this.processItem(m.name, 'contentItem', m));
-        return response.data.items.map(m => m._raw);
+        const response = await this.client
+            .listContentItems()
+            .withListQueryConfig({
+                responseFetched: (listResponse, token) => {
+                    listResponse.data.items.forEach((m) => this.processItem(m.name, 'contentItem', m));
+                }
+            })
+            .toAllPromise();
+        return response.data.items.map((m) => m._raw);
     }
 
     public async exportLanguageVariantsAsync(
@@ -134,26 +164,32 @@ export class ExportService {
         const languageVariants: LanguageVariantContracts.ILanguageVariantModelWithComponentsContract[] = [];
 
         for (const typeId of typeIds) {
-            languageVariants.push(
-                ...(
-                    await this.client
-                        .listLanguageVariantsOfContentTypeWithComponents()
-                        .byTypeId(typeId)
-                        .toAllPromise()
-                ).data.items.map(m => m._raw)
-            );
+            await this.client
+                .listLanguageVariantsOfContentTypeWithComponents()
+                .byTypeId(typeId)
+                .withListQueryConfig({
+                    responseFetched: (listResponse, token) => {
+                        languageVariants.push(...listResponse.data.items.map((m) => m._raw));
+                        listResponse.data.items.forEach((m) =>
+                            this.processItem(m.item.id?.toString() ?? '-', 'languageVariant', m)
+                        );
+                    }
+                })
+                .toAllPromise();
 
-            languageVariants.push(
-                ...(
-                    await this.client
-                        .listLanguageVariantsOfContentType()
-                        .byTypeId(typeId)
-                        .toAllPromise()
-                ).data.items.map(m => m._raw)
-            );
+            await this.client
+                .listLanguageVariantsOfContentType()
+                .byTypeId(typeId)
+                .withListQueryConfig({
+                    responseFetched: (listResponse, token) => {
+                        languageVariants.push(...listResponse.data.items.map((m) => m._raw));
+                        listResponse.data.items.forEach((m) =>
+                            this.processItem(m.item.id?.toString() ?? '-', 'languageVariant', m)
+                        );
+                    }
+                })
+                .toAllPromise();
         }
-
-        languageVariants.forEach(m => this.processItem(m.item.id?.toString() ?? '-', 'languageVariant', m));
 
         return languageVariants;
     }

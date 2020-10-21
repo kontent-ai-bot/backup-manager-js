@@ -139,7 +139,9 @@ export class ExportService {
             .listContentTypes()
             .withListQueryConfig({
                 responseFetched: (listResponse, token) => {
-                    listResponse.data.items.forEach((m) => this.processItem(m.name, 'contentType', m));
+                    if (data.processItem) {
+                        listResponse.data.items.forEach((m) => this.processItem(m.name, 'contentType', m));
+                    }
                 }
             })
             .toAllPromise();

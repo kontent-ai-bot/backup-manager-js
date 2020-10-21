@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.12.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.11.0...v1.12.0) (2020-10-21)
+
+
+### Features
+
+* adds ability to set artificial delay between asset download requests & wait until asset is downloaded before proceeding to next ([3855127](https://github.com/Kentico/kontent-backup-manager-js/commit/3855127d563ef5452529beb634126aed08d18e9f))
+
+
+### Bug Fixes
+
+* skips processing of content types when not necessary ([2df86f2](https://github.com/Kentico/kontent-backup-manager-js/commit/2df86f2ba6bc2e63cb85408e70bcdccde0254df6))
+
 ## [1.11.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.10.0...v1.11.0) (2020-10-21)
 
 

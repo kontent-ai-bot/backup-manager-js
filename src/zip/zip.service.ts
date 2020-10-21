@@ -8,6 +8,8 @@ import { IZipServiceConfig } from './zip.models';
 
 export class ZipService {
 
+    private readonly delayBetweenAssetRequestsMs: number;
+
     private readonly contentTypesName: string = 'contentTypes.json';
     private readonly contentItemsName: string = 'contentItems.json';
     private readonly taxonomiesName: string = 'taxonomies.json';
@@ -21,6 +23,7 @@ export class ZipService {
     private readonly validationName: string = 'validation.json';
 
     constructor(private config: IZipServiceConfig) {
+        this.delayBetweenAssetRequestsMs = config?.delayBetweenAssetDownloadRequestsMs ?? 150;
     }
 
     public async extractZipAsync(zipFile: any): Promise<IImportSource> {
@@ -101,9 +104,12 @@ export class ZipService {
             }
 
             const assetFilename = asset.file_name;
-            assetIdFolder.file(assetFilename, this.getBinaryDataFromUrl(asset.url, this.config.enableLog), {
+            assetIdFolder.file(assetFilename, await this.getBinaryDataFromUrlAsync(asset.url, this.config.enableLog), {
                 binary: true
             });
+
+            // create artificial delay between requests as to prevent errors on network
+            await this.sleepAsync(this.delayBetweenAssetRequestsMs);
         }
 
         if (this.config.enableLog) {
@@ -118,6 +124,10 @@ export class ZipService {
 
         return content;
     }
+
+    private sleepAsync(ms: number): Promise<any> {
+        return new Promise((resolve: any) => setTimeout(resolve, ms));
+      }
 
     private async extractBinaryFilesAsync(
         zip: JSZip,
@@ -173,19 +183,19 @@ export class ZipService {
         return JSON.parse(text);
     }
 
-    private getBinaryDataFromUrl(url: string, enableLog: boolean): Promise<any> {
+    private getBinaryDataFromUrlAsync(url: string, enableLog: boolean): Promise<any> {
         // temp fix for Kontent Repository not validating url
         url = url.replace('#', '%23');
 
         if (enableLog) {
-            console.log(`Downloading asset: ${url}`);
+            console.log(`Start asset download: ${url}`);
         }
         return axios.get(url, {
             responseType: 'arraybuffer',
         }).then(
             response => {
                 if (enableLog) {
-                    console.log(`Downloading asset completed: ${url}`);
+                    console.log(`Completed asset download: ${url}`);
                 }
                 return response.data;
             }

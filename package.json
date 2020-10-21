@@ -41,16 +41,16 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@kentico/kontent-management": "0.4.1",
+    "@kentico/kontent-management": "0.4.2",
     "jszip": "3.5.0",
     "rxjs": "6.6.3",
-    "yargs": "16.0.3",
+    "yargs": "16.1.0",
     "flatted": "3.1.0"
   },
   "devDependencies": {
     "@types/jszip": "3.4.1",
-    "@types/node": "14.11.5",
-    "@types/yargs": "15.0.7",
+    "@types/node": "14.14.0",
+    "@types/yargs": "15.0.9",
     "standard-version": "9.0.0",
     "ts-node": "9.0.0",
     "tslint": "6.1.3",

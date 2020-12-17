@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.13.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.12.0...v1.13.0) (2020-12-17)
+
+
+### Features
+
+* uses different endpoint for fetching language variants to ensure all variants are loaded ([6bdda7d](https://github.com/Kentico/kontent-backup-manager-js/commit/6bdda7d5b7aaf73103f46ade0a6a14e31b9ece30))
+
 ## [1.12.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.11.0...v1.12.0) (2020-10-21)
 
 

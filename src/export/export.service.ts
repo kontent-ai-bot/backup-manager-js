@@ -42,6 +42,7 @@ export class ExportService {
 
         const contentTypes = await this.exportContentTypesAsync({ processItem: exportItems.contentType });
         const projectValidation = await this.exportProjectValidationAsync();
+        const contentItems = exportItems.contentItem || exportItems.languageVariant ? await this.exportContentItemsAsync() : []
 
         const data: IExportData = {
             contentTypes: exportItems.contentType ? contentTypes : [],
@@ -49,7 +50,7 @@ export class ExportService {
             taxonomies: exportItems.taxonomy ? await this.exportTaxonomiesAsync() : [],
             contentItems: exportItems.contentItem ? await this.exportContentItemsAsync() : [],
             languageVariants: exportItems.languageVariant
-                ? await this.exportLanguageVariantsAsync(contentTypes.map((m) => m.id))
+                ? await this.exportLanguageVariantsAsync(contentItems.map((m) => m.id))
                 : [],
             assets: exportItems.asset ? await this.exportAssetsAsync() : [],
             languages: exportItems.language ? await this.exportLanguagesAsync() : [],
@@ -161,36 +162,21 @@ export class ExportService {
     }
 
     public async exportLanguageVariantsAsync(
-        typeIds: string[]
+        contentItemIds: string[]
     ): Promise<LanguageVariantContracts.ILanguageVariantModelContract[]> {
         const languageVariants: LanguageVariantContracts.ILanguageVariantModelWithComponentsContract[] = [];
 
-        for (const typeId of typeIds) {
-            await this.client
-                .listLanguageVariantsOfContentTypeWithComponents()
-                .byTypeId(typeId)
-                .withListQueryConfig({
-                    responseFetched: (listResponse, token) => {
-                        languageVariants.push(...listResponse.data.items.map((m) => m._raw));
-                        listResponse.data.items.forEach((m) =>
-                            this.processItem(m.item.id?.toString() ?? '-', 'languageVariant', m)
-                        );
-                    }
-                })
-                .toAllPromise();
+        for (const contentItemId of contentItemIds) {
+            const response = await this.client
+                .listLanguageVariantsOfItem()
+                .byItemId(contentItemId)
+                .toPromise();
 
-            await this.client
-                .listLanguageVariantsOfContentType()
-                .byTypeId(typeId)
-                .withListQueryConfig({
-                    responseFetched: (listResponse, token) => {
-                        languageVariants.push(...listResponse.data.items.map((m) => m._raw));
-                        listResponse.data.items.forEach((m) =>
-                            this.processItem(m.item.id?.toString() ?? '-', 'languageVariant', m)
-                        );
-                    }
-                })
-                .toAllPromise();
+
+                languageVariants.push(...response.data.items.map((m) => m._raw));
+                response.data.items.forEach((m) =>
+                    this.processItem(m.item.id?.toString() ?? '-', 'languageVariant', m)
+                );
         }
 
         return languageVariants;

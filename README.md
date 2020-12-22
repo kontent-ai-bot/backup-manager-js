@@ -96,6 +96,7 @@ const run = async () => {
     // you can also save backup in file with ZipService
     const zipService = new ZipService({
         filename: 'file',
+        context: 'node.js',
         enableLog: true
     });
 

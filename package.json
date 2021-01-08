@@ -14,6 +14,7 @@
   "main": "./_commonjs/src/index.js",
   "directories": {},
   "scripts": {
+    "test": "echo \"no global test configured\"",
     "release": "standard-version",
     "tsc-local": "./node_modules/.bin/tsc",
     "ts-node-local": "./node_modules/.bin/ts-node",

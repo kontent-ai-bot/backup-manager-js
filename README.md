@@ -24,6 +24,7 @@ Install package globally:
 | enableLog       | Indicates if default logging is enabled (useful to indicate progress)       
 | force           | If enabled, project will we exported / restored even if there are data inconsistencies. Enabled by default. |
 | baseUrl           | Custom base URL for Management API calls. |
+| enablePublish           | Indicates if language variants published on the source project are also published on target. Enabled by default |
 | exportFilter           | Can be used to export only selected data types. Expects CSV of types. For example `contentType,language` will cause backup manager to export only content types & language data. List of data types can be found below. |
 
 ### Data types

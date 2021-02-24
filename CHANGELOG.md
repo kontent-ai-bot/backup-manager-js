@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.15.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.14.0...v1.15.0) (2021-02-24)
+
+
+### Features
+
+* adds support for exporting workflow steps ([f2878a2](https://github.com/Kentico/kontent-backup-manager-js/commit/f2878a20ff6b76cf047831be356cc7f0e07146f7))
+* adds support for preserving publish & fixes custom workflow step assignment ([ac1e8a0](https://github.com/Kentico/kontent-backup-manager-js/commit/ac1e8a068050fe98543c312a36430abbc7b9a395))
+* updates deps ([b8aff5a](https://github.com/Kentico/kontent-backup-manager-js/commit/b8aff5ae86702ce2878cb0eb11de32b9bb38fd5b))
+
 ## [1.14.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.13.0...v1.14.0) (2021-01-08)
 
 

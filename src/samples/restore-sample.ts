@@ -17,6 +17,7 @@ const run = async () => {
             // called when any content is imported
             console.log(`Imported: ${item.title} | ${item.type}`);
         },
+        enablePublish: true,
         projectId: 'targetProjectId',
         apiKey: 'targetProjectId',
         enableLog: true,

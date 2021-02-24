@@ -38,7 +38,7 @@ export class ZipService {
             console.log(`Parsing zip contents`);
         }
         const assets = await this.readAndParseJsonFile(unzippedFile, this.assetsName);
-        const result = {
+        const result: IImportSource = {
             importData: {
                 assets,
                 contentTypes: await this.readAndParseJsonFile(unzippedFile, this.contentTypesName),
@@ -47,6 +47,7 @@ export class ZipService {
                 contentItems: await this.readAndParseJsonFile(unzippedFile, this.contentItemsName),
                 contentTypeSnippets: await this.readAndParseJsonFile(unzippedFile, this.contentTypeSnippetsName),
                 taxonomies: await this.readAndParseJsonFile(unzippedFile, this.taxonomiesName),
+                workflowSteps: await this.readAndParseJsonFile(unzippedFile, this.workflowStepsName),
             },
             assetFolders: await this.readAndParseJsonFile(unzippedFile, this.assetFoldersName),
             binaryFiles: await this.extractBinaryFilesAsync(unzippedFile, assets),

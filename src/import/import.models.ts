@@ -8,12 +8,14 @@ import {
     LanguageVariantContracts,
     TaxonomyContracts,
     ProjectContracts,
+    WorkflowContracts,
 } from '@kentico/kontent-management';
 
 import { IProcessedItem, ItemType, IPackageMetadata } from '../core';
 
 export interface IImportConfig {
     workflowIdForImportedItems?: string;
+    enablePublish: boolean
     baseUrl?: string;
     projectId: string;
     apiKey: string;
@@ -63,6 +65,7 @@ export interface IImportSource {
         languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[];
         languages: LanguageContracts.ILanguageModelContract[];
         assets: AssetContracts.IAssetModelContract[];
+        workflowSteps: WorkflowContracts.IWorkflowStepContract[];
     };
     metadata: IPackageMetadata;
     validation: ProjectContracts.IProjectReportResponseContract;

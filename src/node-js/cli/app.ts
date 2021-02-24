@@ -91,6 +91,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
                 console.log(`Imported: ${item.title} | ${item.type}`);
             }
         },
+        enablePublish: config.enablePublish,
         baseUrl: config.baseUrl,
         fixLanguages: true,
         projectId: config.projectId,
@@ -195,6 +196,7 @@ const getConfig = async () => {
     const apiKey: string | undefined = argv.apiKey as string | undefined;
     const enableLog: boolean | undefined = (argv.enableLog as boolean | undefined) ?? true;
     const force: boolean | undefined = (argv.force as boolean | undefined) ?? true;
+    const enablePublish: boolean | undefined = (argv.enablePublish as boolean | undefined) ?? true;
     const projectId: string | undefined = argv.projectId as string | undefined;
     const baseUrl: string | undefined = argv.baseUrl as string | undefined;
     const zipFilename: string | undefined = (argv.zipFilename as string | undefined) ?? getDefaultBackupFilename();
@@ -218,6 +220,7 @@ const getConfig = async () => {
 
     // get config from command line
     const config: ICliFileConfig = {
+        enablePublish,
         action,
         apiKey,
         enableLog,

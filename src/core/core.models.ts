@@ -23,6 +23,7 @@ export interface ICliFileConfig {
     action: CliAction;
     zipFilename: string;
     enableLog: boolean;
+    enablePublish: boolean;
     force: boolean;
     baseUrl?: string;
     exportFilter?: ItemType[]
@@ -40,6 +41,8 @@ export type ItemType =
     | 'assetFolder'
     | 'workflowStep'
     | 'binaryFile';
+
+export type ActionType = ItemType | 'publish' | 'changeWorkflowStep';
 
 export type ValidImportModel =
     | ContentTypeModels.ContentType
@@ -64,7 +67,7 @@ export type ValidImportContract =
 
 export interface IProcessedItem {
     title: string;
-    type: ItemType;
+    type: ActionType;
     data: any;
 }
 

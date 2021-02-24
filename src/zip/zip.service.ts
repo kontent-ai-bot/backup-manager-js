@@ -20,6 +20,7 @@ export class ZipService {
     private readonly languages: string = 'languages.json';
     private readonly filesName: string = 'files';
     private readonly assetFoldersName: string = 'assetFolders.json';
+    private readonly workflowStepsName: string = 'workflowSteps.json';
     private readonly validationName: string = 'validation.json';
 
     constructor(private config: IZipServiceConfig) {
@@ -77,6 +78,7 @@ export class ZipService {
         zip.file(this.languages, JSON.stringify(exportData.data.languages));
         zip.file(this.contentTypeSnippetsName, JSON.stringify(exportData.data.contentTypeSnippets));
         zip.file(this.assetFoldersName, JSON.stringify(exportData.data.assetFolders));
+        zip.file(this.workflowStepsName, JSON.stringify(exportData.data.workflowSteps));
 
         const assetsFolder = zip.folder(this.filesName);
 

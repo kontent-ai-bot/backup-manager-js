@@ -8,6 +8,7 @@ import {
     LanguageVariantContracts,
     TaxonomyContracts,
     ProjectContracts,
+    WorkflowContracts,
 } from '@kentico/kontent-management';
 
 import { IProcessedItem, IPackageMetadata, ItemType } from '../core';
@@ -21,6 +22,7 @@ export interface IExportConfig {
 }
 
 export interface IExportData {
+    workflowSteps: WorkflowContracts.IWorkflowStepContract[];
     taxonomies: TaxonomyContracts.ITaxonomyContract[];
     contentTypeSnippets: ContentTypeSnippetContracts.IContentTypeSnippetContract[];
     contentTypes: ContentTypeContracts.IContentTypeContract[];

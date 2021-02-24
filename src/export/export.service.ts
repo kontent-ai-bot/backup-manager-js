@@ -9,7 +9,8 @@ import {
     AssetContracts,
     LanguageContracts,
     AssetFolderContracts,
-    ProjectContracts
+    ProjectContracts,
+    WorkflowContracts
 } from '@kentico/kontent-management';
 
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
@@ -37,7 +38,8 @@ export class ExportService {
             contentTypeSnippet: this.config.exportFilter?.includes('contentTypeSnippet') ?? true,
             language: this.config.exportFilter?.includes('language') ?? true,
             languageVariant: this.config.exportFilter?.includes('languageVariant') ?? true,
-            taxonomy: this.config.exportFilter?.includes('taxonomy') ?? true
+            taxonomy: this.config.exportFilter?.includes('taxonomy') ?? true,
+            workflowSteps: this.config.exportFilter?.includes('workflowStep') ?? true,
         };
 
         const contentTypes = await this.exportContentTypesAsync({ processItem: exportItems.contentType });
@@ -48,6 +50,7 @@ export class ExportService {
             contentTypes: exportItems.contentType ? contentTypes : [],
             contentTypeSnippets: exportItems.contentTypeSnippet ? await this.exportContentTypeSnippetsAsync() : [],
             taxonomies: exportItems.taxonomy ? await this.exportTaxonomiesAsync() : [],
+            workflowSteps: exportItems.taxonomy ? await this.exportWorkflowStepsAsync() : [],
             contentItems: exportItems.contentItem ? await this.exportContentItemsAsync() : [],
             languageVariants: exportItems.languageVariant
                 ? await this.exportLanguageVariantsAsync(contentItems.map((m) => m.id))
@@ -72,7 +75,8 @@ export class ExportService {
                     contentTypesCount: data.contentTypes.length,
                     languageVariantsCount: data.languageVariants.length,
                     languagesCount: data.languages.length,
-                    taxonomiesCount: data.taxonomies.length
+                    taxonomiesCount: data.taxonomies.length,
+                    workflowStepsCount: data.workflowSteps.length,
                 }
             },
             validation: projectValidation,
@@ -113,6 +117,12 @@ export class ExportService {
             })
             .toAllPromise();
         return response.data.items.map((m) => m._raw);
+    }
+
+    public async exportWorkflowStepsAsync(): Promise<WorkflowContracts.IWorkflowStepContract[]> {
+        const response = await this.client.listWorkflowSteps().toPromise();
+        response.data.forEach((m) => this.processItem(m.name, 'workflowStep', m));
+        return response.data.map((m) => m._raw);
     }
 
     public async exportTaxonomiesAsync(): Promise<TaxonomyContracts.ITaxonomyContract[]> {

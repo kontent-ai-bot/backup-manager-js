@@ -38,6 +38,7 @@ export type ItemType =
     | 'language'
     | 'asset'
     | 'assetFolder'
+    | 'workflowStep'
     | 'binaryFile';
 
 export type ValidImportModel =
@@ -96,5 +97,6 @@ export interface IPackageDataOverview {
     languagesCount:  number;
     assetsCount:  number;
     assetFoldersCount:  number;
+    workflowStepsCount:  number;
 }
 

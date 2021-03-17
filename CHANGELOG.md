@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.15.1](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.15.0...v1.15.1) (2021-03-17)
+
+
+### Bug Fixes
+
+* sets maxBodyLength as infinity to enable upload of large files ([76ff94c](https://github.com/Kentico/kontent-backup-manager-js/commit/76ff94cb9d213f3524f0fca0168f691736c7cd76))
+
 ## [1.15.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.14.0...v1.15.0) (2021-02-24)
 
 

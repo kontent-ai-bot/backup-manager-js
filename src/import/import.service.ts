@@ -59,7 +59,8 @@ export class ImportService {
                 axiosRequestConfig: {
                     // required for uploading large files
                     // https://github.com/axios/axios/issues/1362
-                    maxContentLength: 'Infinity' as any
+                    maxContentLength: 'Infinity' as any,
+                    maxBodyLength: 'Infinity' as any
                 }
             })
         });

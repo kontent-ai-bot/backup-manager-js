@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     strategy:
       matrix:
@@ -22,15 +22,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm ci    
-    - run: export DISPLAY=:99.0
-    - name: Run headless test
-      uses: GabrielBB/xvfb-action@v1
-      with:
-        working-directory: ./ #optional
-        run: npm test
-   # - run: sh -e /etc/init.d/xvfb start
-    - run: npm i -g karma # info - http://karma-runner.github.io/0.8/plus/Travis-CI.html
+    - run: npm ci
+    - run: npm i -g karma
     - run: npm i -g cat
     - run: npm i rxjs
     - run: npm run test:all

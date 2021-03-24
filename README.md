@@ -1,5 +1,6 @@
 [![npm version](https://badge.fury.io/js/%40kentico%2Fkontent-backup-manager.svg)](https://badge.fury.io/js/%40kentico%2Fkontent-backup-manager)
 [![CircleCI](https://circleci.com/gh/Kentico/kontent-backup-manager-js.svg?style=svg)](https://circleci.com/gh/Kentico/kontent-backup-manager-js)
+[![Build & Test](https://github.com/Kentico/kontent-backup-manager-js/actions/workflows/integrate.yml/badge.svg)](https://github.com/Kentico/kontent-backup-manager-js/actions/workflows/integrate.yml)
 
 # Kontent Backup Manager
 

@@ -20,6 +20,7 @@ import {
     TaxonomyModels,
     WorkflowContracts
 } from '@kentico/kontent-management';
+import { version, name } from '../../package.json';
 
 import {
     idTranslateHelper,
@@ -33,7 +34,6 @@ import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 
 export class ImportService {
     private readonly defaultLanguageId: string = '00000000-0000-0000-0000-000000000000';
-    private readonly defaultWorkflowId: string = '00000000-0000-0000-0000-000000000000';
     private readonly client: IManagementClient;
     private readonly publishedWorkflowStepName: string = 'Published';
 
@@ -76,6 +76,16 @@ export class ImportService {
         sourceData: IImportSource
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
         const importedItems: IImportItemResult<ValidImportContract, ValidImportModel>[] = [];
+        // log information regarding version mismatch
+        if (version !== sourceData.metadata.version) {
+            console.warn(
+                `WARNING: Version mismatch. Current version of '${name}' is '${version}', but package was created in version '${sourceData.metadata.version}'.`
+            );
+            console.warn(
+                `Import may still succeed, but if it doesn't, please try using '${sourceData.metadata.version}' version of this library. `
+            );
+        }
+
         if (this.config.enableLog) {
             console.log(`Translating object ids to codenames`);
         }
@@ -177,11 +187,17 @@ export class ImportService {
             importedItems.push(...importedLanguageVariants);
 
             if (this.config.enablePublish) {
-                await this.publishLanguageVariantsAsync(sourceData.importData.languageVariants, sourceData.importData.workflowSteps);
+                await this.publishLanguageVariantsAsync(
+                    sourceData.importData.languageVariants,
+                    sourceData.importData.workflowSteps
+                );
             }
 
             if (this.config.workflowIdForImportedItems) {
-                await this.moveLanguageVariantsToCustomWorkflowStepAsync(this.config.workflowIdForImportedItems, sourceData.importData.languageVariants);
+                await this.moveLanguageVariantsToCustomWorkflowStepAsync(
+                    this.config.workflowIdForImportedItems,
+                    sourceData.importData.languageVariants
+                );
             }
         } else {
             if (this.config.enableLog) {
@@ -630,7 +646,7 @@ export class ImportService {
             return;
         }
 
-        const itemsToPublish = languageVariants.filter(m => m.workflow_step.id === publishedWorkflowStep.id);
+        const itemsToPublish = languageVariants.filter((m) => m.workflow_step.id === publishedWorkflowStep.id);
 
         if (!itemsToPublish.length) {
             // no items to publish
@@ -661,7 +677,8 @@ export class ImportService {
         }
     }
 
-    private async moveLanguageVariantsToCustomWorkflowStepAsync(workflowStepId: string,
+    private async moveLanguageVariantsToCustomWorkflowStepAsync(
+        workflowStepId: string,
         languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[]
     ): Promise<void> {
         for (const item of languageVariants) {
@@ -720,7 +737,7 @@ export class ImportService {
                 .upsertLanguageVariant()
                 .byItemCodename(itemCodename)
                 .byLanguageCodename(languageCodename)
-                .withData(builder => languageVariant.elements)
+                .withData((builder) => languageVariant.elements)
                 .toPromise()
                 .then((response) => {
                     importedItems.push({
@@ -895,7 +912,9 @@ export class ImportService {
         };
     }
 
-    private getPublishedWorkflowStep(workflowSteps: WorkflowContracts.IWorkflowStepContract[]): WorkflowContracts.IWorkflowStepContract | undefined {
-        return workflowSteps.find(m => m.name === this.publishedWorkflowStepName);
+    private getPublishedWorkflowStep(
+        workflowSteps: WorkflowContracts.IWorkflowStepContract[]
+    ): WorkflowContracts.IWorkflowStepContract | undefined {
+        return workflowSteps.find((m) => m.name === this.publishedWorkflowStepName);
     }
 }

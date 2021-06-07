@@ -46,7 +46,7 @@ const argv = yargs(process.argv.slice(2))
     .alias('e', 'exportFilter')
     .describe(
         'e',
-        'Can be used to export only selected data types. Expects CSV of types. For example contentType,language will cause backup manager to export only content types & language data.'
+        'Can be used to export only selected data types. Expects CSV of types. Supported types: taxonomy, contentType, contentTypeSnippet, contentItem, languageVariant, language, assetFolder, binaryFile & workflowSteps'
     )
     .help('h')
     .alias('h', 'help').argv;

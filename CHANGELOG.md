@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.16.0...v2.0.0) (2021-06-07)
+
+
+### Features
+
+* updates to next version of management sdk + updates all deps, adds yargs help for use in command line, changes distribution modules and paths ([5bec931](https://github.com/Kentico/kontent-backup-manager-js/commit/5bec93197fadc480a8b4daf9960ce8d82ace4a57))
+
 ## [1.16.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.15.1...v1.16.0) (2021-04-15)
 
 

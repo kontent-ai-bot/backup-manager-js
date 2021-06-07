@@ -1,6 +1,6 @@
-import { ImportService } from 'src';
+import { ImportService } from 'lib';
 import { ZipService } from '../zip';
-import { FileService } from '../node-js';
+import { FileService } from '../node';
 
 const run = async () => {
     const zipService = new ZipService({

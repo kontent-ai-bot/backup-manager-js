@@ -1,4 +1,4 @@
-import { CleanService } from 'src';
+import { CleanService } from 'lib';
 
 const run = async () => {
     const cleanService = new CleanService({

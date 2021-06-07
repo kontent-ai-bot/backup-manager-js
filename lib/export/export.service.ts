@@ -2,7 +2,6 @@ import {
     ContentItemContracts,
     ContentTypeContracts,
     ContentTypeSnippetContracts,
-    IManagementClient,
     LanguageVariantContracts,
     ManagementClient,
     TaxonomyContracts,
@@ -18,7 +17,7 @@ import { ItemType } from '../core';
 import { version } from '../../package.json';
 
 export class ExportService {
-    private readonly client: IManagementClient;
+    private readonly client: ManagementClient;
 
     constructor(private config: IExportConfig) {
         this.client = new ManagementClient({

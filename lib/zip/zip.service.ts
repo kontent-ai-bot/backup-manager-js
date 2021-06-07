@@ -1,5 +1,5 @@
 import { AssetContracts } from '@kentico/kontent-management';
-import JSZip = require('jszip');
+import * as JSZip from 'jszip';
 import axios, {} from 'axios';
 
 import { IExportAllResult } from '../export';

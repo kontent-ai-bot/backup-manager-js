@@ -1,4 +1,3 @@
-import { HttpService } from '@kentico/kontent-core';
 import {
     AssetContracts,
     AssetFolderContracts,
@@ -9,7 +8,6 @@ import {
     ContentTypeContracts,
     ContentTypeModels,
     ContentTypeSnippetContracts,
-    IManagementClient,
     LanguageContracts,
     LanguageModels,
     LanguageVariantContracts,
@@ -34,7 +32,7 @@ import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 
 export class ImportService {
     private readonly defaultLanguageId: string = '00000000-0000-0000-0000-000000000000';
-    private readonly client: IManagementClient;
+    private readonly client: ManagementClient;
     private readonly publishedWorkflowStepName: string = 'Published';
 
     /**
@@ -53,16 +51,7 @@ export class ImportService {
                 canRetryError: (err) => true, // so that timeout errors are retried
                 maxAttempts: 3,
                 deltaBackoffMs: 1000,
-                maxCumulativeWaitTimeMs: 60000
-            },
-            httpService: new HttpService({
-                axiosRequestConfig: {
-                    // required for uploading large files
-                    // https://github.com/axios/axios/issues/1362
-                    maxContentLength: 'Infinity' as any,
-                    maxBodyLength: 'Infinity' as any
-                }
-            })
+            }
         });
     }
 

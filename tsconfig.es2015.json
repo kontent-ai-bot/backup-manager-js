@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "importHelpers": true,
+    "target": "es2015",
+    "outDir": "dist/es2015"
+  },
+  "include": [
+    "lib/**/*"
+  ]
+}

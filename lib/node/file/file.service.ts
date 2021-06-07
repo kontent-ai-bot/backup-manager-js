@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import { promises } from 'fs';
 import { IFileServiceConfig } from './file.models';
 
 export class FileService {
@@ -15,7 +15,7 @@ export class FileService {
         if (this.config.enableLog) {
             console.log(`Reading file '${filePath}'`);
         }
-        const file = await fs.promises.readFile(filePath);
+        const file = await promises.readFile(filePath);
         if (this.config.enableLog) {
             console.log(`Reading file completed`);
         }
@@ -27,7 +27,7 @@ export class FileService {
         const filePath = this.getFilePath(fileNameWithoutExtension);
 
         console.log(`Writing file '${filePath}'`);
-        await fs.promises.writeFile(filePath, content);
+        await promises.writeFile(filePath, content);
         console.log(`File saved`);
     }
 

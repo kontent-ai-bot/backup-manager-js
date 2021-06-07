@@ -1,10 +1,10 @@
-import { AssetFolderModels, IManagementClient, ManagementClient } from '@kentico/kontent-management';
+import { AssetFolderModels, ManagementClient } from '@kentico/kontent-management';
 
 import { ItemType } from '../core';
 import { ICleanConfig, ICleanResult } from './clean.models';
 
 export class CleanService {
-    private readonly client: IManagementClient;
+    private readonly client: ManagementClient;
 
     constructor(private config: ICleanConfig) {
         this.client = new ManagementClient({

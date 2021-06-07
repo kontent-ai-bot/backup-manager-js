@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import * as fs from 'fs';
-import yargs = require('yargs');
+import { readFileSync } from 'fs';
+import * as yargs from 'yargs';
 
 import { CleanService } from '../../clean';
 import { ICliFileConfig, getFilenameWithoutExtension, CliAction, ItemType } from '../../core';
@@ -11,7 +11,45 @@ import { ProjectContracts, SharedModels } from '@kentico/kontent-management';
 import { FileService } from '../file/file.service';
 import { fileHelper } from '../file/file-helper';
 
-const argv = yargs.argv;
+const argv = yargs(process.argv.slice(2))
+    .example('kbm --action=backup --apiKey=xxx --projectId=xxx', 'Creates zip backup of Kontent project')
+    .example(
+        'kbm --action=restore --apiKey=xxx --projectId=xxx --zipFilename=backupFile',
+        'Read given zip file and recreates data in Kontent project'
+    )
+    .example(
+        'kbm --action=clean --apiKey=xxx --projectId=xxx',
+        'Deletes data from given Kontent project. Use with care, this action is not reversible.'
+    )
+    .alias('p', 'projectId')
+    .describe('p', 'ProjectId')
+    .alias('k', 'apiKey')
+    .describe('k', 'Management API Key')
+    .alias('a', 'action')
+    .describe('a', 'Action to perform. One of: backup, restore & clean')
+    .alias('z', 'zipFilename')
+    .describe('z', 'Name of zip used for export / restore')
+    .alias('l', 'enableLog')
+    .describe('l', 'Indicates if default logging is enabled (useful to indicate progress)')
+    .alias('f', 'force')
+    .describe(
+        'f',
+        'If enabled, project will we exported / restored even if there are data inconsistencies. Enabled by default.'
+    )
+    .alias('b', 'baseUrl')
+    .describe('b', 'Custom base URL for Management API calls.')
+    .alias('p', 'enablePublish')
+    .describe(
+        'p',
+        'Indicates if language variants published on the source project are also published on target. Enabled by default'
+    )
+    .alias('e', 'exportFilter')
+    .describe(
+        'e',
+        'Can be used to export only selected data types. Expects CSV of types. For example contentType,language will cause backup manager to export only content types & language data.'
+    )
+    .help('h')
+    .alias('h', 'help').argv;
 
 const backupAsync = async (config: ICliFileConfig) => {
     const exportService = new ExportService({
@@ -146,7 +184,7 @@ const validateConfig = (config?: ICliFileConfig) => {
     }
 };
 
-const process = async () => {
+const run = async () => {
     const config = await getConfig();
 
     validateConfig(config);
@@ -183,28 +221,35 @@ const canImport = (importData: IImportSource, config: ICliFileConfig) => {
 };
 
 const getConfig = async () => {
-    const configFilename: string = argv.config as string;
+    const resolvedArgs = await argv;
+    const configFilename: string = (await resolvedArgs.config) as string;
 
     if (configFilename) {
         // get config from file
-        const configFile = await fs.promises.readFile(`./${configFilename}`);
+        const configFile = readFileSync(`./${configFilename}`);
 
         return JSON.parse(configFile.toString()) as ICliFileConfig;
     }
 
-    const action: CliAction | undefined = argv.action as CliAction | undefined;
-    const apiKey: string | undefined = argv.apiKey as string | undefined;
-    const enableLog: boolean | undefined = (argv.enableLog as boolean | undefined) ?? true;
-    const force: boolean | undefined = (argv.force as boolean | undefined) ?? true;
-    const enablePublish: boolean | undefined = (argv.enablePublish as boolean | undefined) ?? true;
-    const projectId: string | undefined = argv.projectId as string | undefined;
-    const baseUrl: string | undefined = argv.baseUrl as string | undefined;
-    const zipFilename: string | undefined = (argv.zipFilename as string | undefined) ?? getDefaultBackupFilename();
-    const exportFilter: string | undefined = argv.exportFilter as string | undefined;
+    const action: CliAction | undefined = resolvedArgs.action as CliAction | undefined;
+    const apiKey: string | undefined = resolvedArgs.apiKey as string | undefined;
+    const enableLog: boolean | undefined = (resolvedArgs.enableLog as boolean | undefined) ?? true;
+    const force: boolean | undefined = (resolvedArgs.force as boolean | undefined) ?? true;
+    const enablePublish: boolean | undefined = (resolvedArgs.enablePublish as boolean | undefined) ?? true;
+    const projectId: string | undefined = resolvedArgs.projectId as string | undefined;
+    const baseUrl: string | undefined = resolvedArgs.baseUrl as string | undefined;
+    const zipFilename: string | undefined =
+        (resolvedArgs.zipFilename as string | undefined) ?? getDefaultBackupFilename();
+    const exportFilter: string | undefined = resolvedArgs.exportFilter as string | undefined;
 
-    const exportFilterMapped: ItemType[] | undefined = exportFilter ? exportFilter.split(',').map(m => m.trim()).map(m => {
-        return m as ItemType;
-    }) : undefined;
+    const exportFilterMapped: ItemType[] | undefined = exportFilter
+        ? exportFilter
+              .split(',')
+              .map((m) => m.trim())
+              .map((m) => {
+                  return m as ItemType;
+              })
+        : undefined;
 
     if (!action) {
         throw Error(`No action was provided`);
@@ -241,7 +286,7 @@ const getDefaultBackupFilename = () => {
     }-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}`;
 };
 
-process()
+run()
     .then((m) => {})
     .catch((err) => {
         if (err instanceof SharedModels.ContentManagementBaseKontentError) {

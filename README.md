@@ -145,7 +145,8 @@ run();
 const run = async () => {
     const zipService = new ZipService({
         filename: 'xxx',
-        enableLog: true
+        enableLog: true,
+        context: 'node.js' // one of 'node.js' or 'browser'
     });
 
     const importService = new ImportService({

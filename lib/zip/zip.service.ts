@@ -1,13 +1,12 @@
 import { AssetContracts } from '@kentico/kontent-management';
+import { HttpService } from '@kentico/kontent-core';
 import * as JSZip from 'jszip';
-import axios, {} from 'axios';
 
 import { IExportAllResult } from '../export';
 import { IBinaryFile, IImportSource } from '../import';
 import { IZipServiceConfig } from './zip.models';
 
 export class ZipService {
-
     private readonly delayBetweenAssetRequestsMs: number;
 
     private readonly contentTypesName: string = 'contentTypes.json';
@@ -22,6 +21,8 @@ export class ZipService {
     private readonly assetFoldersName: string = 'assetFolders.json';
     private readonly workflowStepsName: string = 'workflowSteps.json';
     private readonly validationName: string = 'validation.json';
+
+    private readonly httpService: HttpService = new HttpService();
 
     constructor(private config: IZipServiceConfig) {
         this.delayBetweenAssetRequestsMs = config?.delayBetweenAssetDownloadRequestsMs ?? 150;
@@ -47,12 +48,12 @@ export class ZipService {
                 contentItems: await this.readAndParseJsonFile(unzippedFile, this.contentItemsName),
                 contentTypeSnippets: await this.readAndParseJsonFile(unzippedFile, this.contentTypeSnippetsName),
                 taxonomies: await this.readAndParseJsonFile(unzippedFile, this.taxonomiesName),
-                workflowSteps: await this.readAndParseJsonFile(unzippedFile, this.workflowStepsName),
+                workflowSteps: await this.readAndParseJsonFile(unzippedFile, this.workflowStepsName)
             },
             assetFolders: await this.readAndParseJsonFile(unzippedFile, this.assetFoldersName),
             binaryFiles: await this.extractBinaryFilesAsync(unzippedFile, assets),
             validation: await this.readAndParseJsonFile(unzippedFile, this.validationName),
-            metadata: await this.readAndParseJsonFile(unzippedFile, this.metadataName),
+            metadata: await this.readAndParseJsonFile(unzippedFile, this.metadataName)
         };
 
         if (this.config.enableLog) {
@@ -130,7 +131,7 @@ export class ZipService {
 
     private sleepAsync(ms: number): Promise<any> {
         return new Promise((resolve: any) => setTimeout(resolve, ms));
-      }
+    }
 
     private async extractBinaryFilesAsync(
         zip: JSZip,
@@ -186,22 +187,23 @@ export class ZipService {
         return JSON.parse(text);
     }
 
-    private getBinaryDataFromUrlAsync(url: string, enableLog: boolean): Promise<any> {
+    private async getBinaryDataFromUrlAsync(url: string, enableLog: boolean): Promise<any> {
         // temp fix for Kontent Repository not validating url
         url = url.replace('#', '%23');
 
         if (enableLog) {
             console.log(`Start asset download: ${url}`);
         }
-        return axios.get(url, {
-            responseType: 'arraybuffer',
-        }).then(
-            response => {
-                if (enableLog) {
-                    console.log(`Completed asset download: ${url}`);
+
+        return (
+            await this.httpService.getAsync(
+                {
+                    url
+                },
+                {
+                    responseType: 'arraybuffer'
                 }
-                return response.data;
-            }
-        );
+            )
+        ).data;
     }
 }

@@ -23,7 +23,7 @@ export interface IImportConfig {
     onUnsupportedBinaryFile?: (binaryFile: IBinaryFile) => void;
     onImport?: (item: IProcessedItem) => void;
     fixLanguages: boolean;
-    process?: {
+    canImport?: {
         taxonomy?: (item: TaxonomyContracts.ITaxonomyContract) => boolean | Promise<boolean>;
         contentTypeSnippet?: (
             item: ContentTypeSnippetContracts.IContentTypeSnippetContract

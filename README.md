@@ -126,11 +126,36 @@ const run = async () => {
             // called when any content is imported
             console.log(`Imported: ${item.title} | ${item.type}`);
         },
-        fixLanguages: true,
+       canImport: {
+            asset: (item) => {
+                if(item.title.startsWith('_corporate')) {
+                    // asset will be imported only if the title starts with "_corporate"
+                    return true;
+                }
+                // otherwise asset will NOT be imported
+                return false;
+            },
+            contentType: (item) => {
+                if (item.codename === 'article') {
+                    // content type will be imported only with its codename is 'article'
+                    return true;
+                }
+                // all other types will be excluded from import
+                return false;
+            },
+            assetFolder: item => true, // all folders will be imported
+            contentItem: item => true, // all content items will be imported
+            contentTypeSnippet: item => true, // all content type snippets will be imported
+            language: item => true, // all languages will be imported
+            languageVariant: item => true, // all language variants will be imported
+            taxonomy: item => true,// all taxonomies will be imported
+        },
+        enablePublish: true, // when enables, previously published language variants will be published after restore (does not affect unpublished variants)
         projectId: 'targetProjectId',
         apiKey: 'targetProjectId',
-        enableLog: true,
-        workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000' // workflow id that items are assigned
+        enableLog: true, // shows progress of immport in console
+        fixLanguages: true, // backup manager will attempt to create missing languages & map existing languages
+        workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000' // id that items are assigned
     });
 
     // read export data from zip

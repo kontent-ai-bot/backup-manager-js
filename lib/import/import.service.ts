@@ -216,54 +216,54 @@ export class ImportService {
     }
 
     private removeSkippedItemsFromImport(source: IImportSource): void {
-        if (this.config.process && this.config.process.asset) {
+        if (this.config.canImport && this.config.canImport.asset) {
             for (const item of source.importData.assets) {
-                const shouldImport = this.config.process.asset(item);
+                const shouldImport = this.config.canImport.asset(item);
                 if (!shouldImport) {
                     source.importData.assets = source.importData.assets.filter((m) => m.id !== item.id);
                 }
             }
         }
 
-        if (this.config.process && this.config.process.language) {
+        if (this.config.canImport && this.config.canImport.language) {
             for (const item of source.importData.languages) {
-                const shouldImport = this.config.process.language(item);
+                const shouldImport = this.config.canImport.language(item);
                 if (!shouldImport) {
                     source.importData.languages = source.importData.languages.filter((m) => m.id !== item.id);
                 }
             }
         }
 
-        if (this.config.process && this.config.process.assetFolder) {
+        if (this.config.canImport && this.config.canImport.assetFolder) {
             for (const item of source.assetFolders) {
-                const shouldImport = this.config.process.assetFolder(item);
+                const shouldImport = this.config.canImport.assetFolder(item);
                 if (!shouldImport) {
                     source.assetFolders = source.assetFolders.filter((m) => m.id !== item.id);
                 }
             }
         }
 
-        if (this.config.process && this.config.process.contentType) {
+        if (this.config.canImport && this.config.canImport.contentType) {
             for (const item of source.importData.contentTypes) {
-                const shouldImport = this.config.process.contentType(item);
+                const shouldImport = this.config.canImport.contentType(item);
                 if (!shouldImport) {
                     source.importData.contentTypes = source.importData.contentTypes.filter((m) => m.id !== item.id);
                 }
             }
         }
 
-        if (this.config.process && this.config.process.contentItem) {
+        if (this.config.canImport && this.config.canImport.contentItem) {
             for (const item of source.importData.contentItems) {
-                const shouldImport = this.config.process.contentItem(item);
+                const shouldImport = this.config.canImport.contentItem(item);
                 if (!shouldImport) {
                     source.importData.contentItems = source.importData.contentItems.filter((m) => m.id !== item.id);
                 }
             }
         }
 
-        if (this.config.process && this.config.process.contentTypeSnippet) {
+        if (this.config.canImport && this.config.canImport.contentTypeSnippet) {
             for (const item of source.importData.contentTypeSnippets) {
-                const shouldImport = this.config.process.contentTypeSnippet(item);
+                const shouldImport = this.config.canImport.contentTypeSnippet(item);
                 if (!shouldImport) {
                     source.importData.contentTypeSnippets = source.importData.contentTypeSnippets.filter(
                         (m) => m.id !== item.id
@@ -272,9 +272,9 @@ export class ImportService {
             }
         }
 
-        if (this.config.process && this.config.process.languageVariant) {
+        if (this.config.canImport && this.config.canImport.languageVariant) {
             for (const item of source.importData.languageVariants) {
-                const shouldImport = this.config.process.languageVariant(item);
+                const shouldImport = this.config.canImport.languageVariant(item);
                 if (!shouldImport) {
                     source.importData.languageVariants = source.importData.languageVariants.filter(
                         (m) => m.item.id !== item.item.id && m.language.id !== item.language.id
@@ -283,9 +283,9 @@ export class ImportService {
             }
         }
 
-        if (this.config.process && this.config.process.taxonomy) {
+        if (this.config.canImport && this.config.canImport.taxonomy) {
             for (const item of source.importData.taxonomies) {
-                const shouldImport = this.config.process.taxonomy(item);
+                const shouldImport = this.config.canImport.taxonomy(item);
                 if (!shouldImport) {
                     source.importData.taxonomies = source.importData.taxonomies.filter((m) => m.id !== item.id);
                 }

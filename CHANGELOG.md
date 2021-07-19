@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v2.0.0...v3.0.0) (2021-07-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* renames "process" import option to "canImport", updates docs & samples
+
+### Features
+
+* adds list of supported types for export filter hint ([eb53229](https://github.com/Kentico/kontent-backup-manager-js/commit/eb532298c10991276ab0464842b32315803eb4eb))
+* renames "process" import option to "canImport", updates docs & samples ([39c36ab](https://github.com/Kentico/kontent-backup-manager-js/commit/39c36ab0746360be5cdeb44f7af3d4d87548f12c))
+* updates deps ([6225e26](https://github.com/Kentico/kontent-backup-manager-js/commit/6225e26e9af60e21a3658a203246ca1f963e75b4))
+* updates deps, uses HttpService to export binary files (enables retry strategy for exporting assets). Fixes https://github.com/Kentico/kontent-backup-manager-js/issues/18 ([9b7a14c](https://github.com/Kentico/kontent-backup-manager-js/commit/9b7a14cdf784cce2d9a5a2b4dcb65a222d3d5b65))
+
 ## [1.16.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v1.15.1...v1.16.0) (2021-04-15)
 
 

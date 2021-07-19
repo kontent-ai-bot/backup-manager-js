@@ -56,6 +56,10 @@ To clean (delete) everything inside a project run:
 
 `kbm --action=clean --apiKey=xxx --projectId=xxx`
 
+To get some help you can use:
+
+`kbm --help`
+
 ### Use with config file
 
 Create a `json` configuration file in the folder where you are attempting to run script. (e.g. `backup-config.json`)
@@ -146,7 +150,7 @@ const run = async () => {
     const zipService = new ZipService({
         filename: 'xxx',
         enableLog: true,
-        context: 'node.js' // one of 'node.js' or 'browser'
+        context: 'node.js' // 'node.js' or 'browser'
     });
 
     const importService = new ImportService({

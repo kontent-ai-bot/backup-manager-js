@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Test backup",
             "program": "${workspaceFolder}\\lib\\node\\cli\\app.ts",
-            "preLaunchTask": "npm: build:all",
+            "preLaunchTask": "npm: build:cjs",
             "sourceMaps": true,
             "smartStep": true,
             "args": [
@@ -17,7 +17,7 @@
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "outFiles": [
-                "${workspaceFolder}/_commonjs/**/*.js"
+                "${workspaceFolder}/dist/cjs/lib/**/*.js"
             ]
         },
         {
@@ -25,7 +25,7 @@
             "request": "launch",
             "name": "Test clean",
             "program": "${workspaceFolder}\\lib\\node\\cli\\app.ts",
-            "preLaunchTask": "npm: build:all",
+            "preLaunchTask": "npm: build:cjs",
             "sourceMaps": true,
             "smartStep": true,
             "args": [
@@ -33,7 +33,7 @@
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "outFiles": [
-                "${workspaceFolder}/_commonjs/**/*.js"
+                "${workspaceFolder}/dist/cjs/lib/**/*.js"
             ]
         },
         {
@@ -41,7 +41,7 @@
             "request": "launch",
             "name": "Test restore",
             "program": "${workspaceFolder}\\lib\\node\\cli\\app.ts",
-            "preLaunchTask": "npm: build:all",
+            "preLaunchTask": "npm: build:cjs",
             "sourceMaps": true,
             "smartStep": true,
             "args": [
@@ -49,7 +49,7 @@
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "outFiles": [
-                "${workspaceFolder}/_commonjs/**/*.js"
+                "${workspaceFolder}/dist/cjs/lib/**/*.js"
             ]
         }
     ]

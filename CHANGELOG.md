@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.1](https://github.com/Kentico/kontent-backup-manager-js/compare/v3.0.0...v3.0.1) (2021-08-04)
+
+
+### Bug Fixes
+
+* fixes a scenario where language variants are not published because workflow id was not available, but codename was ([fa67eb4](https://github.com/Kentico/kontent-backup-manager-js/commit/fa67eb4472491b24df2b6d62c5fcf756bf7a1774))
+* fixes debug scripts ([601b1d5](https://github.com/Kentico/kontent-backup-manager-js/commit/601b1d5bc436f85fdfd990615435791c62b0a8b9))
+
 ## [3.0.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v2.0.0...v3.0.0) (2021-07-19)
 
 

@@ -635,7 +635,7 @@ export class ImportService {
             return;
         }
 
-        const itemsToPublish = languageVariants.filter((m) => m.workflow_step.id === publishedWorkflowStep.id);
+        const itemsToPublish = languageVariants.filter((m) => m.workflow_step.id === publishedWorkflowStep.id || m.workflow_step.codename === publishedWorkflowStep.codename);
 
         if (!itemsToPublish.length) {
             // no items to publish

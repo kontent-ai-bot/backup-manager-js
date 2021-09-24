@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v3.0.1...v3.1.0) (2021-09-24)
+
+
+### Features
+
+* updates deps ([e2022e4](https://github.com/Kentico/kontent-backup-manager-js/commit/e2022e41ad5c561230d574740c3aebbd4e812eef))
+
 ### [3.0.1](https://github.com/Kentico/kontent-backup-manager-js/compare/v3.0.0...v3.0.1) (2021-08-04)
 
 

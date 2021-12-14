@@ -83,9 +83,12 @@ To execute your action run:
 
 ## Use via code
 
-### Backup in code
+### Backup in code 
 
 ```typescript
+import { ExportService, ImportService, ZipService } from "@kentico/kontent-backup-manager";
+import { FileService } from '@kentico/kontent-backup-manager/dist/cjs/lib/node';
+
 const run = async () => {
     const exportService = new ExportService({
         apiKey: 'sourceProjectApiKey',
@@ -102,11 +105,19 @@ const run = async () => {
 
     // you can also save backup in file with ZipService
     const zipService = new ZipService({
-        filename: 'file',
+        context: 'node.js',
         enableLog: true
     });
 
-    await zipService.createZipAsync(data);
+    // prepare zip data
+    const zipData = await zipService.createZipAsync(data);
+
+    const fileService = new FileService({
+        enableLog: true,
+    });
+
+    // create file on FS
+    await fileService.writeFileAsync('backup', zipData);
 };
 
 run();
@@ -115,9 +126,19 @@ run();
 ### Restore in code
 
 ```typescript
+import { ExportService, ImportService, ZipService } from "@kentico/kontent-backup-manager";
+import { FileService } from '@kentico/kontent-backup-manager/dist/cjs/lib/node';
+
 const run = async () => {
+    const fileService = new FileService({
+        enableLog: true,
+    });
+
+    // load file
+    const zipFile = await fileService.loadFileAsync('backup');
+
     const zipService = new ZipService({
-        filename: 'xxx',
+        context: 'node.js',
         enableLog: true
     });
 
@@ -127,14 +148,7 @@ const run = async () => {
             console.log(`Imported: ${item.title} | ${item.type}`);
         },
        canImport: {
-            asset: (item) => {
-                if(item.title.startsWith('_corporate')) {
-                    // asset will be imported only if the title starts with "_corporate"
-                    return true;
-                }
-                // otherwise asset will NOT be imported
-                return false;
-            },
+            asset: (item) => true, // assets will be imported
             contentType: (item) => {
                 if (item.codename === 'article') {
                     // content type will be imported only with its codename is 'article'
@@ -159,10 +173,10 @@ const run = async () => {
     });
 
     // read export data from zip
-    const data = await zipService.extractZipAsync();
+    const importData = await zipService.extractZipAsync(zipFile);
 
     // restore into target project
-    await importService.importFromSourceAsync(data);
+    await importService.importFromSourceAsync(importData);
 };
 
 run();

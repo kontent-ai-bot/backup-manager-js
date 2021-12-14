@@ -38,9 +38,9 @@ const argv = yargs(process.argv.slice(2))
     )
     .alias('b', 'baseUrl')
     .describe('b', 'Custom base URL for Management API calls.')
-    .alias('p', 'enablePublish')
+    .alias('s', 'enablePublish')
     .describe(
-        'p',
+        's',
         'Indicates if language variants published on the source project are also published on target. Enabled by default'
     )
     .alias('e', 'exportFilter')

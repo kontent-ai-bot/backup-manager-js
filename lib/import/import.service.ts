@@ -565,7 +565,7 @@ export class ImportService {
             await this.client
                 .addContentType()
                 .withData((builder) => {
-                    return contentType;
+                    return contentType as any;
                 })
                 .toPromise()
                 .then((response) => {
@@ -760,7 +760,7 @@ export class ImportService {
                         name: contentTypeSnippet.name,
                         codename: contentTypeSnippet.codename,
                         external_id: contentTypeSnippet.external_id
-                    };
+                    } as any;
                 })
                 .toPromise()
                 .then((response) => {

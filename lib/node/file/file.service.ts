@@ -26,9 +26,13 @@ export class FileService {
     async writeFileAsync(fileNameWithoutExtension: string, content: any): Promise<void> {
         const filePath = this.getFilePath(fileNameWithoutExtension);
 
-        console.log(`Writing file '${filePath}'`);
+        if (this.config.enableLog) {
+            console.log(`Writing file '${filePath}'`);
+        }
         await promises.writeFile(filePath, content);
-        console.log(`File saved`);
+        if (this.config.enableLog) {
+            console.log(`File saved`);
+        }
     }
 
     private getFilePath(fileNameWithoutExtension: string) {

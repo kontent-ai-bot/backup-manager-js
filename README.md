@@ -4,7 +4,7 @@
 
 # Kontent Backup Manager
 
-The purpose of this project is to backup & restore [Kentico Kontent](https://kontent.ai) projects. This project uses CM API to both get & restore data.
+The purpose of this project is to backup & restore [Kentico Kontent](https://kontent.ai) projects. This project uses Management API to both get & restore data.
 
 ## Installation
 
@@ -73,7 +73,7 @@ Create a `json` configuration file in the folder where you are attempting to run
     "enableLog": true,
     "force": true,
     "baseUrl": null,
-    "exportFilter: null
+    "exportFilter": null
 }
 ```
 

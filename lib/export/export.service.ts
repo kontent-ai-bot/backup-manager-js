@@ -41,7 +41,7 @@ export class ExportService {
             workflowSteps: this.config.exportFilter?.includes('workflowStep') ?? true
         };
 
-        let projectValidation: undefined | ProjectContracts.IProjectReportResponseContract = undefined;
+        let projectValidation: undefined | ProjectContracts.IProjectReportResponseContract;
 
         if (!this.config.skipValidation) {
             projectValidation = await this.exportProjectValidationAsync();

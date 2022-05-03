@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.3.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v3.2.1...v3.3.0) (2022-05-03)
+
+
+### Features
+
+* adds ability to skip validation endpoint in project export ([0870404](https://github.com/Kentico/kontent-backup-manager-js/commit/0870404a124edad3f61a3e5a04f87987b3126d64))
+* updates all dependencies ([8615809](https://github.com/Kentico/kontent-backup-manager-js/commit/8615809555ecf7ded51a56beb0a1c749e51c7791))
+
+
+### Bug Fixes
+
+* show file service log when enabled ([ea35621](https://github.com/Kentico/kontent-backup-manager-js/commit/ea356219059574f86a3e071f9837afece4189e08))
+
 ### [3.2.1](https://github.com/Kentico/kontent-backup-manager-js/compare/v3.2.0...v3.2.1) (2021-12-14)
 
 

@@ -36,7 +36,7 @@ export class CleanService {
     }
 
     public async cleanTaxonomiesAsync(): Promise<void> {
-        const taxonomies = (await this.client.listTaxonomies().toPromise()).data.taxonomies;
+        const taxonomies = (await this.client.listTaxonomies().toPromise()).data.items;
 
         for (const taxonomy of taxonomies) {
             await this.client

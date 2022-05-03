@@ -497,7 +497,7 @@ export class ImportService {
 
             await this.client
                 .addAsset()
-                .withData(assetData)
+                .withData(builder => assetData)
                 .toPromise()
                 .then((response) => {
                     importedItems.push({

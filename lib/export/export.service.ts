@@ -84,7 +84,7 @@ export class ExportService {
     }
 
     public async exportProjectValidationAsync(): Promise<ProjectContracts.IProjectReportResponseContract> {
-        const response = await this.client.validateProjectContent().forProjectId(this.config.projectId).toPromise();
+        const response = await this.client.validateProjectContent().projectId(this.config.projectId).toPromise();
         return response.rawData;
     }
 
@@ -126,8 +126,8 @@ export class ExportService {
 
     public async exportTaxonomiesAsync(): Promise<TaxonomyContracts.ITaxonomyContract[]> {
         const response = await this.client.listTaxonomies().toPromise();
-        response.data.taxonomies.forEach((m) => this.processItem(m.name, 'taxonomy', m));
-        return response.data.taxonomies.map((m) => m._raw);
+        response.data.items.forEach((m) => this.processItem(m.name, 'taxonomy', m));
+        return response.data.items.map((m) => m._raw);
     }
 
     public async exportContentTypeSnippetsAsync(): Promise<ContentTypeSnippetContracts.IContentTypeSnippetContract[]> {

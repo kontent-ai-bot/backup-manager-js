@@ -16,6 +16,7 @@ const run = async () => {
     const exportService = new ExportService({
         apiKey: 'sourceProjectApiKey',
         projectId: 'sourceProjectId',
+        skipValidation: false,
         onExport: item => {
             // called when any content is exported
             console.log(`Exported: ${item.title} | ${item.type}`);

@@ -26,7 +26,8 @@ export interface ICliFileConfig {
     enablePublish: boolean;
     force: boolean;
     baseUrl?: string;
-    exportFilter?: ItemType[]
+    exportFilter?: ItemType[];
+    skipValidation?: boolean;
 }
 
 export type CliAction = 'backup' | 'restore' | 'clean';

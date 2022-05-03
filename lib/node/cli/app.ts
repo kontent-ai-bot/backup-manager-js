@@ -23,6 +23,8 @@ const argv = yargs(process.argv.slice(2))
     )
     .alias('p', 'projectId')
     .describe('p', 'ProjectId')
+    .alias('sv', 'skipValidation')
+    .describe('sv', 'Skips validation endpoint during export')
     .alias('k', 'apiKey')
     .describe('k', 'Management API Key')
     .alias('a', 'action')
@@ -57,6 +59,7 @@ const backupAsync = async (config: ICliFileConfig) => {
         projectId: config.projectId,
         baseUrl: config.baseUrl,
         exportFilter: config.exportFilter,
+        skipValidation: config.skipValidation ?? false,
         onExport: (item) => {
             if (config.enableLog) {
                 console.log(`Exported: ${item.title} | ${item.type}`);
@@ -236,6 +239,7 @@ const getConfig = async () => {
     const enableLog: boolean | undefined = (resolvedArgs.enableLog as boolean | undefined) ?? true;
     const force: boolean | undefined = (resolvedArgs.force as boolean | undefined) ?? true;
     const enablePublish: boolean | undefined = (resolvedArgs.enablePublish as boolean | undefined) ?? true;
+    const skipValidation: boolean = (resolvedArgs.skipValidation as boolean | undefined) ?? false;
     const projectId: string | undefined = resolvedArgs.projectId as string | undefined;
     const baseUrl: string | undefined = resolvedArgs.baseUrl as string | undefined;
     const zipFilename: string | undefined =
@@ -273,7 +277,8 @@ const getConfig = async () => {
         projectId,
         zipFilename,
         baseUrl,
-        exportFilter: exportFilterMapped
+        exportFilter: exportFilterMapped,
+        skipValidation
     };
 
     return config;

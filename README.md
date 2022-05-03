@@ -23,6 +23,7 @@ Install package globally:
 | **action**           | Action. Possible values are: `restore` & `backup` & `clean` **(required)**                                              |
 | zipFilename     | Name of zip used for export / restoring data. (e.g. 'kontent-backup').                                            |
 | enableLog       | Indicates if default logging is enabled (useful to indicate progress)       
+| skipValidation       | Skips validation endpoint during project export      
 | force           | If enabled, project will we exported / restored even if there are data inconsistencies. Enabled by default. |
 | baseUrl           | Custom base URL for Management API calls. |
 | enablePublish           | Indicates if language variants published on the source project are also published on target. Enabled by default |

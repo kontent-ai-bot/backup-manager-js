@@ -38,12 +38,22 @@ export class ExportService {
             language: this.config.exportFilter?.includes('language') ?? true,
             languageVariant: this.config.exportFilter?.includes('languageVariant') ?? true,
             taxonomy: this.config.exportFilter?.includes('taxonomy') ?? true,
-            workflowSteps: this.config.exportFilter?.includes('workflowStep') ?? true,
+            workflowSteps: this.config.exportFilter?.includes('workflowStep') ?? true
         };
 
+        let projectValidation: undefined | ProjectContracts.IProjectReportResponseContract = undefined;
+
+        if (!this.config.skipValidation) {
+            projectValidation = await this.exportProjectValidationAsync();
+            console.log(`Project validation - ${projectValidation.type_issues.length} type issues, ${projectValidation.variant_issues.length} variant issues`);
+        } else {
+            console.log('Skipping project validation endpoint');
+        }
+
         const contentTypes = await this.exportContentTypesAsync({ processItem: exportItems.contentType });
-        const projectValidation = await this.exportProjectValidationAsync();
-        const contentItems = exportItems.contentItem || exportItems.languageVariant ? await this.exportContentItemsAsync() : []
+
+        const contentItems =
+            exportItems.contentItem || exportItems.languageVariant ? await this.exportContentItemsAsync() : [];
 
         const data: IExportData = {
             contentTypes: exportItems.contentType ? contentTypes : [],
@@ -64,8 +74,9 @@ export class ExportService {
                 version,
                 timestamp: new Date(),
                 projectId: this.config.projectId,
-                isInconsistentExport:
-                    projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0,
+                isInconsistentExport: projectValidation
+                    ? projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0
+                    : false,
                 dataOverview: {
                     assetFoldersCount: data.assetFolders.length,
                     assetsCount: data.assets.length,
@@ -75,10 +86,10 @@ export class ExportService {
                     languageVariantsCount: data.languageVariants.length,
                     languagesCount: data.languages.length,
                     taxonomiesCount: data.taxonomies.length,
-                    workflowStepsCount: data.workflowSteps.length,
+                    workflowStepsCount: data.workflowSteps.length
                 }
             },
-            validation: projectValidation,
+            validation: projectValidation ?? {},
             data
         };
     }
@@ -176,16 +187,10 @@ export class ExportService {
         const languageVariants: LanguageVariantContracts.ILanguageVariantModelWithComponentsContract[] = [];
 
         for (const contentItemId of contentItemIds) {
-            const response = await this.client
-                .listLanguageVariantsOfItem()
-                .byItemId(contentItemId)
-                .toPromise();
+            const response = await this.client.listLanguageVariantsOfItem().byItemId(contentItemId).toPromise();
 
-
-                languageVariants.push(...response.data.items.map((m) => m._raw));
-                response.data.items.forEach((m) =>
-                    this.processItem(m.item.id?.toString() ?? '-', 'languageVariant', m)
-                );
+            languageVariants.push(...response.data.items.map((m) => m._raw));
+            response.data.items.forEach((m) => this.processItem(m.item.id?.toString() ?? '-', 'languageVariant', m));
         }
 
         return languageVariants;

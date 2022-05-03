@@ -19,6 +19,7 @@ export interface IExportConfig {
     baseUrl?: string;
     onExport?: (item: IProcessedItem) => void;
     exportFilter?: ItemType[];
+    skipValidation: boolean;
 }
 
 export interface IExportData {
@@ -36,5 +37,5 @@ export interface IExportData {
 export interface IExportAllResult {
     metadata: IPackageMetadata;
     data: IExportData;
-    validation: ProjectContracts.IProjectReportResponseContract;
+    validation: ProjectContracts.IProjectReportResponseContract | {};
 }

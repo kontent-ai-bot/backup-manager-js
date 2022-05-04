@@ -37,5 +37,5 @@ export interface IExportData {
 export interface IExportAllResult {
     metadata: IPackageMetadata;
     data: IExportData;
-    validation: ProjectContracts.IProjectReportResponseContract | {};
+    validation: ProjectContracts.IProjectReportResponseContract | undefined;
 }

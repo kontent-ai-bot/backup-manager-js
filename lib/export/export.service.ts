@@ -89,7 +89,7 @@ export class ExportService {
                     workflowStepsCount: data.workflowSteps.length
                 }
             },
-            validation: projectValidation ?? {},
+            validation: projectValidation,
             data
         };
     }

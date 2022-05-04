@@ -76,21 +76,24 @@ const backupAsync = async (config: ICliFileConfig) => {
         context: 'node.js'
     });
 
-    const report = await exportService.exportProjectValidationAsync();
-
     const response = await exportService.exportAllAsync();
+
+    const validation = response.validation;
+
+    if (validation) {
+        if (exportContainsInconsistencies(validation)) {
+            const logFilename: string = getLogFilename(config.zipFilename);
+    
+            console.log(`Project contains inconsistencies which may cause errors during project import.`);
+            console.log(`See '${logFilename}' for more details.`);
+        } else {
+            console.log(`Project does not contain any inconsistencies`)
+        }
+    }
+
     const zipFileData = await zipService.createZipAsync(response);
 
     await fileService.writeFileAsync(config.zipFilename, zipFileData);
-
-    if (exportContainsInconsistencies(report)) {
-        const logFilename: string = getLogFilename(config.zipFilename);
-
-        await fileHelper.createFileInCurrentFolderAsync(logFilename, JSON.stringify(report));
-
-        console.log(`Project contains inconsistencies which may cause future import to not work.`);
-        console.log(`See '${logFilename}' for more details.`);
-    }
 
     console.log('Completed');
 };

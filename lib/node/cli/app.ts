@@ -83,11 +83,11 @@ const backupAsync = async (config: ICliFileConfig) => {
     if (validation) {
         if (exportContainsInconsistencies(validation)) {
             const logFilename: string = getLogFilename(config.zipFilename);
-    
+
             console.log(`Project contains inconsistencies which may cause errors during project import.`);
             console.log(`See '${logFilename}' for more details.`);
         } else {
-            console.log(`Project does not contain any inconsistencies`)
+            console.log(`Project does not contain any inconsistencies`);
         }
     }
 

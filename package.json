@@ -29,7 +29,7 @@
     "test:backup": "npm run build:cjs && cd output && node ../dist/cjs/lib/node/cli/app --config=backup-config.json",
     "test:clean": "npm run build:cjs && cd output && node ../dist/cjs/lib/node/cli/app --config=clean-config.json",
     "test:restore": "npm run build:cjs && cd output && node ../dist/cjs/lib/node/cli/app --config=restore-config.json",
-    "ts-lint:fix": "tslint --project ./tsconfig.json",
+    "ts-lint:fix": "tslint --project ./tsconfig.json --fix",
     "ts-lint:check": "tslint --project ./tsconfig.json"
   },
   "keywords": [

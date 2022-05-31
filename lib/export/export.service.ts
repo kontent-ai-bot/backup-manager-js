@@ -9,7 +9,9 @@ import {
     LanguageContracts,
     AssetFolderContracts,
     ProjectContracts,
-    WorkflowContracts
+    WorkflowContracts,
+    WebhookContracts,
+    CollectionContracts
 } from '@kentico/kontent-management';
 
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
@@ -33,11 +35,13 @@ export class ExportService {
             assetFolder: this.config.exportFilter?.includes('assetFolder') ?? true,
             binaryFile: this.config.exportFilter?.includes('binaryFile') ?? true,
             contentItem: this.config.exportFilter?.includes('contentItem') ?? true,
+            collections: this.config.exportFilter?.includes('collection') ?? true,
             contentType: this.config.exportFilter?.includes('contentType') ?? true,
             contentTypeSnippet: this.config.exportFilter?.includes('contentTypeSnippet') ?? true,
             language: this.config.exportFilter?.includes('language') ?? true,
             languageVariant: this.config.exportFilter?.includes('languageVariant') ?? true,
             taxonomy: this.config.exportFilter?.includes('taxonomy') ?? true,
+            webhooks: this.config.exportFilter?.includes('webhook') ?? true,
             workflowSteps: this.config.exportFilter?.includes('workflowStep') ?? true
         };
 
@@ -59,8 +63,10 @@ export class ExportService {
             contentTypes: exportItems.contentType ? contentTypes : [],
             contentTypeSnippets: exportItems.contentTypeSnippet ? await this.exportContentTypeSnippetsAsync() : [],
             taxonomies: exportItems.taxonomy ? await this.exportTaxonomiesAsync() : [],
+            webhooks: exportItems.webhooks ? await this.exportWebhooksAsync() : [],
             workflowSteps: exportItems.taxonomy ? await this.exportWorkflowStepsAsync() : [],
             contentItems: exportItems.contentItem ? await this.exportContentItemsAsync() : [],
+            collections: exportItems.collections ? await this.exportCollectionsAsync() : [],
             languageVariants: exportItems.languageVariant
                 ? await this.exportLanguageVariantsAsync(contentItems.map((m) => m.id))
                 : [],
@@ -86,7 +92,9 @@ export class ExportService {
                     languageVariantsCount: data.languageVariants.length,
                     languagesCount: data.languages.length,
                     taxonomiesCount: data.taxonomies.length,
-                    workflowStepsCount: data.workflowSteps.length
+                    workflowStepsCount: data.workflowSteps.length,
+                    webhooksCount: data.webhooks.length,
+                    collectionsCount: data.collections.length
                 }
             },
             validation: projectValidation,
@@ -136,9 +144,21 @@ export class ExportService {
     }
 
     public async exportTaxonomiesAsync(): Promise<TaxonomyContracts.ITaxonomyContract[]> {
-        const response = await this.client.listTaxonomies().toPromise();
+        const response = await this.client.listTaxonomies().toAllPromise();
         response.data.items.forEach((m) => this.processItem(m.name, 'taxonomy', m));
         return response.data.items.map((m) => m._raw);
+    }
+
+    public async exportWebhooksAsync(): Promise<WebhookContracts.IWebhookContract[]> {
+        const response = await this.client.listWebhooks().toPromise();
+        response.data.webhooks.forEach((m) => this.processItem(m.name, 'webhook', m));
+        return response.data.webhooks.map((m) => m._raw);
+    }
+
+    public async exportCollectionsAsync(): Promise<CollectionContracts.ICollectionContract[]> {
+        const response = await this.client.listCollections().toPromise();
+        response.data.collections.forEach((m) => this.processItem(m.name, 'collection', m));
+        return response.data.collections.map((m) => m._raw);
     }
 
     public async exportContentTypeSnippetsAsync(): Promise<ContentTypeSnippetContracts.IContentTypeSnippetContract[]> {

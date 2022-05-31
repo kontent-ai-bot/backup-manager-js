@@ -20,6 +20,8 @@ export class ZipService {
     private readonly filesName: string = 'files';
     private readonly assetFoldersName: string = 'assetFolders.json';
     private readonly workflowStepsName: string = 'workflowSteps.json';
+    private readonly webhooksName: string = 'webhooks.json';
+    private readonly collectionsName: string = 'collections.json';
     private readonly validationName: string = 'validation.json';
 
     private readonly httpService: HttpService = new HttpService();
@@ -81,6 +83,8 @@ export class ZipService {
         zip.file(this.contentTypeSnippetsName, JSON.stringify(exportData.data.contentTypeSnippets));
         zip.file(this.assetFoldersName, JSON.stringify(exportData.data.assetFolders));
         zip.file(this.workflowStepsName, JSON.stringify(exportData.data.workflowSteps));
+        zip.file(this.webhooksName, JSON.stringify(exportData.data.webhooks));
+        zip.file(this.collectionsName, JSON.stringify(exportData.data.collections));
 
         const assetsFolder = zip.folder(this.filesName);
 
@@ -192,7 +196,7 @@ export class ZipService {
         url = url.replace('#', '%23');
 
         if (enableLog) {
-            console.log(`Start asset download: ${url}`);
+            console.log(`Asset download: ${url}`);
         }
 
         return (

@@ -9,6 +9,8 @@ import {
     TaxonomyContracts,
     ProjectContracts,
     WorkflowContracts,
+    WebhookContracts,
+    CollectionContracts,
 } from '@kentico/kontent-management';
 
 import { IProcessedItem, IPackageMetadata, ItemType } from '../core';
@@ -31,6 +33,8 @@ export interface IExportData {
     languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[];
     languages: LanguageContracts.ILanguageModelContract[];
     assets: AssetContracts.IAssetModelContract[];
+    webhooks: WebhookContracts.IWebhookContract[];
+    collections: CollectionContracts.ICollectionContract[];
     assetFolders: AssetFolderContracts.IAssetFolderContract[];
 }
 

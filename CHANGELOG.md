@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.4.0](https://github.com/Kentico/kontent-backup-manager-js/compare/v3.3.1...v3.4.0) (2022-05-31)
+
+
+### Features
+
+* adds support for exporting webhooks & collections ([e3f6cc2](https://github.com/Kentico/kontent-backup-manager-js/commit/e3f6cc2f1af7298aab36f5c14a000bb0a8a00c3d))
+* updates deps ([5851315](https://github.com/Kentico/kontent-backup-manager-js/commit/5851315c6d874d55780534201284df7b588ebc04))
+
 ### [3.3.1](https://github.com/Kentico/kontent-backup-manager-js/compare/v3.3.0...v3.3.1) (2022-05-04)
 
 

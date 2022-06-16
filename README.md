@@ -152,7 +152,7 @@ const run = async () => {
             asset: (item) => true, // assets will be imported
             contentType: (item) => {
                 if (item.codename === 'article') {
-                    // content type will be imported only with its codename is 'article'
+                    // content type will be imported only if the codename is equal to 'article'
                     return true;
                 }
                 // all other types will be excluded from import

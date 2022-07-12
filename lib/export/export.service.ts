@@ -45,12 +45,15 @@ export class ExportService {
             workflowSteps: this.config.exportFilter?.includes('workflowStep') ?? true
         };
 
-        let projectValidation: undefined | ProjectContracts.IProjectReportResponseContract;
+        let projectValidation: string | ProjectContracts.IProjectReportResponseContract;
+        let isInconsistentExport: boolean = false;
 
         if (!this.config.skipValidation) {
             projectValidation = await this.exportProjectValidationAsync();
+            isInconsistentExport =  projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0;
             console.log(`Project validation - ${projectValidation.type_issues.length} type issues, ${projectValidation.variant_issues.length} variant issues`);
         } else {
+            projectValidation = '{}';
             console.log('Skipping project validation endpoint');
         }
 
@@ -80,9 +83,7 @@ export class ExportService {
                 version,
                 timestamp: new Date(),
                 projectId: this.config.projectId,
-                isInconsistentExport: projectValidation
-                    ? projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0
-                    : false,
+                isInconsistentExport: isInconsistentExport,
                 dataOverview: {
                     assetFoldersCount: data.assetFolders.length,
                     assetsCount: data.assets.length,

@@ -7,7 +7,7 @@ import { ICliFileConfig, getFilenameWithoutExtension, CliAction, ItemType } from
 import { ExportService } from '../../export';
 import { IImportSource, ImportService } from '../../import';
 import { ZipService } from '../../zip';
-import { ProjectContracts, SharedModels } from '@kentico/kontent-management';
+import { SharedModels } from '@kentico/kontent-management';
 import { FileService } from '../file/file.service';
 import { fileHelper } from '../file/file-helper';
 
@@ -78,17 +78,13 @@ const backupAsync = async (config: ICliFileConfig) => {
 
     const response = await exportService.exportAllAsync();
 
-    const validation = response.validation;
+    if (response.metadata.isInconsistentExport) {
+        const logFilename: string = getLogFilename(config.zipFilename);
 
-    if (validation) {
-        if (exportContainsInconsistencies(validation)) {
-            const logFilename: string = getLogFilename(config.zipFilename);
-
-            console.log(`Project contains inconsistencies which may cause errors during project import.`);
-            console.log(`See '${logFilename}' for more details.`);
-        } else {
-            console.log(`Project does not contain any inconsistencies`);
-        }
+        console.log(`Project contains inconsistencies which may cause errors during project import.`);
+        console.log(`See '${logFilename}' for more details.`);
+    } else {
+        console.log(`Project does not contain any inconsistencies`);
     }
 
     const zipFileData = await zipService.createZipAsync(response);
@@ -204,14 +200,6 @@ const run = async () => {
     } else {
         throw Error(`Invalid action`);
     }
-};
-
-const exportContainsInconsistencies = (projectReport: ProjectContracts.IProjectReportResponseContract) => {
-    if (projectReport.variant_issues.length > 0 || projectReport.type_issues.length > 0) {
-        return true;
-    }
-
-    return false;
 };
 
 const canImport = (importData: IImportSource, config: ICliFileConfig) => {

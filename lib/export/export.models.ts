@@ -41,5 +41,5 @@ export interface IExportData {
 export interface IExportAllResult {
     metadata: IPackageMetadata;
     data: IExportData;
-    validation: ProjectContracts.IProjectReportResponseContract | undefined;
+    validation: ProjectContracts.IProjectReportResponseContract | string;
 }

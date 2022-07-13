@@ -15,15 +15,16 @@ import { IProcessedItem, ItemType, IPackageMetadata } from '../core';
 
 export interface IImportConfig {
     workflowIdForImportedItems?: string;
-    enablePublish: boolean
     baseUrl?: string;
     projectId: string;
     apiKey: string;
     enableLog: boolean;
+    preserveWorkflow: boolean;
     onUnsupportedBinaryFile?: (binaryFile: IBinaryFile) => void;
     onImport?: (item: IProcessedItem) => void;
     fixLanguages: boolean;
     canImport?: {
+        workflow?: (item: WorkflowContracts.IWorkflowContract) => boolean | Promise<boolean>;
         taxonomy?: (item: TaxonomyContracts.ITaxonomyContract) => boolean | Promise<boolean>;
         contentTypeSnippet?: (
             item: ContentTypeSnippetContracts.IContentTypeSnippetContract
@@ -65,7 +66,7 @@ export interface IImportSource {
         languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[];
         languages: LanguageContracts.ILanguageModelContract[];
         assets: AssetContracts.IAssetModelContract[];
-        workflowSteps: WorkflowContracts.IWorkflowStepContract[];
+        workflows: WorkflowContracts.IWorkflowContract[];
     };
     metadata: IPackageMetadata;
     validation: ProjectContracts.IProjectReportResponseContract;

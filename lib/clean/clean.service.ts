@@ -1,6 +1,7 @@
 import { AssetFolderModels, ManagementClient } from '@kentico/kontent-management';
+import { HttpService } from '@kentico/kontent-core';
 
-import { ItemType } from '../core';
+import { defaultWorkflowCodename, handleError, ItemType } from '../core';
 import { ICleanConfig, ICleanResult } from './clean.models';
 
 export class CleanService {
@@ -10,7 +11,10 @@ export class CleanService {
         this.client = new ManagementClient({
             apiKey: config.apiKey,
             projectId: config.projectId,
-            baseUrl: config.baseUrl
+            baseUrl: config.baseUrl,
+            httpService: new HttpService({
+                logErrorsToConsole: false
+            })
         });
     }
 
@@ -22,6 +26,7 @@ export class CleanService {
             await this.cleanTaxonomiesAsync();
             await this.cleanAssetsAsync();
             await this.cleanAssetFoldersAsync();
+            await this.cleanWorkflowsAsync();
 
             return {
                 metadata: {
@@ -30,8 +35,27 @@ export class CleanService {
                 }
             };
         } catch (err) {
-            console.log(err);
             throw err;
+        }
+    }
+
+    public async cleanWorkflowsAsync(): Promise<void> {
+        const workflows = (await this.client.listWorkflows().toPromise()).data;
+
+        for (const workflow of workflows) {
+            // default workflow cannot be deleted
+            if (workflow.codename.toLowerCase() === defaultWorkflowCodename.toLowerCase()) {
+                continue;
+            }
+
+            await this.client
+                .deleteWorkflow()
+                .byWorkflowId(workflow.id)
+                .toPromise()
+                .then((response) => {
+                    this.processItem(workflow.name, 'workflow', workflow);
+                })
+                .catch((error) => this.handleCleanError(error));
         }
     }
 
@@ -43,10 +67,10 @@ export class CleanService {
                 .deleteTaxonomy()
                 .byTaxonomyId(taxonomy.id)
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     this.processItem(taxonomy.name, 'taxonomy', taxonomy);
                 })
-                .catch(error => this.handleCleanError(error));
+                .catch((error) => this.handleCleanError(error));
         }
     }
 
@@ -58,10 +82,10 @@ export class CleanService {
                 .deleteContentTypeSnippet()
                 .byTypeId(contentTypeSnippet.id)
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     this.processItem(contentTypeSnippet.name, 'contentTypeSnippet', contentTypeSnippet);
                 })
-                .catch(error => this.handleCleanError(error));
+                .catch((error) => this.handleCleanError(error));
         }
     }
 
@@ -73,10 +97,10 @@ export class CleanService {
                 .deleteContentType()
                 .byTypeId(contentType.id)
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     this.processItem(contentType.name, 'contentType', contentType);
                 })
-                .catch(error => this.handleCleanError(error));
+                .catch((error) => this.handleCleanError(error));
         }
     }
 
@@ -88,10 +112,10 @@ export class CleanService {
                 .deleteAsset()
                 .byAssetId(asset.id)
                 .toPromise()
-                .then(m => {
+                .then((m) => {
                     this.processItem(asset.fileName, 'asset', asset);
                 })
-                .catch(error => this.handleCleanError(error));
+                .catch((error) => this.handleCleanError(error));
         }
     }
 
@@ -102,8 +126,8 @@ export class CleanService {
             await this.client
                 .modifyAssetFolders()
                 .withData(
-                    assetFolders.map(m => {
-                        return <AssetFolderModels.IModifyAssetFoldersData> {
+                    assetFolders.map((m) => {
+                        return <AssetFolderModels.IModifyAssetFoldersData>{
                             op: 'remove',
                             reference: {
                                 id: m.id
@@ -112,12 +136,12 @@ export class CleanService {
                     })
                 )
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     for (const folder of assetFolders) {
                         this.processItem(folder.name, 'assetFolder', folder);
                     }
                 })
-                .catch(error => this.handleCleanError(error));
+                .catch((error) => this.handleCleanError(error));
         }
     }
 
@@ -129,20 +153,16 @@ export class CleanService {
                 .deleteContentItem()
                 .byItemId(contentItem.id)
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     this.processItem(contentItem.name, 'contentItem', contentItem);
                 })
-                .catch(error => this.handleCleanError(error));
+                .catch((error) => this.handleCleanError(error));
         }
     }
 
     public async cleanLanguageVariantsAsync(contentItemId: string): Promise<void> {
-        const languageVariants = (
-            await this.client
-                .listLanguageVariantsOfItem()
-                .byItemId(contentItemId)
-                .toPromise()
-        ).data.items;
+        const languageVariants = (await this.client.listLanguageVariantsOfItem().byItemId(contentItemId).toPromise())
+            .data.items;
 
         for (const languageVariant of languageVariants) {
             const languageId = languageVariant.language.id;
@@ -157,15 +177,15 @@ export class CleanService {
                 .byItemId(itemId)
                 .byLanguageId(languageId)
                 .toPromise()
-                .then(response => {
+                .then((response) => {
                     this.processItem(itemId, 'languageVariant', languageVariant);
                 })
-                .catch(error => this.handleCleanError(error));
+                .catch((error) => this.handleCleanError(error));
         }
     }
 
     private handleCleanError(error: any): void {
-        console.log(error);
+        handleError(error);
     }
 
     private processItem(title: string, type: ItemType, data: any): void {

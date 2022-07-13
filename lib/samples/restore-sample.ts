@@ -43,7 +43,7 @@ const run = async () => {
             languageVariant: item => true, // all language variants will be imported
             taxonomy: item => true,// all taxonomies will be imported
         },
-        enablePublish: true, // when enables, previously published language variants will be published after restore (does not affect unpublished variants)
+        preserveWorkflow: true, // when enabled, workflow of language variants is preserved
         projectId: 'targetProjectId',
         apiKey: 'targetProjectId',
         enableLog: true, // shows progress of immport in console

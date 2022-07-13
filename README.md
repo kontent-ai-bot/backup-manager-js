@@ -26,7 +26,7 @@ Install package globally:
 | skipValidation       | Skips validation endpoint during project export      
 | force           | If enabled, project will we exported / restored even if there are data inconsistencies. Enabled by default. |
 | baseUrl           | Custom base URL for Management API calls. |
-| enablePublish           | Indicates if language variants published on the source project are also published on target. Enabled by default |
+| preserveWorkflow           | Indicates language variant workflow information should be preserved |
 | exportFilter           | Can be used to export only selected data types. Expects CSV of types. For example `contentType,language` will cause backup manager to export only content types & language data. List of data types can be found below. |
 
 ### Data types
@@ -39,7 +39,7 @@ Install package globally:
 * language
 * assetFolder
 * binaryFile
-* workflowSteps (only export)
+* workflows
 
 ### Execution
 
@@ -165,7 +165,7 @@ const run = async () => {
             languageVariant: item => true, // all language variants will be imported
             taxonomy: item => true,// all taxonomies will be imported
         },
-        enablePublish: true, // when enables, previously published language variants will be published after restore (does not affect unpublished variants)
+        preserveWorkflow: true, // when enabled, language variants will preserve their workflow information
         projectId: 'targetProjectId',
         apiKey: 'targetProjectId',
         enableLog: true, // shows progress of immport in console

@@ -1,3 +1,4 @@
+import { defaultObjectId } from './core-properties';
 import { IIdCodenameTranslationResult } from './core.models';
 
 export class TranslationHelper {
@@ -30,12 +31,13 @@ export class TranslationHelper {
     public replaceIdReferencesWithCodenames(
         data: any,
         allData: any,
-        storedCodenames: IIdCodenameTranslationResult
+        storedCodenames: IIdCodenameTranslationResult,
+        codenameForDefaultId?: string
     ): void {
         if (data) {
             if (Array.isArray(data)) {
                 for (const arrayItem of data) {
-                    this.replaceIdReferencesWithCodenames(arrayItem, allData, storedCodenames);
+                    this.replaceIdReferencesWithCodenames(arrayItem, allData, storedCodenames, codenameForDefaultId);
                 }
             } else {
                 for (const key of Object.keys(data)) {
@@ -45,9 +47,14 @@ export class TranslationHelper {
                         const codename = (data as any).codename;
 
                         if (!codename) {
-                            // replace id with codename
-                            const foundCodename = this.tryFindCodenameForId(id, allData, storedCodenames);
+                            let foundCodename: string | undefined;
+                            if (id.toLowerCase() === defaultObjectId.toLowerCase() && codenameForDefaultId) {
+                                foundCodename = codenameForDefaultId;
+                            } else {
+                                foundCodename = this.tryFindCodenameForId(id, allData, storedCodenames);
+                            }
 
+                            // replace id with codename
                             if (foundCodename) {
                                 // remove id prop
                                 delete data.id;
@@ -59,7 +66,7 @@ export class TranslationHelper {
                     }
 
                     if (typeof val === 'object' && val !== null) {
-                        this.replaceIdReferencesWithCodenames(val, allData, storedCodenames);
+                        this.replaceIdReferencesWithCodenames(val, allData, storedCodenames, codenameForDefaultId);
                     }
                 }
             }

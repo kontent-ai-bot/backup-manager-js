@@ -14,7 +14,9 @@ import {
     LanguageVariantContracts,
     ContentItemContracts,
     AssetFolderModels,
-    AssetFolderContracts
+    AssetFolderContracts,
+    WorkflowContracts,
+    WorkflowModels
 } from '@kentico/kontent-management';
 
 export interface ICliFileConfig {
@@ -23,7 +25,7 @@ export interface ICliFileConfig {
     action: CliAction;
     zipFilename: string;
     enableLog: boolean;
-    enablePublish: boolean;
+    preserveWorkflow: boolean;
     force: boolean;
     baseUrl?: string;
     exportFilter?: ItemType[];
@@ -40,9 +42,9 @@ export type ItemType =
     | 'language'
     | 'asset'
     | 'assetFolder'
-    | 'workflowStep'
     | 'collection'
     | 'webhook'
+    | 'workflow'
     | 'binaryFile';
 
 export type ActionType = ItemType | 'publish' | 'changeWorkflowStep';
@@ -55,6 +57,7 @@ export type ValidImportModel =
     | ContentItemModels.ContentItem
     | LanguageModels.LanguageModel
     | AssetModels.Asset
+    | WorkflowModels.Workflow
     | AssetFolderModels.AssetFolder;
 
 export type ValidImportContract =
@@ -66,6 +69,7 @@ export type ValidImportContract =
     | AssetContracts.IAssetModelContract
     | LanguageVariantContracts.ILanguageVariantModelContract
     | LanguageContracts.ILanguageModelContract
+    | WorkflowContracts.IWorkflowContract
     | AssetFolderContracts.IAssetFolderContract;
 
 export interface IProcessedItem {
@@ -103,7 +107,7 @@ export interface IPackageDataOverview {
     languagesCount: number;
     assetsCount: number;
     assetFoldersCount: number;
-    workflowStepsCount: number;
+    workflowsCount: number;
     webhooksCount: number;
     collectionsCount: number;
 }

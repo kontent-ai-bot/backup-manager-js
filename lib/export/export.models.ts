@@ -25,7 +25,7 @@ export interface IExportConfig {
 }
 
 export interface IExportData {
-    workflowSteps: WorkflowContracts.IWorkflowStepContract[];
+    workflows: WorkflowContracts.IWorkflowContract[];
     taxonomies: TaxonomyContracts.ITaxonomyContract[];
     contentTypeSnippets: ContentTypeSnippetContracts.IContentTypeSnippetContract[];
     contentTypes: ContentTypeContracts.IContentTypeContract[];

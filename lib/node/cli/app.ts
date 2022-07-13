@@ -40,10 +40,10 @@ const argv = yargs(process.argv.slice(2))
     )
     .alias('b', 'baseUrl')
     .describe('b', 'Custom base URL for Management API calls.')
-    .alias('s', 'enablePublish')
+    .alias('s', 'preserveWorkflow')
     .describe(
         's',
-        'Indicates if language variants published on the source project are also published on target. Enabled by default'
+        'Indicates if workflow information of language variants is preserved'
     )
     .alias('e', 'exportFilter')
     .describe(
@@ -131,7 +131,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
                 console.log(`Imported: ${item.title} | ${item.type}`);
             }
         },
-        enablePublish: config.enablePublish,
+        preserveWorkflow: config.preserveWorkflow,
         baseUrl: config.baseUrl,
         fixLanguages: true,
         projectId: config.projectId,
@@ -229,7 +229,7 @@ const getConfig = async () => {
     const apiKey: string | undefined = resolvedArgs.apiKey as string | undefined;
     const enableLog: boolean | undefined = (resolvedArgs.enableLog as boolean | undefined) ?? true;
     const force: boolean | undefined = (resolvedArgs.force as boolean | undefined) ?? true;
-    const enablePublish: boolean | undefined = (resolvedArgs.enablePublish as boolean | undefined) ?? true;
+    const preserveWorkflow: boolean | undefined = (resolvedArgs.preserveWorkflow as boolean | undefined) ?? true;
     const skipValidation: boolean = (resolvedArgs.skipValidation as boolean | undefined) ?? false;
     const projectId: string | undefined = resolvedArgs.projectId as string | undefined;
     const baseUrl: string | undefined = resolvedArgs.baseUrl as string | undefined;
@@ -260,7 +260,7 @@ const getConfig = async () => {
 
     // get config from command line
     const config: ICliFileConfig = {
-        enablePublish,
+        preserveWorkflow: preserveWorkflow,
         action,
         apiKey,
         enableLog,

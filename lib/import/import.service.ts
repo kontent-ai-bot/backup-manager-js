@@ -16,7 +16,8 @@ import {
     SharedModels,
     TaxonomyContracts,
     TaxonomyModels,
-    WorkflowContracts
+    WorkflowContracts,
+    WorkflowModels
 } from '@kentico/kontent-management';
 import { version, name } from '../../package.json';
 
@@ -26,14 +27,17 @@ import {
     ActionType,
     translationHelper,
     ValidImportContract,
-    ValidImportModel
+    ValidImportModel,
+    handleError,
+    defaultWorkflowCodename,
+    defaultObjectId
 } from '../core';
 import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
+import { HttpService } from '@kentico/kontent-core';
 
 export class ImportService {
-    private readonly defaultLanguageId: string = '00000000-0000-0000-0000-000000000000';
+    private readonly defaultLanguageId: string = defaultObjectId;
     private readonly client: ManagementClient;
-    private readonly publishedWorkflowStepName: string = 'Published';
 
     /**
      * Maximum allowed size of asset in Bytes.
@@ -46,11 +50,14 @@ export class ImportService {
             apiKey: config.apiKey,
             baseUrl: config.baseUrl,
             projectId: config.projectId,
+            httpService: new HttpService({
+                logErrorsToConsole: false
+            }),
             retryStrategy: {
                 addJitter: true,
                 canRetryError: (err) => true, // so that timeout errors are retried
                 maxAttempts: 3,
-                deltaBackoffMs: 1000,
+                deltaBackoffMs: 1000
             }
         });
     }
@@ -143,6 +150,16 @@ export class ImportService {
             }
         }
 
+        // ### Workflows
+        if (sourceData.importData.workflows.length) {
+            const importedWorkflows = await this.importWorkflows(sourceData.importData.workflows);
+            importedItems.push(...importedWorkflows);
+        } else {
+            if (this.config.enableLog) {
+                console.log(`Skipping workflows`);
+            }
+        }
+
         // ### Assets
         if (sourceData.importData.assets.length) {
             const importedAssets = await this.importAssetsAsync(
@@ -175,12 +192,12 @@ export class ImportService {
             );
             importedItems.push(...importedLanguageVariants);
 
-            if (this.config.enablePublish) {
-                await this.publishLanguageVariantsAsync(
+            if (this.config.preserveWorkflow) {
+                await this.setWorkflowStepsOfLanguageVariantsAsync(
                     sourceData.importData.languageVariants,
-                    sourceData.importData.workflowSteps
+                    sourceData.importData.workflows
                 );
-            }
+            } 
 
             if (this.config.workflowIdForImportedItems) {
                 await this.moveLanguageVariantsToCustomWorkflowStepAsync(
@@ -202,6 +219,9 @@ export class ImportService {
     }
 
     private translateIds(source: IImportSource): void {
+        const defaultLanguageCodename = source.importData.languages.find((m) => m.id === defaultObjectId)?.codename;
+        const defaultWorkflowCodename = source.importData.workflows.find((m) => m.id === defaultObjectId)?.codename;
+
         // in following objects replace id references with external ids
         translationHelper.replaceIdReferencesWithExternalId(source.importData.taxonomies);
         translationHelper.replaceIdReferencesWithExternalId(source.importData.contentTypeSnippets);
@@ -209,10 +229,25 @@ export class ImportService {
 
         // in following objects replace id references with codename
         translationHelper.replaceIdReferencesWithCodenames(source.importData.languages, source.importData, {});
-        translationHelper.replaceIdReferencesWithCodenames(source.importData.assets, source.importData, {});
+        translationHelper.replaceIdReferencesWithCodenames(
+            source.importData.assets,
+            source.importData,
+            {},
+            defaultLanguageCodename
+        );
         translationHelper.replaceIdReferencesWithCodenames(source.importData.contentItems, source.importData, {});
-        translationHelper.replaceIdReferencesWithCodenames(source.importData.languageVariants, source.importData, {});
-        translationHelper.replaceIdReferencesWithCodenames(source.importData.workflowSteps, source.importData, {});
+        translationHelper.replaceIdReferencesWithCodenames(
+            source.importData.languageVariants,
+            source.importData,
+            {},
+            defaultLanguageCodename
+        );
+        translationHelper.replaceIdReferencesWithCodenames(
+            source.importData.workflows,
+            source.importData,
+            {},
+            defaultWorkflowCodename
+        );
     }
 
     private removeSkippedItemsFromImport(source: IImportSource): void {
@@ -221,6 +256,15 @@ export class ImportService {
                 const shouldImport = this.config.canImport.asset(item);
                 if (!shouldImport) {
                     source.importData.assets = source.importData.assets.filter((m) => m.id !== item.id);
+                }
+            }
+        }
+
+        if (this.config.canImport && this.config.canImport.workflow) {
+            for (const item of source.importData.workflows) {
+                const shouldImport = this.config.canImport.workflow(item);
+                if (!shouldImport) {
+                    source.importData.workflows = source.importData.workflows.filter((m) => m.id !== item.id);
                 }
             }
         }
@@ -497,7 +541,7 @@ export class ImportService {
 
             await this.client
                 .addAsset()
-                .withData(builder => assetData)
+                .withData((builder) => assetData)
                 .toPromise()
                 .then((response) => {
                     importedItems.push({
@@ -624,46 +668,109 @@ export class ImportService {
         return importedItems;
     }
 
-    private async publishLanguageVariantsAsync(
+    private async setWorkflowStepsOfLanguageVariantsAsync(
         languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[],
-        workflowSteps: WorkflowContracts.IWorkflowStepContract[]
+        workflows: WorkflowContracts.IWorkflowContract[]
     ): Promise<void> {
-        const publishedWorkflowStep = this.getPublishedWorkflowStep(workflowSteps);
-
-        if (!publishedWorkflowStep) {
-            // published workflow step was not found
+        if (!languageVariants.length) {
             return;
         }
 
-        const itemsToPublish = languageVariants.filter((m) => m.workflow_step.id === publishedWorkflowStep.id || m.workflow_step.codename === publishedWorkflowStep.codename);
-
-        if (!itemsToPublish.length) {
-            // no items to publish
-            return;
-        }
-
-        for (const itemToPublish of itemsToPublish) {
-            const itemCodename: string | undefined = itemToPublish.item.codename;
-            const languageCodename: string | undefined = itemToPublish.language.codename;
+        for (const languageVariant of languageVariants) {
+            const itemCodename: string | undefined = languageVariant.item.codename;
+            const languageCodename: string | undefined = languageVariant.language.codename;
+            const workflowStepCodename: string | undefined = languageVariant.workflow_step.codename;
 
             if (!itemCodename) {
-                throw Error(`Missing item codename for item`);
+                throw Error(`Missing item codename for item '${languageVariant.item.id}'`);
             }
             if (!languageCodename) {
-                throw Error(`Missing language codename for item`);
+                throw Error(`Missing language codename for item '${itemCodename}'`);
             }
 
-            await this.client
-                .publishLanguageVariant()
-                .byItemCodename(itemCodename)
-                .byLanguageCodename(languageCodename)
-                .withoutData()
-                .toPromise()
-                .then((response) => {
-                    this.processItem(`${itemCodename} (${languageCodename})`, 'publish', response.data);
-                })
-                .catch((error) => this.handleImportError(error));
+            if (!workflowStepCodename) {
+                throw Error(`Missing workflow step codename for item '${itemCodename}'`);
+            }
+
+            const isPublished = this.isLanguageVariantPublished(languageVariant, workflows);
+
+            if (isPublished) {
+                await this.client
+                    .publishLanguageVariant()
+                    .byItemCodename(itemCodename)
+                    .byLanguageCodename(languageCodename)
+                    .withoutData()
+                    .toPromise()
+                    .then((response) => {
+                        this.processItem(`${itemCodename} (${languageCodename})`, 'publish', response.data);
+                    })
+                    .catch((error) => this.handleImportError(error));
+            } else {
+                const workflowData = this.getWorkflowAndStepOfLanguageVariant(languageVariant, workflows);
+
+                if (!workflowData) {
+                    throw Error(`Invalid workflow data for language variant '${itemCodename}'`);
+                }
+
+                await this.client
+                    .changeWorkflowOfLanguageVariant()
+                    .byItemCodename(itemCodename)
+                    .byLanguageCodename(languageCodename)
+                    .withData({
+                        step_identifier: {
+                            codename: workflowData.workflowStep.codename
+                        },
+                        workflow_identifier: {
+                            codename: workflowData.workflow.codename
+                        }
+                    })
+                    .toPromise()
+                    .then((response) => {
+                        this.processItem(
+                            `${itemCodename} (${languageCodename}) - ${workflowData.workflow.name} -> ${workflowData.workflowStep.name}`,
+                            'changeWorkflowStep',
+                            response.data
+                        );
+                    })
+                    .catch((error) => this.handleImportError(error));
+            }
         }
+    }
+
+    private isLanguageVariantPublished(
+        languageVariant: LanguageVariantContracts.ILanguageVariantModelContract,
+        workflows: WorkflowContracts.IWorkflowContract[]
+    ): boolean {
+        for (const workflow of workflows) {
+            if (workflow.published_step.codename === languageVariant.workflow_step.codename) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private getWorkflowAndStepOfLanguageVariant(
+        languageVariant: LanguageVariantContracts.ILanguageVariantModelContract,
+        workflows: WorkflowContracts.IWorkflowContract[]
+    ):
+        | {
+              workflow: WorkflowContracts.IWorkflowContract;
+              workflowStep: WorkflowContracts.IWorkflowStepNewContract;
+          }
+        | undefined {
+        for (const workflow of workflows) {
+            for (const workflowStep of workflow.steps) {
+                if (workflowStep.codename.toLowerCase() === languageVariant.workflow_step.codename?.toLowerCase()) {
+                    return {
+                        workflow: workflow,
+                        workflowStep: workflowStep
+                    };
+                }
+            }
+        }
+
+        return undefined;
     }
 
     private async moveLanguageVariantsToCustomWorkflowStepAsync(
@@ -713,10 +820,10 @@ export class ImportService {
             const languageCodename: string | undefined = languageVariant.language.codename;
 
             if (!itemCodename) {
-                throw Error(`Missing item codename for item`);
+                throw Error(`Missing item codename for item '${languageVariant.item.id}'`);
             }
             if (!languageCodename) {
-                throw Error(`Missing language codename for item`);
+                throw Error(`Missing language codename for item '${itemCodename}'`);
             }
 
             // replace ids in assets with new ones
@@ -802,9 +909,65 @@ export class ImportService {
         return importedItems;
     }
 
+    private async importWorkflows(
+        workflows: WorkflowContracts.IWorkflowContract[]
+    ): Promise<IImportItemResult<WorkflowContracts.IWorkflowContract, WorkflowModels.Workflow>[]> {
+        const importedItems: IImportItemResult<WorkflowContracts.IWorkflowContract, WorkflowModels.Workflow>[] = [];
+        for (const workflow of workflows) {
+            // remove roles from workflow steps because roles can't yet be imported via API
+            for (const workflowStep of workflow.steps) {
+                workflowStep.role_ids = [];
+            }
+            workflow.archived_step.role_ids = [];
+            workflow.published_step.create_new_version_role_ids = [];
+            workflow.published_step.unpublish_role_ids = [];
+
+            // default workflow needs to be updated
+            if (workflow.codename.toLowerCase() === defaultWorkflowCodename.toLowerCase()) {
+                // remove ids for default steps
+                for (const workflowStep of workflow.steps) {
+                    workflowStep.id = undefined as any;
+                }
+
+                await this.client
+                    .updateWorkflow()
+                    .byWorkflowCodename(workflow.codename)
+                    .withData(workflow)
+                    .toPromise()
+                    .then((response) => {
+                        importedItems.push({
+                            imported: response.data,
+                            original: workflow,
+                            importId: response.data.id,
+                            originalId: workflow.id
+                        });
+                        this.processItem(response.data.name, 'workflow', response.data);
+                    })
+                    .catch((error) => this.handleImportError(error));
+            } else {
+                await this.client
+                    .addWorkflow()
+                    .withData(workflow)
+                    .toPromise()
+                    .then((response) => {
+                        importedItems.push({
+                            imported: response.data,
+                            original: workflow,
+                            importId: response.data.id,
+                            originalId: workflow.id
+                        });
+                        this.processItem(response.data.name, 'workflow', response.data);
+                    })
+                    .catch((error) => this.handleImportError(error));
+            }
+        }
+
+        return importedItems;
+    }
+
     private handleImportError(error: any | SharedModels.ContentManagementBaseKontentError): void {
         console.log(error);
-        throw error;
+        handleError(error);
     }
 
     private processItem(title: string, type: ActionType, data: any): void {
@@ -899,11 +1062,5 @@ export class ImportService {
             external_id: folder.external_id,
             folders: folder.folders?.map((m) => this.mapAssetFolder(m)) ?? []
         };
-    }
-
-    private getPublishedWorkflowStep(
-        workflowSteps: WorkflowContracts.IWorkflowStepContract[]
-    ): WorkflowContracts.IWorkflowStepContract | undefined {
-        return workflowSteps.find((m) => m.name === this.publishedWorkflowStepName);
     }
 }

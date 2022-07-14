@@ -1,5 +1,5 @@
-import { AssetFolderModels, ManagementClient } from '@kentico/kontent-management';
-import { HttpService } from '@kentico/kontent-core';
+import { AssetFolderModels, ManagementClient } from '@kontent-ai/management-sdk';
+import { HttpService } from '@kontent-ai/core-sdk';
 
 import { defaultWorkflowCodename, handleError, ItemType } from '../core';
 import { ICleanConfig, ICleanResult } from './clean.models';

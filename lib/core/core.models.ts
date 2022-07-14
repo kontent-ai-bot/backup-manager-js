@@ -17,7 +17,7 @@ import {
     AssetFolderContracts,
     WorkflowContracts,
     WorkflowModels
-} from '@kentico/kontent-management';
+} from '@kontent-ai/management-sdk';
 
 export interface ICliFileConfig {
     projectId: string;

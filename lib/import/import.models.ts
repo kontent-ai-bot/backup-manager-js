@@ -9,7 +9,7 @@ import {
     TaxonomyContracts,
     ProjectContracts,
     WorkflowContracts,
-} from '@kentico/kontent-management';
+} from '@kontent-ai/management-sdk';
 
 import { IProcessedItem, ItemType, IPackageMetadata } from '../core';
 

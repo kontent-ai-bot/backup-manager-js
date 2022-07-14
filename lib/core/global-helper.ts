@@ -1,4 +1,4 @@
-import { SharedModels } from '@kentico/kontent-management';
+import { SharedModels } from '@kontent-ai/management-sdk';
 
 export function getFilenameWithoutExtension(filename: string): string {
     if (!filename) {

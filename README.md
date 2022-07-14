@@ -1,16 +1,15 @@
-[![npm version](https://badge.fury.io/js/%40kentico%2Fkontent-backup-manager.svg)](https://badge.fury.io/js/%40kentico%2Fkontent-backup-manager)
-[![CircleCI](https://circleci.com/gh/Kentico/kontent-backup-manager-js.svg?style=svg)](https://circleci.com/gh/Kentico/kontent-backup-manager-js)
-[![Build & Test](https://github.com/Kentico/kontent-backup-manager-js/actions/workflows/integrate.yml/badge.svg)](https://github.com/Kentico/kontent-backup-manager-js/actions/workflows/integrate.yml)
+[![npm version](https://badge.fury.io/js/%40kontent-ai%2Fbackup-manager.svg)](https://badge.fury.io/js/%40kontent-ai%2Fbackup-manager)
+[![Build & Test](https://github.com/kontent-ai/backup-manager-js/actions/workflows/integrate.yml/badge.svg)](https://github.com/kontent-ai/backup-manager-js/actions/workflows/integrate.yml)
 
 # Kontent Backup Manager
 
-The purpose of this project is to backup & restore [Kentico Kontent](https://kontent.ai) projects. This project uses Management API to both get & restore data.
+The purpose of this project is to backup & restore [Kontent.ai](https://kontent.ai) projects. This project uses Management API to both get & restore data.
 
 ## Installation
 
 Install package globally:
 
-`npm i @kentico/kontent-backup-manager -g`
+`npm i @kontent-ai/backup-manager -g`
 
 ## Use via CLI
 
@@ -18,7 +17,7 @@ Install package globally:
 
 | Config          | Value                                                                                                               |
 |-----------------|---------------------------------------------------------------------------------------------------------------------|
-| **projectId**       | Id of Kentico Kontent project **(required)**                                                                            |
+| **projectId**       | Id of Kontent.ai project **(required)**                                                                            |
 | **apiKey**           | Content management Api key **(required)**                                                                               |
 | **action**           | Action. Possible values are: `restore` & `backup` & `clean` **(required)**                                              |
 | zipFilename     | Name of zip used for export / restoring data. (e.g. 'kontent-backup').                                            |
@@ -87,8 +86,8 @@ To execute your action run:
 ### Backup in code 
 
 ```typescript
-import { ExportService, ImportService, ZipService } from "@kentico/kontent-backup-manager";
-import { FileService } from '@kentico/kontent-backup-manager/dist/cjs/lib/node';
+import { ExportService, ImportService, ZipService } from "@kontent-ai/backup-manager";
+import { FileService } from '@kontent-ai/backup-manager/dist/cjs/lib/node';
 
 const run = async () => {
     const exportService = new ExportService({
@@ -127,8 +126,8 @@ run();
 ### Restore in code
 
 ```typescript
-import { ExportService, ImportService, ZipService } from "@kentico/kontent-backup-manager";
-import { FileService } from '@kentico/kontent-backup-manager/dist/cjs/lib/node';
+import { ExportService, ImportService, ZipService } from "@kontent-ai/backup-manager";
+import { FileService } from '@kontent-ai/backup-manager/dist/cjs/lib/node';
 
 const run = async () => {
     const fileService = new FileService({

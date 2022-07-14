@@ -7,7 +7,7 @@ import { ICliFileConfig, getFilenameWithoutExtension, CliAction, ItemType } from
 import { ExportService } from '../../export';
 import { IImportSource, ImportService } from '../../import';
 import { ZipService } from '../../zip';
-import { SharedModels } from '@kentico/kontent-management';
+import { SharedModels } from '@kontent-ai/management-sdk';
 import { FileService } from '../file/file.service';
 import { fileHelper } from '../file/file-helper';
 
@@ -260,7 +260,7 @@ const getConfig = async () => {
 
     // get config from command line
     const config: ICliFileConfig = {
-        preserveWorkflow: preserveWorkflow,
+        preserveWorkflow,
         action,
         apiKey,
         enableLog,

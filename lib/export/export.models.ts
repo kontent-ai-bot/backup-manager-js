@@ -11,7 +11,7 @@ import {
     WorkflowContracts,
     WebhookContracts,
     CollectionContracts,
-} from '@kentico/kontent-management';
+} from '@kontent-ai/management-sdk';
 
 import { IProcessedItem, IPackageMetadata, ItemType } from '../core';
 

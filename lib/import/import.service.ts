@@ -18,7 +18,7 @@ import {
     TaxonomyModels,
     WorkflowContracts,
     WorkflowModels
-} from '@kentico/kontent-management';
+} from '@kontent-ai/management-sdk';
 import { version, name } from '../../package.json';
 
 import {
@@ -33,7 +33,7 @@ import {
     defaultObjectId
 } from '../core';
 import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
-import { HttpService } from '@kentico/kontent-core';
+import { HttpService } from '@kontent-ai/core-sdk';
 
 export class ImportService {
     private readonly defaultLanguageId: string = defaultObjectId;
@@ -220,7 +220,6 @@ export class ImportService {
 
     private translateIds(source: IImportSource): void {
         const defaultLanguageCodename = source.importData.languages.find((m) => m.id === defaultObjectId)?.codename;
-        const defaultWorkflowCodename = source.importData.workflows.find((m) => m.id === defaultObjectId)?.codename;
 
         // in following objects replace id references with external ids
         translationHelper.replaceIdReferencesWithExternalId(source.importData.taxonomies);
@@ -797,8 +796,8 @@ export class ImportService {
             for (const workflowStep of workflow.steps) {
                 if (workflowStep.codename.toLowerCase() === languageVariant.workflow_step.codename?.toLowerCase()) {
                     return {
-                        workflow: workflow,
-                        workflowStep: workflowStep
+                        workflow,
+                        workflowStep
                     };
                 }
             }

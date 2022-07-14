@@ -12,8 +12,8 @@ import {
     WorkflowContracts,
     WebhookContracts,
     CollectionContracts
-} from '@kentico/kontent-management';
-import {HttpService } from '@kentico/kontent-core';
+} from '@kontent-ai/management-sdk';
+import {HttpService } from '@kontent-ai/core-sdk';
 
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
 import { ItemType } from '../core';
@@ -87,7 +87,7 @@ export class ExportService {
                 version,
                 timestamp: new Date(),
                 projectId: this.config.projectId,
-                isInconsistentExport: isInconsistentExport,
+                isInconsistentExport,
                 dataOverview: {
                     assetFoldersCount: data.assetFolders.length,
                     assetsCount: data.assets.length,

@@ -197,7 +197,7 @@ export class ImportService {
                     sourceData.importData.languageVariants,
                     sourceData.importData.workflows
                 );
-            } 
+            }
 
             if (this.config.workflowIdForImportedItems) {
                 await this.moveLanguageVariantsToCustomWorkflowStepAsync(
@@ -693,6 +693,7 @@ export class ImportService {
             }
 
             const isPublished = this.isLanguageVariantPublished(languageVariant, workflows);
+            const isArchived = this.isLanguageVariantArchived(languageVariant, workflows);
 
             if (isPublished) {
                 await this.client
@@ -703,6 +704,26 @@ export class ImportService {
                     .toPromise()
                     .then((response) => {
                         this.processItem(`${itemCodename} (${languageCodename})`, 'publish', response.data);
+                    })
+                    .catch((error) => this.handleImportError(error));
+            } else if (isArchived) {
+                const defaultWorkflow = this.getDefaultWorkflow(workflows);
+
+                await this.client
+                    .changeWorkflowOfLanguageVariant()
+                    .byItemCodename(itemCodename)
+                    .byLanguageCodename(languageCodename)
+                    .withData({
+                        step_identifier: {
+                            codename: defaultWorkflow.archived_step.codename
+                        },
+                        workflow_identifier: {
+                            codename: defaultWorkflow.codename
+                        }
+                    })
+                    .toPromise()
+                    .then((response) => {
+                        this.processItem(`${itemCodename} (${languageCodename})`, 'archive', response.data);
                     })
                     .catch((error) => this.handleImportError(error));
             } else {
@@ -750,6 +771,19 @@ export class ImportService {
         return false;
     }
 
+    private isLanguageVariantArchived(
+        languageVariant: LanguageVariantContracts.ILanguageVariantModelContract,
+        workflows: WorkflowContracts.IWorkflowContract[]
+    ): boolean {
+        for (const workflow of workflows) {
+            if (workflow.archived_step.codename === languageVariant.workflow_step.codename) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private getWorkflowAndStepOfLanguageVariant(
         languageVariant: LanguageVariantContracts.ILanguageVariantModelContract,
         workflows: WorkflowContracts.IWorkflowContract[]
@@ -771,6 +805,18 @@ export class ImportService {
         }
 
         return undefined;
+    }
+
+    private getDefaultWorkflow(workflows: WorkflowContracts.IWorkflowContract[]): WorkflowContracts.IWorkflowContract {
+        const defaultWorkflow = workflows.find(
+            (m) => m.codename.toLowerCase() === defaultWorkflowCodename.toLowerCase()
+        );
+
+        if (!defaultWorkflow) {
+            throw Error(`Missing default workflow`);
+        }
+
+        return defaultWorkflow;
     }
 
     private async moveLanguageVariantsToCustomWorkflowStepAsync(

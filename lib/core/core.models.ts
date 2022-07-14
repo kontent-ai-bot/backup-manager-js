@@ -47,7 +47,7 @@ export type ItemType =
     | 'workflow'
     | 'binaryFile';
 
-export type ActionType = ItemType | 'publish' | 'changeWorkflowStep';
+export type ActionType = ItemType | 'archive' | 'publish' | 'changeWorkflowStep';
 
 export type ValidImportModel =
     | ContentTypeModels.ContentType

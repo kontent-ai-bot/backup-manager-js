@@ -1,14 +1,14 @@
 {
-  "name": "@kentico/kontent-backup-manager",
-  "version": "3.4.0",
-  "description": "This utility enables backup & restore of Kentico Kontent projects",
+  "name": "@kontent-ai/backup-manager",
+  "version": "4.0.0-0",
+  "description": "This utility enables backup & restore of Kontent.ai projects",
   "preferGlobal": true,
   "bin": {
     "kbm": "./dist/cjs/lib/node/cli/app.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Kentico/kontent-backup-manager-js"
+    "url": "https://github.com/kontent-ai/backup-manager-js"
   },
   "author": "Richard Sustek",
   "main": "./dist/cjs/lib/index.js",
@@ -18,7 +18,10 @@
   "directories": {},
   "scripts": {
     "test": "echo \"no global test configured\"",
-    "release": "standard-version",
+    "release": "npm run ts-lint:check && standard-version",
+    "release:major": "npm run ts-lint:check && standard-version --release-as major",
+    "release:major:beta": "npm run ts-lint:check && standard-version --prerelease --release-as major",
+    "release:beta": "standard-version --prerelease",
     "prepublishOnly": "npm run ts-lint:check && npm run build:all",
     "publish:beta": "npm publish --tag=next",
     "build:es2015": "tsc --p tsconfig.es2015.json",
@@ -33,9 +36,9 @@
     "ts-lint:check": "tslint --project ./tsconfig.json"
   },
   "keywords": [
-    "Kentico",
+    "Kontent.ai",
     "Kontent",
-    "Kentico Kontent",
+    "Kontent ai",
     "Kontent backup manager",
     "Kontent restore project",
     "Kontent backup project",
@@ -43,7 +46,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@kentico/kontent-management": "2.9.2",
+    "@kontent-ai/management-sdk": "3.0.0",
     "jszip": "3.10.0",
     "yargs": "17.5.1"
   },

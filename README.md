@@ -192,7 +192,7 @@ const run = async () => {
         context: 'node.js' // 'node.js' or 'browser'
     });
 
-    const importService = new ImportService({
+    const cleanService = new CleanService({
         onDelete: item => {
             // called when any content is deleted
             console.log(`Deleted: ${item.title} | ${item.type}`);
@@ -207,7 +207,7 @@ const run = async () => {
     const data = await zipService.extractZipAsync();
 
     // restore into target project
-    await importService.importFromSourceAsync(data);
+    await cleanService.importFromSourceAsync(data);
 };
 
 run();

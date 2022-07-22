@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.1](https://github.com/kontent-ai/backup-manager-js/compare/v4.0.0...v4.0.1) (2022-07-22)
+
+
+### Bug Fixes
+
+* fixes code sample in readme (fixes https://github.com/kontent-ai/backup-manager-js/issues/29) ([2514d55](https://github.com/kontent-ai/backup-manager-js/commit/2514d55dc44de33c5bab7ccc802ffe67d5398ab6))
+* moves skipping of items before id translation so that id can be referenced (fixes https://github.com/kontent-ai/backup-manager-js/issues/34) ([9d1a472](https://github.com/kontent-ai/backup-manager-js/commit/9d1a472eecb12b4c30cbedc962317369a4407e41))
+
 ## [4.0.0](https://github.com/kontent-ai/backup-manager-js/compare/v4.0.0-0...v4.0.0) (2022-07-14)
 
 ## [4.0.0-0](https://github.com/kontent-ai/backup-manager-js/compare/v3.4.0...v4.0.0-0) (2022-07-14)

@@ -86,16 +86,17 @@ export class ImportService {
             console.log(`Translating object ids to codenames`);
         }
 
+        // this is an optional step where users can exclude certain objects from being
+        // imported via import configuration.
+        // this has to be done before translating ids
+        this.removeSkippedItemsFromImport(sourceData);
+
         // translate ids to codenames for certain objects types
         this.translateIds(sourceData);
 
         if (this.config.enableLog) {
             console.log(`Removing skipped items`);
         }
-
-        // this is an optional step where users can exclude certain objects from being
-        // imported via import configuration.
-        this.removeSkippedItemsFromImport(sourceData);
 
         if (this.config.enableLog) {
             console.log(`Importing data`);

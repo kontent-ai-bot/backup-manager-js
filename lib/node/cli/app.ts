@@ -12,14 +12,14 @@ import { FileService } from '../file/file.service';
 import { fileHelper } from '../file/file-helper';
 
 const argv = yargs(process.argv.slice(2))
-    .example('kbm --action=backup --apiKey=xxx --projectId=xxx', 'Creates zip backup of Kontent project')
+    .example('kbm --action=backup --apiKey=xxx --projectId=xxx', 'Creates zip backup of Kontent.ai project')
     .example(
         'kbm --action=restore --apiKey=xxx --projectId=xxx --zipFilename=backupFile',
-        'Read given zip file and recreates data in Kontent project'
+        'Read given zip file and recreates data in Kontent.ai project'
     )
     .example(
         'kbm --action=clean --apiKey=xxx --projectId=xxx',
-        'Deletes data from given Kontent project. Use with care, this action is not reversible.'
+        'Deletes data from given Kontent.ai project. Use with care, this action is not reversible.'
     )
     .alias('p', 'projectId')
     .describe('p', 'ProjectId')

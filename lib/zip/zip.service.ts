@@ -192,7 +192,7 @@ export class ZipService {
     }
 
     private async getBinaryDataFromUrlAsync(url: string, enableLog: boolean): Promise<any> {
-        // temp fix for Kontent Repository not validating url
+        // temp fix for Kontent.ai Repository not validating url
         url = url.replace('#', '%23');
 
         if (enableLog) {

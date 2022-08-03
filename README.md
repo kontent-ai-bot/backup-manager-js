@@ -1,7 +1,7 @@
 [![npm version](https://badge.fury.io/js/%40kontent-ai%2Fbackup-manager.svg)](https://badge.fury.io/js/%40kontent-ai%2Fbackup-manager)
 [![Build & Test](https://github.com/kontent-ai/backup-manager-js/actions/workflows/integrate.yml/badge.svg)](https://github.com/kontent-ai/backup-manager-js/actions/workflows/integrate.yml)
 
-# Kontent Backup Manager
+# Kontent.ai Backup Manager
 
 The purpose of this project is to backup & restore [Kontent.ai](https://kontent.ai) projects. This project uses Management API to both get & restore data.
 

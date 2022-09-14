@@ -1,7 +1,7 @@
 import { AssetFolderModels, ManagementClient } from '@kontent-ai/management-sdk';
 import { HttpService } from '@kontent-ai/core-sdk';
 
-import { defaultWorkflowCodename, handleError, ItemType } from '../core';
+import { defaultRetryStrategy, defaultWorkflowCodename, handleError, ItemType } from '../core';
 import { ICleanConfig, ICleanResult } from './clean.models';
 
 export class CleanService {
@@ -14,7 +14,8 @@ export class CleanService {
             baseUrl: config.baseUrl,
             httpService: new HttpService({
                 logErrorsToConsole: false
-            })
+            }),
+            retryStrategy: config.retryStrategy ?? defaultRetryStrategy
         });
     }
 

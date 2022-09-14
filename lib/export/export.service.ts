@@ -16,7 +16,7 @@ import {
 import {HttpService } from '@kontent-ai/core-sdk';
 
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
-import { ItemType } from '../core';
+import { defaultRetryStrategy, ItemType } from '../core';
 import { version } from '../../package.json';
 
 export class ExportService {
@@ -30,6 +30,7 @@ export class ExportService {
             httpService: new HttpService({
                 logErrorsToConsole: false
             }),
+            retryStrategy: config.retryStrategy ?? defaultRetryStrategy
         });
     }
 

@@ -8,12 +8,14 @@ import {
     LanguageVariantContracts,
     TaxonomyContracts,
     ProjectContracts,
-    WorkflowContracts,
+    WorkflowContracts
 } from '@kontent-ai/management-sdk';
+import { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
 
 import { IProcessedItem, ItemType, IPackageMetadata } from '../core';
 
 export interface IImportConfig {
+    retryStrategy?: IRetryStrategyOptions;
     workflowIdForImportedItems?: string;
     baseUrl?: string;
     projectId: string;

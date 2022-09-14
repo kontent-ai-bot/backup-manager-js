@@ -30,7 +30,8 @@ import {
     ValidImportModel,
     handleError,
     defaultWorkflowCodename,
-    defaultObjectId
+    defaultObjectId,
+    defaultRetryStrategy
 } from '../core';
 import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 import { HttpService } from '@kontent-ai/core-sdk';
@@ -53,12 +54,7 @@ export class ImportService {
             httpService: new HttpService({
                 logErrorsToConsole: false
             }),
-            retryStrategy: {
-                addJitter: true,
-                canRetryError: (err) => true, // so that timeout errors are retried
-                maxAttempts: 3,
-                deltaBackoffMs: 1000
-            }
+            retryStrategy: config.retryStrategy ?? defaultRetryStrategy
         });
     }
 

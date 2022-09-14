@@ -1,4 +1,12 @@
 import { SharedModels } from '@kontent-ai/management-sdk';
+import { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
+
+export const defaultRetryStrategy: IRetryStrategyOptions = {
+    addJitter: true,
+    canRetryError: (err) => true, // so that timeout errors are retried
+    maxAttempts: 3,
+    deltaBackoffMs: 1000
+};
 
 export function getFilenameWithoutExtension(filename: string): string {
     if (!filename) {

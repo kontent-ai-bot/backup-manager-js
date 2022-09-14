@@ -10,8 +10,9 @@ import {
     ProjectContracts,
     WorkflowContracts,
     WebhookContracts,
-    CollectionContracts,
+    CollectionContracts
 } from '@kontent-ai/management-sdk';
+import { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
 
 import { IProcessedItem, IPackageMetadata, ItemType } from '../core';
 
@@ -22,6 +23,7 @@ export interface IExportConfig {
     onExport?: (item: IProcessedItem) => void;
     exportFilter?: ItemType[];
     skipValidation: boolean;
+    retryStrategy?: IRetryStrategyOptions;
 }
 
 export interface IExportData {

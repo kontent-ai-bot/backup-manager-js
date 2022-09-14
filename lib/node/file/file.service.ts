@@ -1,19 +1,17 @@
+import { yellow } from 'colors';
 import { promises } from 'fs';
 import { IFileServiceConfig } from './file.models';
 
 export class FileService {
-
-    constructor(private config: IFileServiceConfig) {
-    }
+    constructor(private config: IFileServiceConfig) {}
 
     private readonly zipExtension: string = '.zip';
-
 
     async loadFileAsync(fileNameWithoutExtension: string): Promise<Buffer> {
         const filePath = this.getFilePath(fileNameWithoutExtension);
 
         if (this.config.enableLog) {
-            console.log(`Reading file '${filePath}'`);
+            console.log(`Reading file '${yellow(filePath)}'`);
         }
         const file = await promises.readFile(filePath);
         if (this.config.enableLog) {
@@ -27,7 +25,7 @@ export class FileService {
         const filePath = this.getFilePath(fileNameWithoutExtension);
 
         if (this.config.enableLog) {
-            console.log(`Writing file '${filePath}'`);
+            console.log(`Writing file '${yellow(filePath)}'`);
         }
         await promises.writeFile(filePath, content);
         if (this.config.enableLog) {
@@ -37,7 +35,6 @@ export class FileService {
 
     private getFilePath(fileNameWithoutExtension: string) {
         const filenameWithExtension = fileNameWithoutExtension + this.zipExtension;
-        return`./${filenameWithExtension}`;
+        return `./${filenameWithExtension}`;
     }
-
 }

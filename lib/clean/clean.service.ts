@@ -1,7 +1,7 @@
 import { AssetFolderModels, ManagementClient } from '@kontent-ai/management-sdk';
 import { HttpService } from '@kontent-ai/core-sdk';
 
-import { defaultRetryStrategy, defaultWorkflowCodename, handleError, ItemType } from '../core';
+import { defaultRetryStrategy, defaultWorkflowCodename, handleError, ItemType, printProjectInfoToConsoleAsync } from '../core';
 import { ICleanConfig, ICleanResult } from './clean.models';
 
 export class CleanService {
@@ -21,6 +21,8 @@ export class CleanService {
 
     public async cleanAllAsync(): Promise<ICleanResult> {
         try {
+            await printProjectInfoToConsoleAsync(this.client);
+
             await this.cleanContentItemsAsync();
             await this.cleanContentTypesAsync();
             await this.cleanContentTypeSnippetsAsync();

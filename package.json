@@ -47,7 +47,8 @@
   "dependencies": {
     "@kontent-ai/management-sdk": "3.3.0",
     "jszip": "3.10.1",
-    "yargs": "17.5.1"
+    "yargs": "17.5.1",
+    "colors": "1.4.0"
   },
   "devDependencies": {
     "tslib": "2.4.0",

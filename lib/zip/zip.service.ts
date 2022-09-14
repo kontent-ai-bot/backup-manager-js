@@ -5,6 +5,7 @@ import * as JSZip from 'jszip';
 import { IExportAllResult } from '../export';
 import { IBinaryFile, IImportSource } from '../import';
 import { IZipServiceConfig } from './zip.models';
+import { yellow } from 'colors';
 
 export class ZipService {
     private readonly delayBetweenAssetRequestsMs: number;
@@ -89,7 +90,7 @@ export class ZipService {
         const assetsFolder = zip.folder(this.filesName);
 
         if (!assetsFolder) {
-            throw Error(`Could not create folder '${this.filesName}'`);
+            throw Error(`Could not create folder '${yellow(this.filesName)}'`);
         }
 
         if (this.config.enableLog) {
@@ -101,14 +102,14 @@ export class ZipService {
             const assetIdShortFolder = assetsFolder.folder(assetIdShortFolderName);
 
             if (!assetIdShortFolder) {
-                throw Error(`Could not create folder '${this.filesName}'`);
+                throw Error(`Could not create folder '${yellow(this.filesName)}'`);
             }
 
             const assetIdFolderName = asset.id;
             const assetIdFolder = assetIdShortFolder.folder(assetIdFolderName);
 
             if (!assetIdFolder) {
-                throw Error(`Could not create folder '${this.filesName}'`);
+                throw Error(`Could not create folder '${yellow(this.filesName)}'`);
             }
 
             const assetFilename = asset.file_name;
@@ -183,7 +184,7 @@ export class ZipService {
         const file = files[filename];
 
         if (!file) {
-            throw Error(`Invalid file '${filename}'`);
+            throw Error(`Invalid file '${yellow(filename)}'`);
         }
 
         const text = await file.async('text');
@@ -196,7 +197,7 @@ export class ZipService {
         url = url.replace('#', '%23');
 
         if (enableLog) {
-            console.log(`Asset download: ${url}`);
+            console.log(`Asset download: ${yellow(url)}`);
         }
 
         return (

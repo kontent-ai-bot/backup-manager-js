@@ -13,11 +13,12 @@ import {
     WebhookContracts,
     CollectionContracts
 } from '@kontent-ai/management-sdk';
-import {HttpService } from '@kontent-ai/core-sdk';
+import { HttpService } from '@kontent-ai/core-sdk';
 
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
-import { defaultRetryStrategy, ItemType } from '../core';
+import { defaultRetryStrategy, ItemType, printProjectInfoToConsoleAsync } from '../core';
 import { version } from '../../package.json';
+import { green, red, yellow } from 'colors';
 
 export class ExportService {
     private readonly client: ManagementClient;
@@ -53,17 +54,34 @@ export class ExportService {
         let projectValidation: string | ProjectContracts.IProjectReportResponseContract;
         let isInconsistentExport: boolean = false;
 
+        await printProjectInfoToConsoleAsync(this.client);
+
         if (!this.config.skipValidation) {
+            console.log(green('Running project validation'));
             projectValidation = await this.exportProjectValidationAsync();
-            isInconsistentExport =  projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0;
-            console.log(`Project validation - ${projectValidation.type_issues.length} type issues, ${projectValidation.variant_issues.length} variant issues`);
+            isInconsistentExport =
+                projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0;
+            console.log(
+                `Project validation results: ${
+                    projectValidation.type_issues.length
+                        ? red(projectValidation.type_issues.length.toString())
+                        : green('0')
+                } type issues, ${
+                    projectValidation.variant_issues.length
+                        ? red(projectValidation.variant_issues.length.toString())
+                        : green('0')
+                } variant issues`
+            );
+            console.log('Projects with type or variant issues might not get imported back successfully');
         } else {
+            console.log(red('Skipping project validation'));
             projectValidation = '{}';
-            console.log('Skipping project validation endpoint');
         }
 
-        const contentTypes = await this.exportContentTypesAsync({ processItem: exportItems.contentType });
+        console.log();
 
+        const contentTypes = await this.exportContentTypesAsync({ processItem: exportItems.contentType });
+        const languages = await this.exportLanguagesAsync();
         const contentItems =
             exportItems.contentItem || exportItems.languageVariant ? await this.exportContentItemsAsync() : [];
 
@@ -76,10 +94,10 @@ export class ExportService {
             contentItems: exportItems.contentItem ? await this.exportContentItemsAsync() : [],
             collections: exportItems.collections ? await this.exportCollectionsAsync() : [],
             languageVariants: exportItems.languageVariant
-                ? await this.exportLanguageVariantsAsync(contentItems.map((m) => m.id))
+                ? await this.exportLanguageVariantsAsync(contentItems, languages)
                 : [],
             assets: exportItems.asset ? await this.exportAssetsAsync() : [],
-            languages: exportItems.language ? await this.exportLanguagesAsync() : [],
+            languages: exportItems.language ? languages : [],
             assetFolders: exportItems.assetFolder ? await this.exportAssetFoldersAsync() : []
         };
 
@@ -208,15 +226,25 @@ export class ExportService {
     }
 
     public async exportLanguageVariantsAsync(
-        contentItemIds: string[]
+        contentItems: ContentItemContracts.IContentItemModelContract[],
+        languages: LanguageContracts.ILanguageModelContract[]
     ): Promise<LanguageVariantContracts.ILanguageVariantModelContract[]> {
         const languageVariants: LanguageVariantContracts.ILanguageVariantModelWithComponentsContract[] = [];
 
-        for (const contentItemId of contentItemIds) {
-            const response = await this.client.listLanguageVariantsOfItem().byItemId(contentItemId).toPromise();
+        for (const contentItem of contentItems) {
+            const response = await this.client.listLanguageVariantsOfItem().byItemId(contentItem.id).toPromise();
 
             languageVariants.push(...response.data.items.map((m) => m._raw));
-            response.data.items.forEach((m) => this.processItem(m.item.id?.toString() ?? '-', 'languageVariant', m));
+
+            for (const languageVariant of response.data.items) {
+                const language = languages.find((m) => m.id === languageVariant.language.id);
+
+                this.processItem(
+                    `${contentItem.name} (${yellow(language?.name ?? '')})`,
+                    'languageVariant',
+                    languageVariant
+                );
+            }
         }
 
         return languageVariants;

@@ -31,10 +31,12 @@ import {
     handleError,
     defaultWorkflowCodename,
     defaultObjectId,
-    defaultRetryStrategy
+    defaultRetryStrategy,
+    printProjectInfoToConsoleAsync
 } from '../core';
 import { IBinaryFile, IImportConfig, IImportSource } from './import.models';
 import { HttpService } from '@kontent-ai/core-sdk';
+import { yellow } from 'colors';
 
 export class ImportService {
     private readonly defaultLanguageId: string = defaultObjectId;
@@ -68,6 +70,8 @@ export class ImportService {
         sourceData: IImportSource
     ): Promise<IImportItemResult<ValidImportContract, ValidImportModel>[]> {
         const importedItems: IImportItemResult<ValidImportContract, ValidImportModel>[] = [];
+        await printProjectInfoToConsoleAsync(this.client);
+
         // log information regarding version mismatch
         if (version !== sourceData.metadata.version) {
             console.warn(
@@ -344,7 +348,9 @@ export class ImportService {
             // activate inactive languages
             if (!existingLanguage.isActive) {
                 console.log(
-                    `Language '${existingLanguage.name}' with codename '${existingLanguage.codename}' is not active in target project. Activating language.`
+                    `Language '${yellow(existingLanguage.name)}' with codename '${yellow(
+                        existingLanguage.codename
+                    )}' is not active in target project. Activating language.`
                 );
 
                 await this.client
@@ -367,13 +373,17 @@ export class ImportService {
 
             if (!defaultExistingLanguage) {
                 throw Error(
-                    `Invalid default existing language. Language with id '${importLanguage.id}' was not found.`
+                    `Invalid default existing language. Language with id '${yellow(importLanguage.id)}' was not found.`
                 );
             }
             if (importLanguage.codename !== defaultExistingLanguage.codename) {
                 // languages do not match, change it
                 console.log(
-                    `Default language '${importLanguage.name}' with codename '${importLanguage.codename}' does not match default language in target project. Changing language codename in target project from '${defaultExistingLanguage.codename}' codename to '${importLanguage.codename}'`
+                    `Default language '${yellow(importLanguage.name)}' with codename '${yellow(
+                        importLanguage.codename
+                    )}' does not match default language in target project. Changing language codename in target project from '${
+                        defaultExistingLanguage.codename
+                    }' codename to '${importLanguage.codename}'`
                 );
 
                 // check if language with imported codename exists
@@ -392,7 +402,9 @@ export class ImportService {
                         .toPromise();
                 } else {
                     console.log(
-                        `Language with codename '${importLanguage.codename}' already exists in target project, skipping update operation`
+                        `Language with codename '${yellow(
+                            importLanguage.codename
+                        )}' already exists in target project, skipping update operation`
                     );
                 }
             }
@@ -408,7 +420,11 @@ export class ImportService {
 
         if (existingLanguage) {
             // no need to import it
-            console.log(`Skipping language '${existingLanguage.name}' with codename '${existingLanguage.codename}'`);
+            console.log(
+                `Skipping language '${yellow(existingLanguage.name)}' with codename '${yellow(
+                    existingLanguage.codename
+                )}'`
+            );
             return 'noImport';
         }
 

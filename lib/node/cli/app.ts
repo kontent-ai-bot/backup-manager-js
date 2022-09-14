@@ -10,6 +10,7 @@ import { ZipService } from '../../zip';
 import { SharedModels } from '@kontent-ai/management-sdk';
 import { FileService } from '../file/file.service';
 import { fileHelper } from '../file/file-helper';
+import { green, red, yellow } from 'colors';
 
 const argv = yargs(process.argv.slice(2))
     .example('kbm --action=backup --apiKey=xxx --projectId=xxx', 'Creates zip backup of Kontent.ai project')
@@ -41,10 +42,7 @@ const argv = yargs(process.argv.slice(2))
     .alias('b', 'baseUrl')
     .describe('b', 'Custom base URL for Management API calls.')
     .alias('s', 'preserveWorkflow')
-    .describe(
-        's',
-        'Indicates if workflow information of language variants is preserved'
-    )
+    .describe('s', 'Indicates if workflow information of language variants is preserved')
     .alias('e', 'exportFilter')
     .describe(
         'e',
@@ -62,7 +60,7 @@ const backupAsync = async (config: ICliFileConfig) => {
         skipValidation: config.skipValidation ?? false,
         onExport: (item) => {
             if (config.enableLog) {
-                console.log(`Exported: ${item.title} | ${item.type}`);
+                console.log(`Exported ${yellow(item.title)} (${green(item.type)})`);
             }
         }
     });
@@ -77,21 +75,11 @@ const backupAsync = async (config: ICliFileConfig) => {
     });
 
     const response = await exportService.exportAllAsync();
-
-    if (response.metadata.isInconsistentExport) {
-        const logFilename: string = getLogFilename(config.zipFilename);
-
-        console.log(`Project contains inconsistencies which may cause errors during project import.`);
-        console.log(`See '${logFilename}' for more details.`);
-    } else {
-        console.log(`Project does not contain any inconsistencies`);
-    }
-
     const zipFileData = await zipService.createZipAsync(response);
 
     await fileService.writeFileAsync(config.zipFilename, zipFileData);
 
-    console.log('Completed');
+    console.log(green('Completed'));
 };
 
 const getLogFilename = (filename: string) => {
@@ -102,7 +90,7 @@ const cleanAsync = async (config: ICliFileConfig) => {
     const cleanService = new CleanService({
         onDelete: (item) => {
             if (config.enableLog) {
-                console.log(`Deleted: ${item.title} | ${item.type}`);
+                console.log(`Deleted: ${yellow(item.title)}`);
             }
         },
         baseUrl: config.baseUrl,
@@ -112,7 +100,7 @@ const cleanAsync = async (config: ICliFileConfig) => {
 
     await cleanService.cleanAllAsync();
 
-    console.log('Completed');
+    console.log(green('Completed'));
 };
 
 const restoreAsync = async (config: ICliFileConfig) => {
@@ -128,7 +116,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
     const importService = new ImportService({
         onImport: (item) => {
             if (config.enableLog) {
-                console.log(`Imported: ${item.title} | ${item.type}`);
+                console.log(`Imported: ${yellow(item.title)} (${green(item.type)})`);
             }
         },
         preserveWorkflow: config.preserveWorkflow,
@@ -152,14 +140,14 @@ const restoreAsync = async (config: ICliFileConfig) => {
     if (canImport(data, config)) {
         await importService.importFromSourceAsync(data);
 
-        console.log('Completed');
+        console.log(green('Completed'));
     } else {
         const logFilename: string = getLogFilename(config.zipFilename);
 
         await fileHelper.createFileInCurrentFolderAsync(logFilename, JSON.stringify(data.validation));
 
         console.log(`Project could not be imported due to data inconsistencies.`);
-        console.log(`A log file '${logFilename}' with issues was created in current folder.`);
+        console.log(`A log file '${yellow(logFilename)}' with issues was created in current folder.`);
         console.log(`To import data regardless of issues, set 'force' config parameter to true`);
     }
 };
@@ -286,11 +274,11 @@ run()
     .then((m) => {})
     .catch((err) => {
         if (err instanceof SharedModels.ContentManagementBaseKontentError) {
-            console.log(`Management API error occured:`, err.message);
+            console.log(`Management API error occured:`, red(err.message));
             for (const validationError of err.validationErrors) {
                 console.log(validationError.message);
             }
         } else {
-            console.log(`There was an error processing your request: `, err);
+            console.log(`There was an error processing your request: `, red(err));
         }
     });

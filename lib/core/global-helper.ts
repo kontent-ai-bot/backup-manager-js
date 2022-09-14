@@ -1,5 +1,6 @@
-import { SharedModels } from '@kontent-ai/management-sdk';
+import { IManagementClient, SharedModels } from '@kontent-ai/management-sdk';
 import { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
+import { yellow } from 'colors';
 
 export const defaultRetryStrategy: IRetryStrategyOptions = {
     addJitter: true,
@@ -7,6 +8,12 @@ export const defaultRetryStrategy: IRetryStrategyOptions = {
     maxAttempts: 3,
     deltaBackoffMs: 1000
 };
+
+export async function printProjectInfoToConsoleAsync(client: IManagementClient<any>): Promise<void> {
+    const projectInformation = (await client.projectInformation().toPromise()).data;
+    console.log(`Project '${yellow(projectInformation.project.name)}'`);
+    console.log(`Environment '${yellow(projectInformation.project.environment)}'\n`);
+}
 
 export function getFilenameWithoutExtension(filename: string): string {
     if (!filename) {

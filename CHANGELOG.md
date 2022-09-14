@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/kontent-ai/backup-manager-js/compare/v4.0.1...v4.1.0) (2022-09-14)
+
+
+### Features
+
+* adds ability to customize retry strategy ([4c3a2a8](https://github.com/kontent-ai/backup-manager-js/commit/4c3a2a8ea9327e4b9247a04061b75c3aedbf7c34))
+* extends console logging with more data & colors ([9085d8d](https://github.com/kontent-ai/backup-manager-js/commit/9085d8dce96efe4dd8908dbfcd0a44a4b5b95827))
+* updates deps ([68817d2](https://github.com/kontent-ai/backup-manager-js/commit/68817d27488cbc527a4cbe5960f429629611fb89))
+
 ### [4.0.1](https://github.com/kontent-ai/backup-manager-js/compare/v4.0.0...v4.0.1) (2022-07-22)
 
 

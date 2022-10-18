@@ -212,3 +212,15 @@ const run = async () => {
 
 run();
 ```
+
+### FAQ
+
+#### I'm getting `` exception
+
+The Node.js limits the maximum header size of HTTP requests. In some cases it may be required for you to increase this limitation to be able to successfully fetch data from Kontent.ai. You can do so by using the `max-http-header-size` option (https://nodejs.org/api/cli.html#--max-http-header-sizesize)
+
+Example script call:
+
+```
+node --max-http-header-size 150000 %USERPROFILE%\AppData\Roaming\npm\node_modules\@kontent-ai\backup-manager\dist\cjs\lib\node\cli\app --action=backup --apiKey=<key> --projectId=<projectId>
+```

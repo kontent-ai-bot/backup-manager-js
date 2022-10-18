@@ -29,9 +29,9 @@
     "build:cjs": "tsc --p tsconfig.cjs.json",
     "build:all": "npm run build:cjs && npm run build:es5 && npm run build:es2015",
     "test:all": "npm run build:all",
-    "test:backup": "npm run build:cjs && cd output && node ../dist/cjs/lib/node/cli/app --config=backup-config.json",
-    "test:clean": "npm run build:cjs && cd output && node ../dist/cjs/lib/node/cli/app --config=clean-config.json",
-    "test:restore": "npm run build:cjs && cd output && node ../dist/cjs/lib/node/cli/app --config=restore-config.json",
+    "test:backup": "npm run build:cjs && cd output && node --max-http-header-size 150000 ../dist/cjs/lib/node/cli/app --max-http-header-size=80000000 --config=backup-config.json ",
+    "test:clean": "npm run build:cjs && cd output && node --max-http-header-size 150000 ../dist/cjs/lib/node/cli/app --config=clean-config.json",
+    "test:restore": "npm run build:cjs && cd output && node --max-http-header-size 150000 ../dist/cjs/lib/node/cli/app --config=restore-config.json",
     "ts-lint:fix": "tslint --project ./tsconfig.json --fix",
     "ts-lint:check": "tslint --project ./tsconfig.json"
   },

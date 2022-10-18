@@ -215,7 +215,7 @@ run();
 
 ### FAQ
 
-#### I'm getting `` exception
+#### I'm getting `Header overflow` exception
 
 The Node.js limits the maximum header size of HTTP requests. In some cases it may be required for you to increase this limitation to be able to successfully fetch data from Kontent.ai. You can do so by using the `max-http-header-size` option (https://nodejs.org/api/cli.html#--max-http-header-sizesize)
 

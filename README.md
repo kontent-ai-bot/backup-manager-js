@@ -36,9 +36,11 @@ Install package globally:
 * contentItem
 * languageVariant
 * language
+* asset
 * assetFolder
 * binaryFile
-* workflows
+* workflow
+* collection
 
 ### Execution
 

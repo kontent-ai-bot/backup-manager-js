@@ -1,5 +1,5 @@
 {
-    "projectId": "x",
+    "environmentId": "x",
     "apiKey": "y",
     "zipFilename": "backup",
     "action": "backup",

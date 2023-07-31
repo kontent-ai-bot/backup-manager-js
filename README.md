@@ -17,12 +17,11 @@ Install package globally:
 
 | Config          | Value                                                                                                               |
 |-----------------|---------------------------------------------------------------------------------------------------------------------|
-| **projectId**       | Id of Kontent.ai project **(required)**                                                                            |
+| **environmentId**       | Id of Kontent.ai project **(required)**                                                                            |
 | **apiKey**           | Content management Api key **(required)**                                                                               |
 | **action**           | Action. Possible values are: `restore` & `backup` & `clean` **(required)**                                              |
 | zipFilename     | Name of zip used for export / restoring data. (e.g. 'kontent-backup').                                            |
 | enableLog       | Indicates if default logging is enabled (useful to indicate progress)       
-| skipValidation       | Skips validation endpoint during project export      
 | force           | If enabled, project will we exported / restored even if there are data inconsistencies. Enabled by default. |
 | baseUrl           | Custom base URL for Management API calls. |
 | preserveWorkflow           | Indicates language variant workflow information should be preserved |
@@ -48,15 +47,15 @@ Install package globally:
 
 To backup a project run:
 
-`kbm --action=backup --apiKey=xxx --projectId=xxx`
+`kbm --action=backup --apiKey=xxx --environmentId=xxx`
 
 To restore a project run:
 
-`kbm --action=restore --apiKey=xxx --projectId=xxx --zipFilename=backupFile`
+`kbm --action=restore --apiKey=xxx --environmentId=xxx --zipFilename=backupFile`
 
 To clean (delete) everything inside a project run:
 
-`kbm --action=clean --apiKey=xxx --projectId=xxx`
+`kbm --action=clean --apiKey=xxx --environmentId=xxx`
 
 To get some help you can use:
 
@@ -68,7 +67,7 @@ Create a `json` configuration file in the folder where you are attempting to run
 
 ```json
 {
-    "projectId": "xxx",
+    "environmentId": "xxx",
     "apiKey": "xxx",
     "zipFilename": "backup",
     "action": "backup",
@@ -94,7 +93,7 @@ import { FileService } from '@kontent-ai/backup-manager/dist/cjs/lib/node';
 const run = async () => {
     const exportService = new ExportService({
         apiKey: 'sourceProjectApiKey',
-        projectId: 'sourceProjectId',
+        environmentId: 'sourceEnvironmentId',
         exportFilter: undefined,
         onExport: item => {
             // called when any content is exported
@@ -167,8 +166,8 @@ const run = async () => {
             taxonomy: item => true,// all taxonomies will be imported
         },
         preserveWorkflow: true, // when enabled, language variants will preserve their workflow information
-        projectId: 'targetProjectId',
-        apiKey: 'targetProjectId',
+        environmentId: 'targetEnvironmentId',
+        apiKey: 'targetEnvironmentId',
         enableLog: true, // shows progress of immport in console
         fixLanguages: true, // backup manager will attempt to create missing languages & map existing languages
         workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000' // id that items are assigned
@@ -200,8 +199,8 @@ const run = async () => {
             console.log(`Deleted: ${item.title} | ${item.type}`);
         },
         fixLanguages: true,
-        projectId: 'targetProjectId',
-        apiKey: 'targetProjectId',
+        environmentId: 'targetEnvironmentId',
+        apiKey: 'targetEnvironmentId',
         enableLog: true
     });
 
@@ -224,5 +223,5 @@ The Node.js limits the maximum header size of HTTP requests. In some cases it ma
 Example script call:
 
 ```
-node --max-http-header-size 150000 %USERPROFILE%\AppData\Roaming\npm\node_modules\@kontent-ai\backup-manager\dist\cjs\lib\node\cli\app --action=backup --apiKey=<key> --projectId=<projectId>
+node --max-http-header-size 150000 %USERPROFILE%\AppData\Roaming\npm\node_modules\@kontent-ai\backup-manager\dist\cjs\lib\node\cli\app --action=backup --apiKey=<key> --environmentId=<environmentId>
 ```

@@ -10,9 +10,9 @@ export const defaultRetryStrategy: IRetryStrategyOptions = {
 };
 
 export async function printProjectInfoToConsoleAsync(client: IManagementClient<any>): Promise<void> {
-    const projectInformation = (await client.projectInformation().toPromise()).data;
-    console.log(`Project '${yellow(projectInformation.project.name)}'`);
-    console.log(`Environment '${yellow(projectInformation.project.environment)}'\n`);
+    const environmentInfo = (await client.environmentInformation().toPromise()).data;
+    console.log(`Project '${yellow(environmentInfo.project.name)}'`);
+    console.log(`Environment '${yellow(environmentInfo.project.environment)}'\n`);
 }
 
 export function getFilenameWithoutExtension(filename: string): string {
@@ -28,14 +28,13 @@ export function getFilenameWithoutExtension(filename: string): string {
 }
 
 export function handleError(error: any | SharedModels.ContentManagementBaseKontentError): void {
-    let result = error;
     if (error instanceof SharedModels.ContentManagementBaseKontentError) {
-        result = {
+        throw {
             Message: `Failed to import data with error: ${error.message}`,
             ErrorCode: error.errorCode,
             RequestId: error.requestId,
             ValidationErrors: `${error.validationErrors.map((m) => m.message).join(', ')}`
         };
     }
-    throw result;
+    throw error;
 }

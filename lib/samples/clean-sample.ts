@@ -6,7 +6,7 @@ const run = async () => {
             // called when any content is deleted
             console.log(`Deleted: ${item.title} | ${item.type}`);
         },
-        projectId: 'targetProjectId',
+        environmentId: 'targetEnvironmentId',
         apiKey: 'targetProjectApiKey'
     });
 

@@ -44,8 +44,8 @@ const run = async () => {
             taxonomy: item => true,// all taxonomies will be imported
         },
         preserveWorkflow: true, // when enabled, workflow of language variants is preserved
-        projectId: 'targetProjectId',
-        apiKey: 'targetProjectId',
+        environmentId: 'targetEnvironmentId',
+        apiKey: 'targetEnvironmentId',
         enableLog: true, // shows progress of immport in console
         fixLanguages: true, // backup manager will attempt to create missing languages & map existing languages
         workflowIdForImportedItems: '00000000-0000-0000-0000-000000000000' // id that items are assigned

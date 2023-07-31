@@ -1,7 +1,13 @@
 import { AssetFolderModels, ManagementClient } from '@kontent-ai/management-sdk';
 import { HttpService } from '@kontent-ai/core-sdk';
 
-import { defaultRetryStrategy, defaultWorkflowCodename, handleError, ItemType, printProjectInfoToConsoleAsync } from '../core';
+import {
+    defaultRetryStrategy,
+    defaultWorkflowCodename,
+    handleError,
+    ItemType,
+    printProjectInfoToConsoleAsync
+} from '../core';
 import { ICleanConfig, ICleanResult } from './clean.models';
 
 export class CleanService {
@@ -10,7 +16,7 @@ export class CleanService {
     constructor(private config: ICleanConfig) {
         this.client = new ManagementClient({
             apiKey: config.apiKey,
-            projectId: config.projectId,
+            environmentId: config.environmentId,
             baseUrl: config.baseUrl,
             httpService: new HttpService({
                 logErrorsToConsole: false
@@ -20,26 +26,22 @@ export class CleanService {
     }
 
     public async cleanAllAsync(): Promise<ICleanResult> {
-        try {
-            await printProjectInfoToConsoleAsync(this.client);
+        await printProjectInfoToConsoleAsync(this.client);
 
-            await this.cleanContentItemsAsync();
-            await this.cleanContentTypesAsync();
-            await this.cleanContentTypeSnippetsAsync();
-            await this.cleanTaxonomiesAsync();
-            await this.cleanAssetsAsync();
-            await this.cleanAssetFoldersAsync();
-            await this.cleanWorkflowsAsync();
+        await this.cleanContentItemsAsync();
+        await this.cleanContentTypesAsync();
+        await this.cleanContentTypeSnippetsAsync();
+        await this.cleanTaxonomiesAsync();
+        await this.cleanAssetsAsync();
+        await this.cleanAssetFoldersAsync();
+        await this.cleanWorkflowsAsync();
 
-            return {
-                metadata: {
-                    projectId: this.config.projectId,
-                    timestamp: new Date()
-                }
-            };
-        } catch (err) {
-            throw err;
-        }
+        return {
+            metadata: {
+                environmentId: this.config.environmentId,
+                timestamp: new Date()
+            }
+        };
     }
 
     public async cleanWorkflowsAsync(): Promise<void> {

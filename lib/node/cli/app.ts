@@ -3,28 +3,26 @@ import { readFileSync } from 'fs';
 import * as yargs from 'yargs';
 
 import { CleanService } from '../../clean';
-import { ICliFileConfig, getFilenameWithoutExtension, CliAction, ItemType } from '../../core';
+import { ICliFileConfig, CliAction, ItemType } from '../../core';
 import { ExportService } from '../../export';
-import { IImportSource, ImportService } from '../../import';
+import { ImportService } from '../../import';
 import { ZipService } from '../../zip';
 import { SharedModels } from '@kontent-ai/management-sdk';
 import { FileService } from '../file/file.service';
-import { fileHelper } from '../file/file-helper';
 import { green, red, yellow } from 'colors';
 
 const argv = yargs(process.argv.slice(2))
-    .example('kbm --action=backup --apiKey=xxx --projectId=xxx', 'Creates zip backup of Kontent.ai project')
+    .example('kbm --action=backup --apiKey=xxx --environmentId=xxx', 'Creates zip backup of Kontent.ai project')
     .example(
-        'kbm --action=restore --apiKey=xxx --projectId=xxx --zipFilename=backupFile',
+        'kbm --action=restore --apiKey=xxx --environmentId=xxx --zipFilename=backupFile',
         'Read given zip file and recreates data in Kontent.ai project'
     )
     .example(
-        'kbm --action=clean --apiKey=xxx --projectId=xxx',
+        'kbm --action=clean --apiKey=xxx --environmentId=xxx',
         'Deletes data from given Kontent.ai project. Use with care, this action is not reversible.'
     )
-    .alias('p', 'projectId')
-    .describe('p', 'ProjectId')
-    .alias('sv', 'skipValidation')
+    .alias('p', 'environmentId')
+    .describe('p', 'EnvironmentId')
     .describe('sv', 'Skips validation endpoint during export')
     .alias('k', 'apiKey')
     .describe('k', 'Management API Key')
@@ -54,10 +52,9 @@ const argv = yargs(process.argv.slice(2))
 const backupAsync = async (config: ICliFileConfig) => {
     const exportService = new ExportService({
         apiKey: config.apiKey,
-        projectId: config.projectId,
+        environmentId: config.environmentId,
         baseUrl: config.baseUrl,
         exportFilter: config.exportFilter,
-        skipValidation: config.skipValidation ?? false,
         onExport: (item) => {
             if (config.enableLog) {
                 console.log(`Exported ${yellow(item.title)} (${green(item.type)})`);
@@ -82,10 +79,6 @@ const backupAsync = async (config: ICliFileConfig) => {
     console.log(green('Completed'));
 };
 
-const getLogFilename = (filename: string) => {
-    return `${getFilenameWithoutExtension(filename)}_log.json`;
-};
-
 const cleanAsync = async (config: ICliFileConfig) => {
     const cleanService = new CleanService({
         onDelete: (item) => {
@@ -94,7 +87,7 @@ const cleanAsync = async (config: ICliFileConfig) => {
             }
         },
         baseUrl: config.baseUrl,
-        projectId: config.projectId,
+        environmentId: config.environmentId,
         apiKey: config.apiKey
     });
 
@@ -122,7 +115,7 @@ const restoreAsync = async (config: ICliFileConfig) => {
         preserveWorkflow: config.preserveWorkflow,
         baseUrl: config.baseUrl,
         fixLanguages: true,
-        projectId: config.projectId,
+        environmentId: config.environmentId,
         apiKey: config.apiKey,
         enableLog: config.enableLog,
         workflowIdForImportedItems: undefined,
@@ -137,19 +130,9 @@ const restoreAsync = async (config: ICliFileConfig) => {
 
     const data = await zipService.extractZipAsync(file);
 
-    if (canImport(data, config)) {
-        await importService.importFromSourceAsync(data);
+    await importService.importFromSourceAsync(data);
 
-        console.log(green('Completed'));
-    } else {
-        const logFilename: string = getLogFilename(config.zipFilename);
-
-        await fileHelper.createFileInCurrentFolderAsync(logFilename, JSON.stringify(data.validation));
-
-        console.log(`Project could not be imported due to data inconsistencies.`);
-        console.log(`A log file '${yellow(logFilename)}' with issues was created in current folder.`);
-        console.log(`To import data regardless of issues, set 'force' config parameter to true`);
-    }
+    console.log(green('Completed'));
 };
 
 const validateConfig = (config?: ICliFileConfig) => {
@@ -157,12 +140,12 @@ const validateConfig = (config?: ICliFileConfig) => {
         throw Error(`Invalid config file`);
     }
 
-    const projectId = config.projectId;
+    const environmentId = config.environmentId;
     const apiKey = config.apiKey;
     const action = config.action;
 
-    if (!projectId) {
-        throw Error('Invalid project id');
+    if (!environmentId) {
+        throw Error('Invalid environment id');
     }
 
     if (!apiKey) {
@@ -190,18 +173,6 @@ const run = async () => {
     }
 };
 
-const canImport = (importData: IImportSource, config: ICliFileConfig) => {
-    if (!importData.metadata.isInconsistentExport) {
-        return true;
-    }
-
-    if (config.force === true) {
-        return true;
-    }
-
-    return false;
-};
-
 const getConfig = async () => {
     const resolvedArgs = await argv;
     const configFilename: string = (await resolvedArgs.config) as string;
@@ -218,8 +189,7 @@ const getConfig = async () => {
     const enableLog: boolean | undefined = (resolvedArgs.enableLog as boolean | undefined) ?? true;
     const force: boolean | undefined = (resolvedArgs.force as boolean | undefined) ?? true;
     const preserveWorkflow: boolean | undefined = (resolvedArgs.preserveWorkflow as boolean | undefined) ?? true;
-    const skipValidation: boolean = (resolvedArgs.skipValidation as boolean | undefined) ?? false;
-    const projectId: string | undefined = resolvedArgs.projectId as string | undefined;
+    const environmentId: string | undefined = resolvedArgs.environmentId as string | undefined;
     const baseUrl: string | undefined = resolvedArgs.baseUrl as string | undefined;
     const zipFilename: string | undefined =
         (resolvedArgs.zipFilename as string | undefined) ?? getDefaultBackupFilename();
@@ -242,7 +212,7 @@ const getConfig = async () => {
         throw Error(`Api key was not provided`);
     }
 
-    if (!projectId) {
+    if (!environmentId) {
         throw Error(`Project id was not provided`);
     }
 
@@ -253,11 +223,10 @@ const getConfig = async () => {
         apiKey,
         enableLog,
         force,
-        projectId,
+        environmentId,
         zipFilename,
         baseUrl,
-        exportFilter: exportFilterMapped,
-        skipValidation
+        exportFilter: exportFilterMapped
     };
 
     return config;

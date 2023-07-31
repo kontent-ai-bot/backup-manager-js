@@ -7,7 +7,6 @@ import {
     LanguageContracts,
     LanguageVariantContracts,
     TaxonomyContracts,
-    ProjectContracts,
     WorkflowContracts
 } from '@kontent-ai/management-sdk';
 import { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
@@ -18,7 +17,7 @@ export interface IImportConfig {
     retryStrategy?: IRetryStrategyOptions;
     workflowIdForImportedItems?: string;
     baseUrl?: string;
-    projectId: string;
+    environmentId: string;
     apiKey: string;
     enableLog: boolean;
     preserveWorkflow: boolean;
@@ -43,7 +42,7 @@ export interface IImportConfig {
 export interface IImportAllResult {
     metadata: {
         timestamp: Date;
-        projectId: string;
+        environmentId: string;
     };
 }
 
@@ -71,7 +70,6 @@ export interface IImportSource {
         workflows: WorkflowContracts.IWorkflowContract[];
     };
     metadata: IPackageMetadata;
-    validation: ProjectContracts.IProjectReportResponseContract;
     assetFolders: AssetFolderContracts.IAssetFolderContract[];
     binaryFiles: IBinaryFile[];
 }

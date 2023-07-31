@@ -7,7 +7,6 @@ import {
     LanguageContracts,
     LanguageVariantContracts,
     TaxonomyContracts,
-    ProjectContracts,
     WorkflowContracts,
     WebhookContracts,
     CollectionContracts
@@ -17,12 +16,11 @@ import { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
 import { IProcessedItem, IPackageMetadata, ItemType } from '../core';
 
 export interface IExportConfig {
-    projectId: string;
+    environmentId: string;
     apiKey: string;
     baseUrl?: string;
     onExport?: (item: IProcessedItem) => void;
     exportFilter?: ItemType[];
-    skipValidation: boolean;
     retryStrategy?: IRetryStrategyOptions;
 }
 
@@ -43,5 +41,4 @@ export interface IExportData {
 export interface IExportAllResult {
     metadata: IPackageMetadata;
     data: IExportData;
-    validation: ProjectContracts.IProjectReportResponseContract | string;
 }

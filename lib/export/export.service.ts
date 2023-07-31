@@ -8,7 +8,6 @@ import {
     AssetContracts,
     LanguageContracts,
     AssetFolderContracts,
-    ProjectContracts,
     WorkflowContracts,
     WebhookContracts,
     CollectionContracts
@@ -18,7 +17,7 @@ import { HttpService } from '@kontent-ai/core-sdk';
 import { IExportAllResult, IExportConfig, IExportData } from './export.models';
 import { defaultRetryStrategy, ItemType, printProjectInfoToConsoleAsync } from '../core';
 import { version } from '../../package.json';
-import { green, red, yellow } from 'colors';
+import { yellow } from 'colors';
 
 export class ExportService {
     private readonly client: ManagementClient;
@@ -26,7 +25,7 @@ export class ExportService {
     constructor(private config: IExportConfig) {
         this.client = new ManagementClient({
             apiKey: config.apiKey,
-            projectId: config.projectId,
+            environmentId: config.environmentId,
             baseUrl: config.baseUrl,
             httpService: new HttpService({
                 logErrorsToConsole: false
@@ -51,32 +50,7 @@ export class ExportService {
             workflows: this.config.exportFilter?.includes('workflow') ?? true
         };
 
-        let projectValidation: string | ProjectContracts.IProjectReportResponseContract;
-        let isInconsistentExport: boolean = false;
-
         await printProjectInfoToConsoleAsync(this.client);
-
-        if (!this.config.skipValidation) {
-            console.log(green('Running project validation'));
-            projectValidation = await this.exportProjectValidationAsync();
-            isInconsistentExport =
-                projectValidation.type_issues.length > 0 || projectValidation.variant_issues.length > 0;
-            console.log(
-                `Project validation results: ${
-                    projectValidation.type_issues.length
-                        ? red(projectValidation.type_issues.length.toString())
-                        : green('0')
-                } type issues, ${
-                    projectValidation.variant_issues.length
-                        ? red(projectValidation.variant_issues.length.toString())
-                        : green('0')
-                } variant issues`
-            );
-            console.log('Projects with type or variant issues might not get imported back successfully');
-        } else {
-            console.log(red('Skipping project validation'));
-            projectValidation = '{}';
-        }
 
         console.log();
 
@@ -105,8 +79,7 @@ export class ExportService {
             metadata: {
                 version,
                 timestamp: new Date(),
-                projectId: this.config.projectId,
-                isInconsistentExport,
+                environmentId: this.config.environmentId,
                 dataOverview: {
                     assetFoldersCount: data.assetFolders.length,
                     assetsCount: data.assets.length,
@@ -121,16 +94,9 @@ export class ExportService {
                     collectionsCount: data.collections.length
                 }
             },
-            validation: projectValidation,
             data
         };
     }
-
-    public async exportProjectValidationAsync(): Promise<ProjectContracts.IProjectReportResponseContract> {
-        const response = await this.client.validateProjectContent().projectId(this.config.projectId).toPromise();
-        return response.rawData;
-    }
-
     public async exportAssetsAsync(): Promise<AssetContracts.IAssetModelContract[]> {
         const response = await this.client
             .listAssets()

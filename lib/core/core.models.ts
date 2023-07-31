@@ -20,7 +20,7 @@ import {
 } from '@kontent-ai/management-sdk';
 
 export interface ICliFileConfig {
-    projectId: string;
+    environmentId: string;
     apiKey: string;
     action: CliAction;
     zipFilename: string;
@@ -29,7 +29,6 @@ export interface ICliFileConfig {
     force: boolean;
     baseUrl?: string;
     exportFilter?: ItemType[];
-    skipValidation?: boolean;
 }
 
 export type CliAction = 'backup' | 'restore' | 'clean';
@@ -92,9 +91,8 @@ export interface IIdCodenameTranslationResult {
 
 export interface IPackageMetadata {
     version: string;
-    projectId: string;
+    environmentId: string;
     timestamp: Date;
-    isInconsistentExport: boolean;
     dataOverview: IPackageDataOverview;
 }
 

@@ -23,7 +23,6 @@ export class ZipService {
     private readonly workflowsName: string = 'workflows.json';
     private readonly webhooksName: string = 'webhooks.json';
     private readonly collectionsName: string = 'collections.json';
-    private readonly validationName: string = 'validation.json';
 
     private readonly httpService: HttpService = new HttpService();
 
@@ -55,7 +54,6 @@ export class ZipService {
             },
             assetFolders: await this.readAndParseJsonFile(unzippedFile, this.assetFoldersName),
             binaryFiles: await this.extractBinaryFilesAsync(unzippedFile, assets),
-            validation: await this.readAndParseJsonFile(unzippedFile, this.validationName),
             metadata: await this.readAndParseJsonFile(unzippedFile, this.metadataName)
         };
 
@@ -74,7 +72,6 @@ export class ZipService {
         }
 
         zip.file(this.contentTypesName, JSON.stringify(exportData.data.contentTypes));
-        zip.file(this.validationName, JSON.stringify(exportData.validation));
         zip.file(this.contentItemsName, JSON.stringify(exportData.data.contentItems));
         zip.file(this.taxonomiesName, JSON.stringify(exportData.data.taxonomies));
         zip.file(this.assetsName, JSON.stringify(exportData.data.assets));

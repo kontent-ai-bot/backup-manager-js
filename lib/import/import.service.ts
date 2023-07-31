@@ -52,7 +52,7 @@ export class ImportService {
         this.client = new ManagementClient({
             apiKey: config.apiKey,
             baseUrl: config.baseUrl,
-            projectId: config.projectId,
+            environmentId: config.environmentId,
             httpService: new HttpService({
                 logErrorsToConsole: false
             }),
@@ -153,7 +153,7 @@ export class ImportService {
 
         // ### Workflows
         if (sourceData.importData.workflows.length) {
-            const importedWorkflows = await this.importWorkflows(sourceData.importData.workflows);
+            const importedWorkflows = await this.importWorkflowsAsync(sourceData.importData.workflows);
             importedItems.push(...importedWorkflows);
         } else {
             if (this.config.enableLog) {
@@ -891,7 +891,11 @@ export class ImportService {
                 .upsertLanguageVariant()
                 .byItemCodename(itemCodename)
                 .byLanguageCodename(languageCodename)
-                .withData((builder) => languageVariant.elements)
+                .withData((builder) => {
+                    return {
+                        elements: languageVariant.elements
+                    };
+                })
                 .toPromise()
                 .then((response) => {
                     importedItems.push({
@@ -967,7 +971,7 @@ export class ImportService {
         return importedItems;
     }
 
-    private async importWorkflows(
+    private async importWorkflowsAsync(
         workflows: WorkflowContracts.IWorkflowContract[]
     ): Promise<IImportItemResult<WorkflowContracts.IWorkflowContract, WorkflowModels.Workflow>[]> {
         const importedItems: IImportItemResult<WorkflowContracts.IWorkflowContract, WorkflowModels.Workflow>[] = [];
@@ -985,7 +989,15 @@ export class ImportService {
                 // remove ids for default steps
                 for (const workflowStep of workflow.steps) {
                     workflowStep.id = undefined as any;
+
+                    for (const transitionTo of workflowStep.transitions_to) {
+                        transitionTo.step.id = undefined;
+                    }
                 }
+
+                workflow.archived_step.id = undefined as any;
+                workflow.published_step.id = undefined as any;
+                workflow.scheduled_step.id = undefined as any;
 
                 await this.client
                     .updateWorkflow()
@@ -1024,7 +1036,6 @@ export class ImportService {
     }
 
     private handleImportError(error: any | SharedModels.ContentManagementBaseKontentError): void {
-        console.log(error);
         handleError(error);
     }
 

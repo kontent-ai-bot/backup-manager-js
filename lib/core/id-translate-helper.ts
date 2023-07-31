@@ -39,10 +39,10 @@ export class IdTranslateHelper {
         text: string,
         items: IImportItemResult<ValidImportContract, ValidImportModel>[]
     ): string {
-        const itemId = { regex: /data-item-id=\"(.*?)\"/g, attr: 'data-item-id' };
-        const assetId = { regex: /data-asset-id=\"(.*?)\"/g, attr: 'data-asset-id' };
-        const imageId = { regex: /data-image-id=\"(.*?)\"/g, attr: 'data-image-id' };
-        const dataId = { regex: /data-id=\"(.*?)\"/g, attr: 'data-id' };
+        const itemId = { regex: /data-item-id="(.*?)"/g, attr: 'data-item-id' };
+        const assetId = { regex: /data-asset-id="(.*?)"/g, attr: 'data-asset-id' };
+        const imageId = { regex: /data-image-id="(.*?)"/g, attr: 'data-image-id' };
+        const dataId = { regex: /data-id="(.*?)"/g, attr: 'data-id' };
 
         text = this.replaceTextWithRegex(itemId.regex, text, itemId.attr, items);
         text = this.replaceTextWithRegex(assetId.regex, text, assetId.attr, items);

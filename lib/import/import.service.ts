@@ -6,6 +6,7 @@ import {
     ContentItemContracts,
     ContentItemModels,
     ContentTypeContracts,
+    ContentTypeElements,
     ContentTypeModels,
     ContentTypeSnippetContracts,
     LanguageContracts,
@@ -189,7 +190,8 @@ export class ImportService {
         if (sourceData.importData.languageVariants) {
             const importedLanguageVariants = await this.importLanguageVariantsAsync(
                 sourceData.importData.languageVariants,
-                importedItems
+                importedItems,
+                sourceData.importData.workflows
             );
             importedItems.push(...importedLanguageVariants);
 
@@ -236,12 +238,28 @@ export class ImportService {
             defaultLanguageCodename
         );
         translationHelper.replaceIdReferencesWithCodenames(source.importData.contentItems, source.importData, {});
+
+        // first replace workflow id in language variant (due to default id being the same in workflow and language)
+        translationHelper.replaceIdReferencesWithCodenames(
+            source.importData.languageVariants.map((m) => m.workflow),
+            source.importData,
+            {},
+            defaultWorkflowCodename
+        );
+        translationHelper.replaceIdReferencesWithCodenames(
+            source.importData.languageVariants.map((m) => m.workflow_step),
+            source.importData,
+            {},
+            defaultWorkflowCodename
+        );
+        // and then rest of ids
         translationHelper.replaceIdReferencesWithCodenames(
             source.importData.languageVariants,
             source.importData,
             {},
             defaultLanguageCodename
         );
+
         translationHelper.replaceIdReferencesWithCodenames(
             source.importData.workflows,
             source.importData,
@@ -621,7 +639,13 @@ export class ImportService {
             await this.client
                 .addContentType()
                 .withData((builder) => {
-                    return contentType as any;
+                    return {
+                        elements: contentType.elements as ContentTypeElements.IElementShared[],
+                        name: contentType.name,
+                        codename: contentType.codename,
+                        content_groups: contentType.content_groups,
+                        external_id: contentType.external_id
+                    };
                 })
                 .toPromise()
                 .then((response) => {
@@ -719,7 +743,7 @@ export class ImportService {
                     })
                     .catch((error) => this.handleImportError(error));
             } else if (isArchived) {
-                const defaultWorkflow = this.getDefaultWorkflow(workflows);
+                const workflow = this.getWorkflow(languageVariant, workflows);
 
                 await this.client
                     .changeWorkflowOfLanguageVariant()
@@ -727,10 +751,10 @@ export class ImportService {
                     .byLanguageCodename(languageCodename)
                     .withData({
                         step_identifier: {
-                            codename: defaultWorkflow.archived_step.codename
+                            codename: workflow.archived_step.codename
                         },
                         workflow_identifier: {
-                            codename: defaultWorkflow.codename
+                            codename: workflow.codename
                         }
                     })
                     .toPromise()
@@ -740,11 +764,9 @@ export class ImportService {
                     .catch((error) => this.handleImportError(error));
             } else {
                 const workflowData = this.getWorkflowAndStepOfLanguageVariant(languageVariant, workflows);
-
                 if (!workflowData) {
                     throw Error(`Invalid workflow data for language variant '${itemCodename}'`);
                 }
-
                 await this.client
                     .changeWorkflowOfLanguageVariant()
                     .byItemCodename(itemCodename)
@@ -819,16 +841,19 @@ export class ImportService {
         return undefined;
     }
 
-    private getDefaultWorkflow(workflows: WorkflowContracts.IWorkflowContract[]): WorkflowContracts.IWorkflowContract {
-        const defaultWorkflow = workflows.find(
-            (m) => m.codename.toLowerCase() === defaultWorkflowCodename.toLowerCase()
+    private getWorkflow(
+        languageVariant: LanguageVariantContracts.ILanguageVariantModelContract,
+        workflows: WorkflowContracts.IWorkflowContract[]
+    ): WorkflowContracts.IWorkflowContract {
+        const workflow = workflows.find(
+            (m) => m.codename.toLowerCase() === languageVariant.workflow.workflow_identifier.codename
         );
 
-        if (!defaultWorkflow) {
-            throw Error(`Missing default workflow`);
+        if (!workflow) {
+            throw Error(`Missing workflow '${languageVariant.workflow.workflow_identifier.codename}'`);
         }
 
-        return defaultWorkflow;
+        return workflow;
     }
 
     private async moveLanguageVariantsToCustomWorkflowStepAsync(
@@ -861,7 +886,8 @@ export class ImportService {
 
     private async importLanguageVariantsAsync(
         languageVariants: LanguageVariantContracts.ILanguageVariantModelContract[],
-        currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[]
+        currentItems: IImportItemResult<ValidImportContract, ValidImportModel>[],
+        workflows: WorkflowContracts.IWorkflowContract[]
     ): Promise<
         IImportItemResult<
             LanguageVariantContracts.ILanguageVariantModelContract,
@@ -892,8 +918,18 @@ export class ImportService {
                 .byItemCodename(itemCodename)
                 .byLanguageCodename(languageCodename)
                 .withData((builder) => {
+                    const workflow = this.getWorkflow(languageVariant, workflows);
+
                     return {
-                        elements: languageVariant.elements
+                        elements: languageVariant.elements,
+                        workflow: {
+                            workflow_identifier: {
+                                codename: workflow.codename
+                            },
+                            step_identifier: {
+                                codename: workflow.steps[0].codename
+                            }
+                        }
                     };
                 })
                 .toPromise()

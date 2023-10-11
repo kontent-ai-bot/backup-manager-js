@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0](https://github.com/kontent-ai/backup-manager-js/compare/v4.1.0...v4.2.0) (2023-10-11)
+
+
+### Features
+
+* updates all dependencies, uses environment instead of project naming convetion, migrates to eslint, removes obsolete project validation ([05f1270](https://github.com/kontent-ai/backup-manager-js/commit/05f1270395f2dcbc076b6bf7c4f50f29bfc252af))
+* updates deps ([436230d](https://github.com/kontent-ai/backup-manager-js/commit/436230d29074fa645e03e55aa51e7fdcb297e086))
+
 ## [4.1.0](https://github.com/kontent-ai/backup-manager-js/compare/v4.0.1...v4.1.0) (2022-09-14)
 
 

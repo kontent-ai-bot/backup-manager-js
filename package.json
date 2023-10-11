@@ -1,6 +1,6 @@
 {
     "name": "@kontent-ai/backup-manager",
-    "version": "4.1.0",
+    "version": "4.2.0",
     "description": "This utility enables backup & restore of Kontent.ai projects",
     "preferGlobal": true,
     "bin": {

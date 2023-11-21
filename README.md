@@ -188,7 +188,6 @@ run();
 ```typescript
 const run = async () => {
     const zipService = new ZipService({
-        filename: 'xxx',
         enableLog: true,
         context: 'node.js' // 'node.js' or 'browser'
     });

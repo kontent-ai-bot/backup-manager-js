@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.1](https://github.com/kontent-ai/backup-manager-js/compare/v4.2.0...v4.2.1) (2023-11-23)
+
+
+### Bug Fixes
+
+* fixes referencing assets by codenames, clears renditions array ([cb1de13](https://github.com/kontent-ai/backup-manager-js/commit/cb1de1331e1dd6e4ba9159055b27fa93ad3ee8d4))
+
 ## [4.2.0](https://github.com/kontent-ai/backup-manager-js/compare/v4.1.0...v4.2.0) (2023-10-11)
 
 

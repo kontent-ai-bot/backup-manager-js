@@ -46,6 +46,12 @@ export class TranslationHelper {
                         const id = (data as any).id;
                         const codename = (data as any).codename;
 
+                        if (data['renditions']) {
+                            // quick fix - do not replace id with codename for assets because that's not yet supported
+                            data['renditions'] = [];
+                            continue;
+                        }
+
                         if (!codename) {
                             let foundCodename: string | undefined;
                             if (id.toLowerCase() === defaultObjectId.toLowerCase() && codenameForDefaultId) {

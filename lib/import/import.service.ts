@@ -846,7 +846,7 @@ export class ImportService {
         workflows: WorkflowContracts.IWorkflowContract[]
     ): WorkflowContracts.IWorkflowContract {
         const workflow = workflows.find(
-            (m) => m.codename.toLowerCase() === languageVariant.workflow.workflow_identifier.codename
+            (m) => m.codename.toLowerCase() === languageVariant.workflow.workflow_identifier.codename?.toLowerCase()
         );
 
         if (!workflow) {

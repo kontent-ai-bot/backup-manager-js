@@ -334,16 +334,17 @@ export class ImportService {
             }
         }
 
+        const languageVariantsToImport: LanguageVariantContracts.ILanguageVariantModelContract[] = [];
         if (this.config.canImport && this.config.canImport.languageVariant) {
             for (const item of source.importData.languageVariants) {
                 const shouldImport = this.config.canImport.languageVariant(item);
-                if (!shouldImport) {
-                    source.importData.languageVariants = source.importData.languageVariants.filter(
-                        (m) => m.item.id !== item.item.id && m.language.id !== item.language.id
-                    );
+
+                if (shouldImport) {
+                    languageVariantsToImport.push(item);
                 }
             }
         }
+        source.importData.languageVariants = languageVariantsToImport;
 
         if (this.config.canImport && this.config.canImport.taxonomy) {
             for (const item of source.importData.taxonomies) {

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.3](https://github.com/kontent-ai/backup-manager-js/compare/v4.2.1...v4.2.3) (2023-12-04)
+
+
+### Bug Fixes
+
+* fixes language variants import condition ([c4039dd](https://github.com/kontent-ai/backup-manager-js/commit/c4039ddbf8051e2422bf55b46978a4e9aafa81ca))
+
 ### [4.2.2](https://github.com/kontent-ai/backup-manager-js/compare/v4.2.1...v4.2.2) (2023-11-27)
 
 updates Kontent.ai SDK version

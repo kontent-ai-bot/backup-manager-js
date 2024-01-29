@@ -1,3 +1,10 @@
+# :warning: Deprecation Notice
+> This package is deprecated and will no longer be maintained.
+>
+> Please, use the new [data-ops](https://github.com/kontent-ai/data-ops) package instead.
+
+---
+
 [![npm version](https://badge.fury.io/js/%40kontent-ai%2Fbackup-manager.svg)](https://badge.fury.io/js/%40kontent-ai%2Fbackup-manager)
 [![Build & Test](https://github.com/kontent-ai/backup-manager-js/actions/workflows/integrate.yml/badge.svg)](https://github.com/kontent-ai/backup-manager-js/actions/workflows/integrate.yml)
 

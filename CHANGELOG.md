@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.4](https://github.com/kontent-ai/backup-manager-js/compare/v4.2.1...v4.2.4) (2024-01-29)
+
+
+### Bug Fixes
+
+* bump follow-redirects from 1.15.3 to 1.15.4 ([66d4a72](https://github.com/kontent-ai/backup-manager-js/commit/66d4a72f8f2a9a152a3c103f83a4a6bce5b96d35))
+
 ### [4.2.3](https://github.com/kontent-ai/backup-manager-js/compare/v4.2.1...v4.2.3) (2023-12-04)
 
 
